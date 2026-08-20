@@ -589,9 +589,9 @@ function setDiff(d){AI.diff=d;AI.q=[];AI.seen=[];if(AI.on)topUpAI();
 function diffShort(){return T().diffShort[AI.diff]}
 function updAIBadge(){/* affichage volontairement désactivé */}
 async function askClaude(prompt){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+  const r=await fetch("https://bamboozle-ai.sam1chirat.workers.dev",{method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    body:JSON.stringify({prompt:prompt})});
   const d=await r.json();
   const txt=(d.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
   return JSON.parse(txt.replace(/```json|```/g,"").trim());
