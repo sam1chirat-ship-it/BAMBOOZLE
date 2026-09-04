@@ -20,6 +20,12 @@
     --ink:#120821; --ink2:#1B0F33; --ink3:#251543;
     --nyellow:#FFD54A; --nviolet:#B26CFF; --norange:#FF7A3D; --nblue:#4FC3F7; --nred:#FF4D5A; --nmint:#4DE6A8;
     --cream:#FFF4E0; --muted:#8E7FA8; --line:rgba(178,108,255,.35);
+    --sat:env(safe-area-inset-top,0px);
+    --sab:env(safe-area-inset-bottom,0px);
+    --sal:env(safe-area-inset-left,0px);
+    --sar:env(safe-area-inset-right,0px);
+    --journal-h:calc(60px + var(--sab));   /* hauteur totale du journal replié */
+    --banner-max-h:80px;                    /* hauteur max estimée du banner */
     --sans:'Bebas Neue','Arial Narrow',Arial,sans-serif;
     --serif:'Lora',Georgia,serif;
     /* rétro-compat */
@@ -33,7 +39,7 @@
   body{background:var(--ink);
     background-image:radial-gradient(ellipse 120% 70% at 50% -10%, #2A1550 0%, var(--ink) 60%),
                      radial-gradient(ellipse 80% 40% at 50% 115%, rgba(178,108,255,.14) 0%, transparent 60%);
-    color:var(--cream);font-family:var(--serif);min-height:100vh;padding-top:env(safe-area-inset-top,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));position:relative;overflow-x:hidden}
+    color:var(--cream);font-family:var(--serif);min-height:100vh;padding-top:var(--sat);padding-left:var(--sal);padding-right:var(--sar);padding-bottom:calc(var(--journal-h) + var(--banner-max-h));position:relative;overflow-x:hidden}
   /* scanlines CRT */
   body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.10;
     background:repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.6) 2px 3px)}
@@ -149,11 +155,27 @@
   .wheelres .big{font-family:var(--sans);font-size:28px;color:var(--norange);letter-spacing:.08em;text-transform:uppercase;
     text-shadow:0 0 10px rgba(255,122,61,.8),0 0 26px rgba(255,122,61,.4)}
 
-  /* ---------- timer ---------- */
+  /* ---------- timer (incr. 5 juicy : barre qui se vide + palier warn/hot/final) ---------- */
   .timer{font-family:var(--sans);font-size:56px;text-align:center;color:var(--nblue);margin:8px 0;font-variant-numeric:tabular-nums;letter-spacing:.06em;
     text-shadow:0 0 10px rgba(79,195,247,.85),0 0 30px rgba(79,195,247,.45)}
-  .timer.hot{color:var(--nred);text-shadow:0 0 10px rgba(255,77,90,.9),0 0 32px rgba(255,77,90,.5);animation:pulse .5s infinite}
+  .timer .timer-num{display:block;line-height:1;transition:color .25s ease,text-shadow .25s ease}
+  .timer .timer-bar{position:relative;height:8px;border-radius:4px;background:rgba(79,195,247,.14);
+    margin:10px auto 0;max-width:280px;overflow:hidden}
+  .timer .timer-bar i{display:block;height:100%;width:100%;border-radius:4px;
+    background:var(--nblue);box-shadow:0 0 10px rgba(79,195,247,.85);
+    transition:width 1s linear,background-color .3s ease,box-shadow .3s ease}
+  .timer.warn .timer-num{color:var(--norange);text-shadow:0 0 10px rgba(255,122,61,.85),0 0 30px rgba(255,122,61,.45)}
+  .timer.warn .timer-bar i{background:var(--norange);box-shadow:0 0 12px rgba(255,122,61,.9)}
+  .timer.hot .timer-num{color:var(--nred);text-shadow:0 0 10px rgba(255,77,90,.95),0 0 32px rgba(255,77,90,.55);animation:pulse .38s ease-in-out infinite}
+  .timer.hot .timer-bar i{background:var(--nred);box-shadow:0 0 14px rgba(255,77,90,1);
+    animation:barPulse .38s ease-in-out infinite alternate}
+  .timer.final .timer-num{animation-duration:.22s}
+  .timer.final .timer-bar i{animation-duration:.22s;box-shadow:0 0 20px rgba(255,77,90,1)}
   @keyframes pulse{50%{opacity:.35}}
+  @keyframes barPulse{to{opacity:.55;box-shadow:0 0 22px rgba(255,77,90,1)}}
+  @media (prefers-reduced-motion: reduce){
+    .timer.hot .timer-num,.timer.hot .timer-bar i,.timer.final .timer-num,.timer.final .timer-bar i{animation:none}
+  }
 
   /* ---------- overlay ---------- */
   #overlay{position:fixed;inset:0;background:rgba(10,4,20,.94);display:none;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:20px;padding:20px;text-align:center}
@@ -181,9 +203,9 @@
   .mrow button{min-width:0}
 
   /* ---------- journal ---------- */
-  #logwrap{position:fixed;bottom:0;left:0;right:0;background:rgba(18,8,33,.96);border-top:1.5px solid var(--line);padding:8px 14px calc(10px + env(safe-area-inset-bottom,0px));max-height:calc(60px + env(safe-area-inset-bottom,0px));overflow:hidden;z-index:40;cursor:pointer;transition:max-height .2s;
+  #logwrap{position:fixed;bottom:0;left:0;right:0;background:rgba(18,8,33,.96);border-top:1.5px solid var(--line);padding:8px 14px calc(10px + var(--sab));max-height:var(--journal-h);overflow:hidden;z-index:40;cursor:pointer;transition:max-height .2s;
     box-shadow:0 -4px 24px rgba(178,108,255,.15)}
-  #logwrap.open{max-height:180px;overflow-y:auto}
+  #logwrap.open{max-height:calc(180px + var(--sab));overflow-y:auto}
   #logwrap::before{content:"▮ " attr(data-closed);display:block;font-family:var(--sans);font-size:11px;color:var(--nviolet);letter-spacing:.22em;margin-bottom:5px;
     text-shadow:0 0 8px rgba(178,108,255,.7);animation:cursorblink 1.2s steps(2,start) infinite}
   #logwrap.open::before{content:"▮ " attr(data-open)}
@@ -248,6 +270,22 @@
   .pod.lose{animation:podLose 1.4s ease-out}
   @keyframes podWin{0%{box-shadow:0 0 0 rgba(255,213,74,0)}18%{box-shadow:0 0 50px rgba(255,213,74,1),inset 0 0 34px rgba(255,213,74,.5);transform:translateY(-6px) scale(1.04)}55%{box-shadow:0 0 42px rgba(255,213,74,.85),inset 0 0 28px rgba(255,213,74,.4);transform:translateY(-3px) scale(1.02)}100%{box-shadow:0 0 14px rgba(178,108,255,.12);transform:none}}
   @keyframes podLose{0%{box-shadow:0 0 0 rgba(255,77,90,0)}12%{box-shadow:0 0 50px rgba(255,77,90,1),inset 0 0 30px rgba(255,77,90,.5);transform:translateX(-5px)}22%{transform:translateX(5px)}32%{transform:translateX(-3px)}42%{transform:translateX(3px);box-shadow:0 0 44px rgba(255,77,90,.9),inset 0 0 26px rgba(255,77,90,.45)}70%{box-shadow:0 0 30px rgba(255,77,90,.5);transform:none}100%{box-shadow:0 0 14px rgba(178,108,255,.12);transform:none}}
+  /* --- Transition entre tours : le pod entrant s'illumine, le sortant s'estompe (incr. 4 juicy) --- */
+  .pod.entering{animation:podEnter .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:.12s}
+  .pod.receding{animation:podRecede .55s ease-out both}
+  @keyframes podEnter{
+    0%{box-shadow:0 0 0 rgba(255,213,74,0);transform:translateY(0) scale(1);opacity:.75}
+    45%{transform:translateY(-4px) scale(1.03);opacity:1;box-shadow:0 0 22px rgba(255,213,74,.45)}
+    100%{box-shadow:0 0 18px rgba(255,213,74,.35),inset 0 0 20px rgba(255,213,74,.08);transform:translateY(-2px);opacity:1}
+  }
+  @keyframes podRecede{
+    0%{opacity:1;filter:saturate(1)}
+    40%{opacity:.5;filter:saturate(.55)}
+    100%{opacity:1;filter:saturate(1)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .pod.entering,.pod.receding{animation:none}
+  }
 
   /* jeton de points qui s'envole du podium */
   .fx-pts{position:absolute;left:50%;top:22px;transform:translateX(-50%);z-index:9;
@@ -261,6 +299,22 @@
     100%{opacity:0;transform:translateX(-50%) translateY(-46px) scale(.95)}}
 
   /* rampe de spots au-dessus du plateau (overlay d'événement) */
+  /* --- Ampoules de marquee : cascade lumineuse sur le contour d'une célébration --- */
+  .marquee-cascade{position:absolute;inset:16px;pointer-events:none;z-index:1}
+  .marquee-cascade i{position:absolute;width:14px;height:14px;border-radius:50%;
+    background:var(--nyellow);box-shadow:0 0 12px rgba(255,213,74,.9),0 0 22px rgba(255,213,74,.55);
+    opacity:0;transform:translate(-50%,-50%) scale(.4);
+    animation:mBulb 1.1s ease-out forwards}
+  @keyframes mBulb{
+    0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+    15%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}
+    55%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+    100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .marquee-cascade i{animation:none;opacity:.8;transform:translate(-50%,-50%) scale(1)}
+  }
+
   #overlay.show::before{content:"";position:absolute;inset:0;pointer-events:none;
     background:conic-gradient(from 200deg at 50% -10%, transparent 0deg, rgba(255,213,74,.12) 18deg, transparent 36deg,
       transparent 60deg, rgba(79,195,247,.10) 78deg, transparent 96deg,
@@ -275,7 +329,7 @@
   @keyframes vu{from{height:5px;opacity:.5}to{height:26px;opacity:1}}
 
   /* barre supérieure */
-  .topbar{position:relative;z-index:4;display:flex;justify-content:flex-end;gap:8px;padding:10px 12px 0;max-width:560px;margin:0 auto}
+  .topbar{position:relative;z-index:4;display:flex;justify-content:flex-end;gap:8px;padding:calc(10px + var(--sat)) 12px 0;max-width:560px;margin:0 auto}
   .topbar button{flex:0 0 auto;min-width:0;padding:6px 12px;font-size:13px}
 
   /* ============ ÉCRAN DE LANCEMENT : LE B QUI GRÉSILLE ============ */
@@ -470,7 +524,7 @@
   /* ============ ANIMATIONS « DUOLINGO » ADAPTÉES ============ */
   button{border-bottom-width:5px;transition:transform .06s,border-bottom-width .06s,margin-bottom .06s,box-shadow .2s}
   button:active{transform:translateY(3px);border-bottom-width:2px;margin-bottom:3px}
-  #banner{position:fixed;left:0;right:0;bottom:36px;z-index:87;padding:14px 18px 16px;
+  #banner{position:fixed;left:0;right:0;bottom:var(--journal-h);z-index:87;padding:14px 18px 16px;
     display:flex;align-items:center;gap:14px;transform:translateY(115%);
     transition:transform .34s cubic-bezier(.2,1.45,.4,1);pointer-events:none}
   #banner.show{transform:none}
@@ -568,6 +622,14 @@
   @media (prefers-reduced-motion: reduce){
     *,*::before,*::after{animation:none !important}
   }
+  /* --- Enfoncement au contact : retour tactile visuel (incr. 2 juicy) --- */
+  button, [role="button"], label.b-ghost{transition:transform 80ms cubic-bezier(0.34,1.56,0.64,1)}
+  button:active, [role="button"]:active, label.b-ghost:active{transform:scale(.96)}
+  @media (prefers-reduced-motion: reduce){
+    button, [role="button"], label.b-ghost{transition:none}
+    button:active, [role="button"]:active, label.b-ghost:active{transform:none}
+  }
+
   /* --- Focus clavier visible + équilibrage du texte des boutons --- */
   :where(button,[role=button],input,select,textarea,[tabindex]):focus-visible{
     outline:2px solid var(--nyellow);outline-offset:3px;border-radius:6px}
@@ -632,7 +694,7 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  goodBonus:n=>"Défi bonus relevé — "+n+" ne fait pas les choses à moitié.",
  comboT:c=>"EN FEU ! ×"+c,comboS:(n,g,b)=>n+" enchaîne sans faute — +"+g+" points"+(b?" avec le défi":"")+".",
  badT:l=>"RATÉ… −"+l,badS:k=>"Série d'échecs : "+k+"/3 avant le Bamboozle.",
- climbLog:(n,r,m)=>"🪜 <b>"+n+"</b> grimpe l'Échelle de la Chance : barreau "+r+"/"+m+".",
+ climbT:(r,m)=>"BARREAU "+r+" / "+m,climbLog:(n,r,m)=>"🪜 <b>"+n+"</b> grimpe l'Échelle de la Chance : barreau "+r+"/"+m+".",
  slipLog:(n,r)=>"🪜 <b>"+n+"</b> glisse d'un barreau (retour au "+r+").",
  ladderBtn:"🪜 +2 barreaux — continuer",
  stHutT:"La Cabane Dorée",stHutS:n=>n+" passe devant la Golden Mudhut et s'y abrite deux tours : points intouchables, mais les gains continuent de tomber normalement.",
@@ -838,7 +900,7 @@ en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EX
  goodBonus:n=>"Bonus challenge pulled off — "+n+" doesn't do things by halves.",
  comboT:c=>"ON FIRE! ×"+c,comboS:(n,g,b)=>n+" is on a roll — +"+g+" points"+(b?" with the challenge":"")+".",
  badT:l=>"MISSED… −"+l,badS:k=>"Miss streak: "+k+"/3 before the Bamboozle.",
- climbLog:(n,r,m)=>"🪜 <b>"+n+"</b> climbs the Ladder of Chance: rung "+r+"/"+m+".",
+ climbT:(r,m)=>"RUNG "+r+" / "+m,climbLog:(n,r,m)=>"🪜 <b>"+n+"</b> climbs the Ladder of Chance: rung "+r+"/"+m+".",
  slipLog:(n,r)=>"🪜 <b>"+n+"</b> slips down a rung (back to "+r+").",
  ladderBtn:"🪜 +2 rungs — continue",
  stHutT:"The Golden Mudhut",stHutS:n=>n+" passes the Golden Mudhut and shelters there for two rounds: points untouchable, and gains keep coming in full.",
@@ -1119,7 +1181,7 @@ I18N.it=Object.assign({},I18N.en,{
  tttWin:(n,sc)=>"<b>"+n+"</b> sopravvive al Time Torturing Tree: +200 ("+sc+")!",
  tttWT:"🌳 Albero<br>battuto!",tttWS:"3 su 3 nei tempi. +200 punti.",
  tttTime:"Tempo scaduto all'Albero della Tortura!",tttMiss:"Un errore all'Albero della Tortura!",
- climbLog:(n,r,m)=>"🪜 <b>"+n+"</b> sale la Scala della Sorte: piolo "+r+"/"+m+".",
+ climbT:(r,m)=>"PIOLO "+r+" / "+m,climbLog:(n,r,m)=>"🪜 <b>"+n+"</b> sale la Scala della Sorte: piolo "+r+"/"+m+".",
  slipLog:(n,r)=>"🪜 <b>"+n+"</b> scivola di un piolo (torna al "+r+").",
  stHutT:"La Capanna Dorata",
  stHutS:n=>n+" passa davanti alla Golden Mudhut e ci si ripara per due turni: punti intoccabili, guadagni pieni.",
@@ -1603,6 +1665,8 @@ function climbLadder(p,n){
     for(let r=before+1;r<=p.rung;r++){
       if(STATIONS[r]&&!p.seen[r]){p.pending=r;p.seen[r]=true}
     }
+    /* célébration légère si aucune station n'est en attente (sinon handleStation prendra le relais) */
+    if(!p.pending)celebrateMilestone("⤴️",T().climbT(p.rung,LADDER),p.name);
   }else log(T().slipLog(p.name,p.rung));
 }
 /* une station en attente est traitée avant de passer la main */
@@ -2037,11 +2101,21 @@ function finalEnd(win,why){
 
 /* =============== TIMER =============== */
 let TI=null;
-function startTimer(sec,onEnd){stopTimer();S.timer=sec;updTimer();
+function startTimer(sec,onEnd){stopTimer();S.timer=sec;S.timerMax=sec;updTimer();
   TI=setInterval(()=>{S.timer--;updTimer();if(S.timer<=10&&S.timer>0)sfx("tick");if(S.timer<=0){stopTimer();onEnd()}},1000)}
 function stopTimer(){if(TI){clearInterval(TI);TI=null}}
 function updTimer(){const e=document.getElementById("timer");if(!e)return;
-  e.textContent=S.timer+" s";e.classList.toggle("hot",S.timer<=10)}
+  const total=S.timerMax||1;
+  const pct=Math.max(0,Math.min(100,(S.timer/total)*100));
+  if(!e.querySelector(".timer-bar")){
+    e.innerHTML='<div class="timer-num"></div><div class="timer-bar"><i></i></div>';
+  }
+  e.querySelector(".timer-num").textContent=S.timer+" s";
+  e.querySelector(".timer-bar > i").style.width=pct+"%";
+  e.classList.toggle("warn",S.timer<=10&&S.timer>5);
+  e.classList.toggle("hot",S.timer<=5&&S.timer>0);
+  e.classList.toggle("final",S.timer<=2&&S.timer>0);
+}
 
 /* =============== UI GÉNÉRIQUE =============== */
 function meterHTML(){let h='<div class="meter">';for(let i=0;i<11;i++)h+='<i style="animation-delay:'+(i*0.07).toFixed(2)+'s;animation-duration:'+(0.4+Math.random()*0.35).toFixed(2)+'s"></i>';return h+'</div>'}
@@ -2049,8 +2123,32 @@ function showEvent(icon,title,sub,anim,after,confetti){
   hideBanner();
   const o=document.getElementById("overlay");
   o.innerHTML='<div class="evt '+anim+'"><div class="evt-ico">'+icon+'</div><div class="evt-title">'+title+'</div></div>'+(confetti?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" style="max-width:240px" onclick="hideStamp()">'+T().cont+'</button>';
-  if(confetti){dropConfetti(o);sfx("fanfare")}
+  if(confetti){marqueeCascade(o);sfx("fanfare")}
   o.classList.add("show");o._after=after;
+}
+function marqueeCascade(o){
+  const wrap=document.createElement("div");
+  wrap.className="marquee-cascade";
+  const N=24;  /* 6 ampoules par côté */
+  for(let i=0;i<N;i++){
+    const b=document.createElement("i");
+    const p=(i+0.5)/N;
+    let x,y;
+    if(p<0.25){x=p*4;y=0}
+    else if(p<0.5){x=1;y=(p-0.25)*4}
+    else if(p<0.75){x=1-(p-0.5)*4;y=1}
+    else{x=0;y=1-(p-0.75)*4}
+    b.style.left=(x*100)+"%";
+    b.style.top=(y*100)+"%";
+    b.style.animationDelay=(i*40)+"ms";
+    wrap.appendChild(b);
+  }
+  o.appendChild(wrap);
+  setTimeout(()=>wrap.remove(),1800);
+}
+function celebrateMilestone(icon,title,name){
+  showEvent(icon,title,name,"climb",null,true);
+  setTimeout(()=>{const o=document.getElementById("overlay");if(o&&o.classList.contains("show"))hideStamp()},1200);
 }
 function dropConfetti(o){
   const cols=["#FFD54A","#FF7A3D","#4FC3F7","#FFF4E0","#FF4D5A","#4DE6A8"];
@@ -2379,6 +2477,16 @@ const VIB={
   pond:[30,40,60,40,120],          win:[60,50,60,50,250],
   card:[18]
 };
+/* Retour haptique léger sur chaque clic de bouton de gameplay (incr. 2 juicy).
+   Filtré pour ne pas vibrer sur les petits boutons topbar (langue, son, save, table). */
+document.addEventListener("pointerdown",e=>{
+  const b=e.target.closest("button,[role=button]");
+  if(!b)return;
+  if(b.classList.contains("b-gold")||b.classList.contains("b-mg")||b.classList.contains("b-cy")||b.classList.contains("b-rd")){
+    buzz([8]);
+  }
+},{passive:true});
+
 function fx(kind){
   buzz(VIB[kind]||[25]);
   if(kind==="jackpot"||kind==="win")sfx("fanfare");
@@ -2404,7 +2512,7 @@ function banner(kind,icon,title,sub,ms){
 function hideBanner(){const e=document.getElementById("banner");if(e)e.classList.remove("show");clearTimeout(BT)}
 
 /* =============== EFFETS DE PLATEAU =============== */
-let PREV=[];
+let PREV=[],PREV_CUR=null;
 function animScore(el,from,to){
   if(from===to){el.textContent=fmt(to);return}
   /* ressort : le compteur dépasse légèrement puis revient — c'est ce dépassement
@@ -2465,6 +2573,13 @@ function renderPodiums(){
   });
   if(bigGain>=200)sfx("fanfare");else if(bigGain>0)sfx("good");
   if(bigLoss>=150)sfx("doom");else if(bigLoss>0)sfx("bad");
+  /* Transition entre tours : illumine le nouveau, estompe l'ancien */
+  if(PREV_CUR!==null&&S.cur!==PREV_CUR&&S.screen==="game"){
+    const newPod=pods[S.cur],oldPod=pods[PREV_CUR];
+    if(newPod){newPod.classList.add("entering");setTimeout(()=>newPod?.classList.remove("entering"),720);}
+    if(oldPod&&oldPod!==newPod){oldPod.classList.add("receding");setTimeout(()=>oldPod?.classList.remove("receding"),620);}
+  }
+  PREV_CUR=S.cur;
   PREV=S.players.map(p=>p.score);
 }
 function render(){
