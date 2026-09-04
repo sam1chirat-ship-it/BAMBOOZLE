@@ -82,7 +82,7 @@
   #podiums.n9 .pod{padding:6px 4px 5px;border-radius:10px}
   #podiums.n9 .pod .nm{font-size:11px;letter-spacing:.03em}
   #podiums.n9 .pod .sc{font-size:22px}
-  #podiums.n9 .fx-pts{font-size:19px;top:18px}
+  #podiums.n9 .fx-pts{font-size:28px;top:16px}
   .pod{min-width:0;background:rgba(27,15,51,.72);border:1.5px solid var(--line);border-radius:12px;padding:10px 8px 8px;text-align:center;position:relative;cursor:pointer;
     box-shadow:0 0 14px rgba(178,108,255,.12), inset 0 0 18px rgba(178,108,255,.06);transition:transform .15s,border-color .15s,box-shadow .2s}
   .pod.active{border-color:var(--nyellow);box-shadow:0 0 18px rgba(255,213,74,.35), inset 0 0 20px rgba(255,213,74,.08);transform:translateY(-2px)}
@@ -92,7 +92,9 @@
   .pod .nm{font-family:var(--sans);font-size:16px;letter-spacing:.1em;color:var(--cream2);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pod .sc{font-family:var(--sans);font-size:38px;color:var(--nyellow);line-height:1.05;margin-top:2px;
     text-shadow:0 0 6px rgba(255,213,74,.8),0 0 18px rgba(255,213,74,.4)}
-  .pod.active .sc{color:var(--cream);text-shadow:0 0 6px rgba(255,244,224,.9),0 0 20px rgba(255,213,74,.7);animation:buzz 3.4s linear infinite}
+  .pod.active .sc{color:var(--cream);text-shadow:0 0 6px rgba(255,244,224,.9),0 0 20px rgba(255,213,74,.7)}
+  .pod .sc.gain{color:var(--nmint) !important;text-shadow:0 0 8px rgba(77,230,168,.95),0 0 26px rgba(77,230,168,.6);transition:color .2s .5s,text-shadow .2s .5s}
+  .pod .sc.loss{color:var(--nred) !important;text-shadow:0 0 8px rgba(255,77,90,.95),0 0 26px rgba(255,77,90,.6);transition:color .2s .5s,text-shadow .2s .5s}
   @keyframes buzz{0%,91%,94%,100%{transform:none;opacity:1}92%{transform:translateX(.6px);opacity:.85}93%{transform:translateX(-.6px)}}
   .badges{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:18px;margin-top:5px}
   .bdg{font-family:var(--sans);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:transparent;border:1px solid var(--line);border-radius:999px;padding:1px 7px;color:var(--cream2)}
@@ -179,7 +181,7 @@
   .mrow button{min-width:0}
 
   /* ---------- journal ---------- */
-  #logwrap{position:fixed;bottom:0;left:0;right:0;background:rgba(18,8,33,.96);border-top:1.5px solid var(--line);padding:8px 14px calc(10px + env(safe-area-inset-bottom,0px));max-height:calc(36px + env(safe-area-inset-bottom,0px));overflow:hidden;z-index:40;cursor:pointer;transition:max-height .2s;
+  #logwrap{position:fixed;bottom:0;left:0;right:0;background:rgba(18,8,33,.96);border-top:1.5px solid var(--line);padding:8px 14px calc(10px + env(safe-area-inset-bottom,0px));max-height:calc(60px + env(safe-area-inset-bottom,0px));overflow:hidden;z-index:40;cursor:pointer;transition:max-height .2s;
     box-shadow:0 -4px 24px rgba(178,108,255,.15)}
   #logwrap.open{max-height:180px;overflow-y:auto}
   #logwrap::before{content:"▮ " attr(data-closed);display:block;font-family:var(--sans);font-size:11px;color:var(--nviolet);letter-spacing:.22em;margin-bottom:5px;
@@ -189,6 +191,8 @@
   #logwrap .lg{font-size:12.5px;color:var(--muted);line-height:1.5}
   #logwrap .lg b{color:var(--cream2)}
   #logwrap .lg:first-child{color:var(--cream)}
+  #logwrap:not(.open) .lg{display:none}
+  #logwrap:not(.open) .lg:first-child{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #logwrap .lg:first-child b{color:var(--nyellow);text-shadow:0 0 6px rgba(255,213,74,.6)}
   .dare{display:flex;justify-content:space-between;align-items:center;gap:8px;background:rgba(37,21,67,.85);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:6px;font-size:13.5px;line-height:1.35}
   .dare .dbt{display:flex;gap:5px;flex:0 0 auto}
@@ -240,15 +244,15 @@
   @keyframes dropIn{from{transform:translateY(-18px) scale(.97);opacity:0}to{transform:none;opacity:1}}
 
   /* podium : flash de gain / de perte */
-  .pod.win{animation:podWin .7s ease-out}
-  .pod.lose{animation:podLose .7s ease-out}
-  @keyframes podWin{0%{box-shadow:0 0 0 rgba(255,213,74,0)}25%{box-shadow:0 0 34px rgba(255,213,74,.95),inset 0 0 26px rgba(255,213,74,.4);transform:translateY(-5px) scale(1.03)}100%{box-shadow:0 0 14px rgba(178,108,255,.12)}}
-  @keyframes podLose{0%{box-shadow:0 0 0 rgba(255,77,90,0)}20%{box-shadow:0 0 30px rgba(255,77,90,.9),inset 0 0 22px rgba(255,77,90,.35);transform:translateX(-4px)}45%{transform:translateX(4px)}70%{transform:translateX(-2px)}100%{box-shadow:0 0 14px rgba(178,108,255,.12);transform:none}}
+  .pod.win{animation:podWin 1.4s ease-out}
+  .pod.lose{animation:podLose 1.4s ease-out}
+  @keyframes podWin{0%{box-shadow:0 0 0 rgba(255,213,74,0)}18%{box-shadow:0 0 50px rgba(255,213,74,1),inset 0 0 34px rgba(255,213,74,.5);transform:translateY(-6px) scale(1.04)}55%{box-shadow:0 0 42px rgba(255,213,74,.85),inset 0 0 28px rgba(255,213,74,.4);transform:translateY(-3px) scale(1.02)}100%{box-shadow:0 0 14px rgba(178,108,255,.12);transform:none}}
+  @keyframes podLose{0%{box-shadow:0 0 0 rgba(255,77,90,0)}12%{box-shadow:0 0 50px rgba(255,77,90,1),inset 0 0 30px rgba(255,77,90,.5);transform:translateX(-5px)}22%{transform:translateX(5px)}32%{transform:translateX(-3px)}42%{transform:translateX(3px);box-shadow:0 0 44px rgba(255,77,90,.9),inset 0 0 26px rgba(255,77,90,.45)}70%{box-shadow:0 0 30px rgba(255,77,90,.5);transform:none}100%{box-shadow:0 0 14px rgba(178,108,255,.12);transform:none}}
 
   /* jeton de points qui s'envole du podium */
-  .fx-pts{position:absolute;left:50%;top:26px;transform:translateX(-50%);z-index:9;
-    font-family:var(--sans);font-size:26px;letter-spacing:.06em;pointer-events:none;white-space:nowrap;
-    animation:ptsUp 1.15s cubic-bezier(.2,.9,.3,1) forwards}
+  .fx-pts{position:absolute;left:50%;top:22px;transform:translateX(-50%);z-index:9;
+    font-family:var(--sans);font-size:40px;letter-spacing:.06em;pointer-events:none;white-space:nowrap;
+    animation:ptsUp 1.8s cubic-bezier(.2,.9,.3,1) forwards}
   .fx-pts.up{color:var(--nyellow);text-shadow:0 0 10px rgba(255,213,74,.95),0 0 26px rgba(255,213,74,.6)}
   .fx-pts.down{color:var(--nred);text-shadow:0 0 10px rgba(255,77,90,.95),0 0 26px rgba(255,77,90,.6)}
   @keyframes ptsUp{0%{opacity:0;transform:translateX(-50%) translateY(10px) scale(.6)}
@@ -2405,8 +2409,10 @@ function animScore(el,from,to){
   if(from===to){el.textContent=fmt(to);return}
   /* ressort : le compteur dépasse légèrement puis revient — c'est ce dépassement
      d'un cheveu qui fait toute la différence à l'œil */
+  const cls=(to>from)?"gain":"loss";
+  el.classList.add(cls);
   springTo(from,to,{stiffness:150,damping:14},v=>{el.textContent=fmt(Math.round(v))},
-    ()=>{el.textContent=fmt(to)});
+    ()=>{el.textContent=fmt(to);setTimeout(()=>el.classList.remove("gain","loss"),750)});
   const pod=el.closest(".pod");
   if(pod)springTo(0,1,{stiffness:220,damping:11},k=>{
     pod.style.transform="translateY("+(-6*Math.sin(k*Math.PI)).toFixed(2)+"px) scale("+(1+0.05*Math.sin(k*Math.PI)).toFixed(3)+")";
@@ -2416,7 +2422,7 @@ function floatPts(pod,delta){
   const e=document.createElement("div");
   e.className="fx-pts "+(delta>0?"up":"down");
   e.textContent=(delta>0?"+":"−")+fmt(Math.abs(delta));
-  pod.appendChild(e);setTimeout(()=>e.remove(),1300);
+  pod.appendChild(e);setTimeout(()=>e.remove(),2000);
 }
 
 /* =============== RENDU =============== */
