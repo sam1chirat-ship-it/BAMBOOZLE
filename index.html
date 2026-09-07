@@ -40,7 +40,7 @@
   body{background:var(--ink);
     background-image:radial-gradient(ellipse 120% 70% at 50% -10%, #2A1550 0%, var(--ink) 60%),
                      radial-gradient(ellipse 80% 40% at 50% 115%, rgba(178,108,255,.14) 0%, transparent 60%);
-    color:var(--cream);font-family:var(--serif);min-height:100vh;padding-top:var(--sat);padding-left:var(--sal);padding-right:var(--sar);padding-bottom:0;position:relative;overflow-x:hidden}
+    color:var(--cream);font-family:var(--serif);min-height:100vh;padding-top:max(20px,var(--sat));padding-left:var(--sal);padding-right:var(--sar);padding-bottom:0;position:relative;overflow-x:hidden}
   /* scanlines CRT */
   body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.10;
     background:repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0,0,0,.6) 2px 3px)}
@@ -337,7 +337,7 @@
   @keyframes vu{from{height:5px;opacity:.5}to{height:26px;opacity:1}}
 
   /* barre supérieure */
-  .topbar{position:relative;z-index:4;display:flex;justify-content:flex-end;gap:8px;padding:calc(10px + var(--sat)) 12px 0;max-width:560px;margin:0 auto}
+  .topbar{position:relative;z-index:4;display:flex;justify-content:flex-end;gap:8px;padding:max(30px,calc(10px + var(--sat))) 12px 0;max-width:560px;margin:0 auto}
   .topbar button{flex:0 0 auto;min-width:0;padding:6px 12px;font-size:13px}
 
   /* ============ ÉCRAN DE LANCEMENT : LE B QUI GRÉSILLE ============ */
@@ -624,8 +624,8 @@
   @keyframes vsPulse{50%{transform:scale(1.14)}}
 
   /* ---------- setup ---------- */
-  input[type=text]{width:100%;background:rgba(18,8,33,.7);border:1.5px solid var(--line);border-radius:10px;color:var(--cream);font-size:16px;padding:13px 14px;margin-top:8px;font-family:var(--serif)}
-  input[type=text]:focus{outline:none;border-color:var(--nyellow);box-shadow:0 0 14px rgba(255,213,74,.35)}
+  input[type=text],input[type=password]{width:100%;background:rgba(18,8,33,.7);border:1.5px solid var(--line);border-radius:10px;color:var(--cream);font-size:16px;padding:13px 14px;margin-top:8px;font-family:var(--serif);-webkit-appearance:none;appearance:none}
+  input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(--nyellow);box-shadow:0 0 14px rgba(255,213,74,.35)}
   .plist{margin-top:10px;display:flex;flex-direction:column;gap:6px}
   .plist .pi{display:flex;justify-content:space-between;background:rgba(37,21,67,.85);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--sans);letter-spacing:.08em;text-transform:uppercase;font-size:17px}
   .plist .pi span:last-child{color:var(--nred);cursor:pointer;text-shadow:0 0 8px rgba(255,77,90,.7)}
@@ -641,6 +641,12 @@
     button, [role="button"], label.b-ghost{transition:none}
     button:active, [role="button"]:active, label.b-ghost:active{transform:none}
   }
+
+  /* --- Bug 5 : bloquer sélection texte et menu iOS sur appui long,
+     sauf pour les inputs (nom candidat, clé de régie) et le journal
+     (l'animateur peut avoir besoin de le copier). --- */
+  body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+  input,textarea,#logwrap,#logwrap *{-webkit-user-select:auto;user-select:auto;-webkit-touch-callout:default}
 
   /* --- Focus clavier visible + équilibrage du texte des boutons --- */
   :where(button,[role=button],input,select,textarea,[tabindex]):focus-visible{
@@ -1528,7 +1534,7 @@ function drawQuestion(){
   S.bonus=(libres.length?libres:bank)[Math.floor(Math.random()*(libres.length?libres.length:bank.length))];
   S.lastB=[...recent,S.bonus].slice(-Math.min(6,bank.length-1));
   if(AI.on&&AI.q.length>0){while(AI.q.length&&seenHas(AI.q[0][0]))AI.q.shift();
-    if(AI.q.length){S.q=AI.q.shift();seenMark(S.q[0]);updAIBadge();return}}
+    if(AI.q.length){S.q=AI.q.shift();seenMark(S.q[0]);return}}
   S.q=pickFresh(D().Q,S.usedQ);
 }
 function goRetro(){S.q=pickFresh(D().R,S.usedR);S.isRetro=true;S.retroUsed=true;S.showA=false;sfx("reveal");render()}
@@ -1881,7 +1887,7 @@ function drawWQ(lvl){
     return {t:T().hardTag,x:q[0],ans:q[1]};
   }
   topUpAI();
-  if(AI.on&&AI.w.length>0&&Math.random()<0.6){const c=AI.w.shift();updAIBadge();return c}
+  if(AI.on&&AI.w.length>0&&Math.random()<0.6){const c=AI.w.shift();return c}
   /* deux fois la même catégorie dans une montée casserait le crescendo :
      on écarte les catégories déjà vues pendant ce Wango */
   const used=(S.wango&&S.wango.cats)||[];
@@ -2820,7 +2826,7 @@ seenLoad();
 })();
 
 renderSetup();
-topUpAI();updAIBadge();
+topUpAI();
 
 </script>
 </body>
