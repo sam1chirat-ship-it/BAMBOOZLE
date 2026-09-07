@@ -179,9 +179,9 @@
   }
 
   /* ---------- overlay ---------- */
-  #overlay{position:fixed;inset:0;background:rgba(10,4,20,.94);display:none;align-items:center;justify-content:center;z-index:50;flex-direction:column;gap:20px;padding:20px;text-align:center}
+  #overlay{position:fixed;inset:0;background:rgba(10,4,20,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:20px;text-align:center}
   #overlay.show{display:flex}
-  .stamp{font-family:var(--sans);font-size:clamp(40px,12vw,76px);color:var(--nred);letter-spacing:.08em;line-height:1;text-transform:uppercase;
+  .stamp{font-family:var(--sans);font-size:clamp(32px,10vw,52px);color:var(--nred);letter-spacing:.08em;line-height:1;text-transform:uppercase;
     border:4px solid var(--nred);border-radius:8px;padding:12px 24px 8px;transform:rotate(-7deg);
     text-shadow:0 0 8px rgba(255,77,90,.9),0 0 24px rgba(255,77,90,.55),0 0 52px rgba(255,77,90,.35);
     box-shadow:0 0 24px rgba(255,77,90,.4), inset 0 0 20px rgba(255,77,90,.15);
@@ -194,9 +194,9 @@
   #overlay .sub2{font-size:17px;color:var(--cream2);max-width:420px;line-height:1.5}
 
   /* ---------- modal ---------- */
-  #modal{position:fixed;inset:0;background:rgba(10,4,20,.9);display:none;align-items:flex-end;justify-content:center;z-index:60}
+  #modal{position:fixed;inset:0;background:rgba(10,4,20,.72);display:none;align-items:center;justify-content:center;z-index:60;padding:20px}
   #modal.show{display:flex}
-  #modal .sheet{background:var(--ink2);border-top:2px solid var(--nyellow);border-radius:18px 18px 0 0;width:100%;max-width:560px;padding:20px 16px 26px;
+  #modal .sheet{background:var(--ink2);border:2px solid var(--nyellow);border-radius:18px;width:min(320px,80vw);max-width:320px;padding:24px 20px;position:relative;box-shadow:0 0 32px rgba(255,213,74,.35),0 20px 60px rgba(0,0,0,.5);
     box-shadow:0 -6px 30px rgba(255,213,74,.15)}
   #modal h3{font-family:var(--sans);font-weight:400;letter-spacing:.1em;text-transform:uppercase;font-size:22px;margin-bottom:12px;color:var(--cream);
     text-shadow:0 0 12px rgba(178,108,255,.6)}
@@ -300,8 +300,15 @@
     100%{opacity:0;transform:translateX(-50%) translateY(-46px) scale(.95)}}
 
   /* rampe de spots au-dessus du plateau (overlay d'événement) */
-  /* --- Ampoules de marquee : cascade lumineuse sur le contour d'une célébration --- */
-  .marquee-cascade{position:absolute;inset:16px;pointer-events:none;z-index:1}
+  /* --- Rectangle centré pour tous les écrans de transition (chantier 3) --- */
+  .dialog-card{background:var(--ink2);border:2px solid var(--nyellow);border-radius:18px;
+    width:min(320px,80vw);max-width:320px;padding:24px 20px;position:relative;text-align:center;
+    display:flex;flex-direction:column;align-items:stretch;gap:14px;
+    box-shadow:0 0 32px rgba(255,213,74,.35),0 20px 60px rgba(0,0,0,.5)}
+  .dialog-card>button{align-self:center;max-width:240px}
+
+  /* --- Ampoules de marquee : cascade lumineuse sur le contour du dialog centré --- */
+  .marquee-cascade{position:absolute;inset:-4px;pointer-events:none;z-index:1}
   .marquee-cascade i{position:absolute;width:14px;height:14px;border-radius:50%;
     background:var(--nyellow);box-shadow:0 0 12px rgba(255,213,74,.9),0 0 22px rgba(255,213,74,.55);
     opacity:0;transform:translate(-50%,-50%) scale(.4);
@@ -666,7 +673,6 @@
   <h1>BAMB<span class="flicko" id="secretO" onclick="openPortal()" title="">O</span>OZLED</h1>
   <div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <div class="sub" id="subline">Régie officielle du jeu</div>
-  <div id="aibadge" style="display:none"></div>
 </header>
 <div id="podiums"></div>
 <div id="stage"></div>
@@ -685,11 +691,11 @@ const DATA={"fr": {"Q": [["Quel réseau social est célèbre pour ses vidéos co
 
 const I18N={
 fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER POUR DÉPLIER",logO:"JOURNAL — TOUCHER POUR REPLIER",
- aiL:o=>"Génération par IA : "+(o?"ON":"OFF"),diffL:d=>"Difficulté : "+({facile:"facile",normal:"normale",difficile:"difficile"}[d]),
- aiBadge:(q,w,g)=>"🤖 IA : "+q+" questions · "+w+" spéciales en réserve"+(g?" — génération…":""),aiDown:"🤖 IA indisponible — banque locale en secours",
+ diffL:d=>"Difficulté : "+({facile:"facile",normal:"normale",difficile:"difficile"}[d]),
+
  setupT:"Nouvelle partie",setupX:"Ajoutez autant de candidats que vous voulez (2 minimum). L'animateur garde le téléphone, pose les questions, valide les réponses… et pousse les cris de singe.",
  pname:"Nom du candidat",add:"Ajouter",start:"Lancer le show",goal:"Grimpez l'Échelle jusqu'au Singe Doré — ou atteignez 1 500 points — pour entrer au Bassin du Paradis 🌴",
- hintAI:"Avec l'IA activée, les questions et les spéciales Wango sont générées en continu par Claude. Sans réseau, bascule automatique sur la banque locale.",
+ 
  need2:"Il faut au moins 2 candidats pour être Bamboozled correctement.",gotit:"Compris",
  first:n=>"La partie commence ! Premier candidat : "+n+".",turn:(n,h)=>"Au tour de <b>"+n+"</b>"+(h>0?" — à cloche-pied ("+h+" question(s), changez de jambe !)":"")+".",
  skip:n=>"<b>"+n+"</b> passe son tour (Silence Radio).",
@@ -789,7 +795,7 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  hardTag:"QUESTION D'EXPERT",
  diffTitle:"Difficulté des questions",diffShort:{facile:"Facile",normal:"Normal",difficile:"Difficile"},
  seenInfo:"Les questions déjà posées ne reviennent jamais, même lors d'une prochaine soirée.",
- seenBtn:"↺ Réinitialiser l'historique des questions",seenReset:"Historique effacé : toutes les questions redeviennent disponibles.",apiKeyTitle:"Ta clé API Anthropic (optionnelle)",apiKeyPlaceholder:"sk-ant-…",apiKeySave:"Enregistrer",apiKeyClear:"Effacer",apiKeyHint:"La clé reste dans ce navigateur, jamais envoyée ailleurs qu'à Anthropic.",apiKeyLocal:"Clé personnelle active",apiKeyProxy:"Proxy Cloudflare (clé partagée)",importBtn:"📥 Charger une partie",importErr:"Fichier invalide, la partie n'a pas pu être chargée.",resetConfirm:"Fin de partie et retour à l'écran d'accueil ?",resetOk:"Oui, terminer",exportTitle:"Sauvegarder la partie",exportEmpty:"Aucune partie en cours à sauvegarder.",tableTitle:"Écran secondaire",tableEmpty:"Aucune partie en cours.",tableHint:"Touche l'écran pour revenir.",
+ seenBtn:"↺ Réinitialiser l'historique des questions",seenReset:"Historique effacé : toutes les questions redeviennent disponibles.",apiKeyTitle:"Clé de régie",apiKeyPlaceholder:"••••",apiKeySave:"Enregistrer",apiKeyClear:"Effacer",apiKeyHint:"Stockée localement, jamais partagée.",apiKeyLocal:"Clé active",apiKeyProxy:"Réglage par défaut",importBtn:"📥 Charger une partie",importErr:"Fichier invalide, la partie n'a pas pu être chargée.",resetConfirm:"Fin de partie et retour à l'écran d'accueil ?",resetOk:"Oui, terminer",exportTitle:"Sauvegarder la partie",exportEmpty:"Aucune partie en cours à sauvegarder.",tableTitle:"Écran secondaire",tableEmpty:"Aucune partie en cours.",tableHint:"Touche l'écran pour revenir.",
  valBonus:v=>"avec le défi : +"+v,chipTitle:"DÉFI BONUS DU TOUR",chipTail:" — +50 s'il est relevé en répondant.",
  duelEye:"⚔️ FACE-OFF — DUEL",duelPick1:"Choisissez le premier duelliste",duelPick2:"Choisissez son adversaire",
  duelYou:" (vous)",duelRules:"Une seule question, posée aux deux en même temps. Le premier qui répond juste empoche 150 points ; l'autre en perd 50. À l'animateur de trancher qui a parlé le premier.",
@@ -800,13 +806,13 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  duelHut:(w,l)=>"<b>"+l+"</b> perd le duel, mais la Golden Mudhut lui évite la pénalité.",
  duelWT:w=>w+" gagne !",duelWS:(w,l)=>w+" rafle 150 points sous le nez de "+l+".",
  duelBtn:"⚔️ Organiser le duel",
- sndLoad:"🎵 Charger mes extraits sonores",
- sndHint:"Facultatif : choisissez des extraits audio depuis cet appareil (génériques, répliques…). Le nom du fichier sert de réponse — « Jurassic Park.mp3 » donne la réponse « Jurassic Park ». Les fichiers restent sur votre téléphone, rien n'est envoyé nulle part. À recharger à chaque nouvelle soirée.",
- sndOK:n=>"🎵 "+n+" extrait(s) chargé(s) — la question sonore est disponible pendant la partie.",
- sndBtn:"🎵 Question sonore (+100)",sndTag:"🎵 QUESTION SONORE — ",
- sndQ:"De quel film, série ou émission vient cet extrait ?",
- sndPlay:"▶ Lancer l'extrait",sndAgain:"↻ Réécouter",sndStop:"⏸ Stop",
- sndHint2:"L'animateur lance l'extrait, les candidats devinent. Réussite : +100. Échec : −50.",
+
+
+
+
+
+
+
  friendsBtn:"☕ IT'S ALL RELATIVE (+150)",friendsTag:"☕ IT'S ALL RELATIVE — spécial Friends, niveau expert — ",
  friendsHint:"Catégorie experte : 150 points en cas de réussite, mais −50 en cas d'échec. Réservée à ceux qui ont vu la série trop de fois.",
  chip:b=>"Défi bonus du tour : "+b+" (+50 si relevé en répondant)",okB:"Correct + défi",
@@ -891,11 +897,11 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  langSw:"🇫🇷 → 🇬🇧 The show now continues in English!",
 },
 en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EXPAND",logO:"LOG — TAP TO COLLAPSE",
- aiL:o=>"AI generation: "+(o?"ON":"OFF"),diffL:d=>"Difficulty: "+({facile:"easy",normal:"normal",difficile:"hard"}[d]),
- aiBadge:(q,w,g)=>"🤖 AI: "+q+" questions · "+w+" specials in stock"+(g?" — generating…":""),aiDown:"🤖 AI unavailable — falling back to the local bank",
+ diffL:d=>"Difficulty: "+({facile:"easy",normal:"normal",difficile:"hard"}[d]),
+
  setupT:"New show",setupX:"Add as many contestants as you like (2 minimum). The host keeps the phone, asks the questions, rules on the answers… and does the monkey noises.",
  pname:"Contestant name",add:"Add",start:"Start the show",goal:"Climb the Ladder to the Golden Monkey — or reach 1,500 points — to enter Paradise Pond 🌴",
- hintAI:"With AI on, questions and Wango specials are generated continuously by Claude. Offline, the app falls back to its built-in bank automatically.",
+ 
  need2:"You need at least 2 contestants to get properly Bamboozled.",gotit:"Got it",
  first:n=>"The show begins! First contestant: "+n+".",turn:(n,h)=>"It's <b>"+n+"</b>'s turn"+(h>0?" — on one leg ("+h+" question(s) left, switch legs!)":"")+".",
  skip:n=>"<b>"+n+"</b> skips their turn (Radio Silence).",
@@ -995,7 +1001,7 @@ en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EX
  hardTag:"EXPERT QUESTION",
  diffTitle:"Question difficulty",diffShort:{facile:"Easy",normal:"Normal",difficile:"Hard"},
  seenInfo:"Questions already asked never come back, even in a future party.",
- seenBtn:"↺ Reset the question history",seenReset:"History cleared: every question is available again.",apiKeyTitle:"Your Anthropic API key (optional)",apiKeyPlaceholder:"sk-ant-…",apiKeySave:"Save",apiKeyClear:"Clear",apiKeyHint:"The key stays in this browser, never sent anywhere but Anthropic.",apiKeyLocal:"Personal key active",apiKeyProxy:"Cloudflare proxy (shared key)",importBtn:"📥 Load a game",importErr:"Invalid file, the game could not be loaded.",resetConfirm:"End the game and go back to the home screen?",resetOk:"Yes, end it",exportTitle:"Save the game",exportEmpty:"No game in progress to save.",tableTitle:"Second screen",tableEmpty:"No game in progress.",tableHint:"Tap the screen to return.",
+ seenBtn:"↺ Reset the question history",seenReset:"History cleared: every question is available again.",apiKeyTitle:"Studio key",apiKeyPlaceholder:"••••",apiKeySave:"Save",apiKeyClear:"Clear",apiKeyHint:"Kept locally, never shared.",apiKeyLocal:"Key active",apiKeyProxy:"Default setting",importBtn:"📥 Load a game",importErr:"Invalid file, the game could not be loaded.",resetConfirm:"End the game and go back to the home screen?",resetOk:"Yes, end it",exportTitle:"Save the game",exportEmpty:"No game in progress to save.",tableTitle:"Second screen",tableEmpty:"No game in progress.",tableHint:"Tap the screen to return.",
  valBonus:v=>"with the challenge: +"+v,chipTitle:"THIS TURN'S BONUS CHALLENGE",chipTail:" — +50 if pulled off while answering.",
  duelEye:"⚔️ FACE-OFF — DUEL",duelPick1:"Choose the first duellist",duelPick2:"Choose their opponent",
  duelYou:" (you)",duelRules:"One single question, asked to both at once. The first correct answer takes 150 points; the other loses 50. The host decides who spoke first.",
@@ -1006,13 +1012,13 @@ en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EX
  duelHut:(w,l)=>"<b>"+l+"</b> loses the duel, but the Golden Mudhut spares them the penalty.",
  duelWT:w=>w+" wins!",duelWS:(w,l)=>w+" snatches 150 points from under "+l+"'s nose.",
  duelBtn:"⚔️ Call the duel",
- sndLoad:"🎵 Load my audio clips",
- sndHint:"Optional: pick audio clips from this device (themes, famous lines…). The file name is the answer — \"Jurassic Park.mp3\" gives the answer \"Jurassic Park\". Files stay on your phone, nothing is uploaded anywhere. Reload them for each new party.",
- sndOK:n=>"🎵 "+n+" clip(s) loaded — the audio question is available during the game.",
- sndBtn:"🎵 Audio question (+100)",sndTag:"🎵 AUDIO QUESTION — ",
- sndQ:"Which film, series or show is this clip from?",
- sndPlay:"▶ Play the clip",sndAgain:"↻ Play again",sndStop:"⏸ Stop",
- sndHint2:"The host plays the clip, the contestants guess. Success: +100. Failure: −50.",
+
+
+
+
+
+
+
  friendsBtn:"☕ IT'S ALL RELATIVE (+150)",friendsTag:"☕ IT'S ALL RELATIVE — Friends special, expert level — ",
  friendsHint:"Expert category: 150 points if you nail it, but −50 if you miss. For those who have seen the show far too many times.",
  chip:b=>"This turn's bonus challenge: "+b+" (+50 if pulled off while answering)",okB:"Correct + challenge",
@@ -1101,8 +1107,8 @@ I18N.it=Object.assign({},I18N.en,{
  sub:"Bamboozled — regia ufficiale",lang:"FR",
  logC:"DIARIO — TOCCA PER APRIRE",logO:"DIARIO — TOCCA PER CHIUDERE",
  diffL:d=>"Difficoltà: "+({facile:"facile",normal:"normale",difficile:"difficile"}[d]),
- aiBadge:(q,w,g)=>"🤖 IA: "+q+" domande · "+w+" speciali in riserva"+(g?" — generazione…":""),
- aiDown:"🤖 IA non disponibile — banca locale di riserva",
+ 
+ 
  setupT:"Nuova partita",
  setupX:"Aggiungi tutti i concorrenti che vuoi (minimo 2). Il conduttore tiene il telefono, fa le domande, giudica le risposte… e fa i versi della scimmia.",
  pname:"Nome del concorrente",add:"Aggiungi",start:"Via allo show",
@@ -1296,17 +1302,17 @@ I18N.it=Object.assign({},I18N.en,{
  langSw:"🇮🇹 → 🇫🇷 Lo show continua ora in francese!",
  diffTitle:"Difficoltà delle domande",diffShort:{facile:"Facile",normal:"Normale",difficile:"Difficile"},
  seenInfo:"Le domande già fatte non tornano mai più, nemmeno in una serata futura.",
- seenBtn:"↺ Azzera lo storico delle domande",seenReset:"Storico cancellato: tutte le domande tornano disponibili.",apiKeyTitle:"La tua chiave API Anthropic (opzionale)",apiKeyPlaceholder:"sk-ant-…",apiKeySave:"Salva",apiKeyClear:"Cancella",apiKeyHint:"La chiave resta in questo browser, mai inviata altrove che ad Anthropic.",apiKeyLocal:"Chiave personale attiva",apiKeyProxy:"Proxy Cloudflare (chiave condivisa)",importBtn:"📥 Carica una partita",importErr:"File non valido, la partita non può essere caricata.",resetConfirm:"Terminare la partita e tornare alla schermata iniziale?",resetOk:"Sì, termina",exportTitle:"Salva la partita",exportEmpty:"Nessuna partita in corso da salvare.",tableTitle:"Schermo secondario",tableEmpty:"Nessuna partita in corso.",tableHint:"Tocca lo schermo per tornare.",
+ seenBtn:"↺ Azzera lo storico delle domande",seenReset:"Storico cancellato: tutte le domande tornano disponibili.",apiKeyTitle:"Chiave di regia",apiKeyPlaceholder:"••••",apiKeySave:"Salva",apiKeyClear:"Cancella",apiKeyHint:"Salvata localmente, mai condivisa.",apiKeyLocal:"Chiave attiva",apiKeyProxy:"Impostazione predefinita",importBtn:"📥 Carica una partita",importErr:"File non valido, la partita non può essere caricata.",resetConfirm:"Terminare la partita e tornare alla schermata iniziale?",resetOk:"Sì, termina",exportTitle:"Salva la partita",exportEmpty:"Nessuna partita in corso da salvare.",tableTitle:"Schermo secondario",tableEmpty:"Nessuna partita in corso.",tableHint:"Tocca lo schermo per tornare.",
  hardTag:"DOMANDA DA ESPERTI",
  friendsBtn:"☕ IT'S ALL RELATIVE (+150)",friendsTag:"☕ IT'S ALL RELATIVE — speciale Friends, livello esperto — ",
  friendsHint:"Categoria esperta: 150 punti se indovini, ma −50 se sbagli. Riservata a chi ha visto la serie fin troppe volte.",
- sndLoad:"🎵 Carica i miei estratti audio",
- sndHint:"Facoltativo: scegli file audio da questo dispositivo (sigle, battute…). Il nome del file è la risposta — « Jurassic Park.mp3 » dà la risposta « Jurassic Park ». I file restano sul tuo telefono, non viene inviato nulla. Da ricaricare a ogni serata.",
- sndOK:n=>"🎵 "+n+" estratto/i caricato/i — la domanda sonora è disponibile durante la partita.",
- sndBtn:"🎵 Domanda sonora (+100)",sndTag:"🎵 DOMANDA SONORA — ",
- sndQ:"Da quale film, serie o programma viene questo estratto?",
- sndPlay:"▶ Avvia l'estratto",sndAgain:"↻ Riascolta",sndStop:"⏸ Stop",
- sndHint2:"Il conduttore avvia l'estratto, i concorrenti indovinano. Riuscita: +100. Fallimento: −50.",
+
+
+
+
+
+
+
  portalWhisper:"qualcosa si apre",
  secT:"PORTALE ELASMAR",
  worthyQ:"La prova che segue è riservata ai coraggiosi, e solo a loro.<br><br>Sei degno del Cuore di Noemi?",
@@ -1358,7 +1364,7 @@ function setLang(l){
   const sb=document.getElementById("subline");if(sb)sb.textContent=T().sub;
   const lw=document.getElementById("logwrap");lw.dataset.closed=T().logC;lw.dataset.open=T().logO;
   document.documentElement.lang=LANG;
-  topUpAI();updAIBadge();
+  topUpAI();
   if(S){
     if(S.phase==="question")drawQuestion();
     else if(S.phase==="wango"&&S.wango&&S.wango.state==="q"){S.wango.q=pickFresh(D().WQ,S.usedWQ);S.wango.showA=false}
@@ -1372,13 +1378,10 @@ const AI={on:true,diff:"normal",q:[],w:[],fq:false,fw:false,err:false,seen:[]};
 function topUpAI(){if(!AI.on)return;
   if(AI.q.length<6&&!AI.fq)fetchAIQuestions();
   if(AI.w.length<4&&!AI.fw)fetchAIWango()}
-function toggleAI(){AI.on=!AI.on;AI.err=false;if(AI.on)topUpAI();
-  const b=document.getElementById("aibtn");if(b)b.textContent=T().aiL(AI.on);updAIBadge()}
 function setDiff(d){AI.diff=d;AI.q=[];AI.seen=[];if(AI.on)topUpAI();
   document.querySelectorAll("#segdiff button").forEach(b=>b.classList.toggle("on",b.dataset.d===d));
-  if(S&&S.screen!=="setup")render();updAIBadge()}
+  if(S&&S.screen!=="setup")render();}
 function diffShort(){return T().diffShort[AI.diff]}
-function updAIBadge(){/* affichage volontairement désactivé */}
 /* ---- Clé API Anthropic personnelle (optionnelle, stockée en localStorage) ---- */
 const USER_KEY_STORAGE="bamboozle.userApiKey.v1";
 function userApiKey(){try{return localStorage.getItem(USER_KEY_STORAGE)||""}catch(e){return ""}}
@@ -1441,7 +1444,7 @@ async function askClaude(prompt){
   return JSON.parse(txt.replace(/```json|```/g,"").trim());
 }
 async function fetchAIQuestions(){
-  AI.fq=true;updAIBadge();const lg=LANG;
+  AI.fq=true;const lg=LANG;
   try{
     const diff=AI.diff==="facile"?(lg==="fr"?"facile":"easy"):AI.diff==="normal"?(lg==="fr"?"moyenne":"medium"):(lg==="fr"?"difficile":"hard");
     const prompt=lg==="fr"
@@ -1450,11 +1453,11 @@ async function fetchAIQuestions(){
     const arr=await askClaude(prompt);
     if(lg===LANG)arr.forEach(o=>{if(o&&o.q&&o.a){AI.q.push([String(o.q),String(o.a)]);AI.seen.push(String(o.q).slice(0,60))}});
     AI.seen=AI.seen.slice(-40);AI.err=false;
-  }catch(e){AI.err=true}
-  AI.fq=false;updAIBadge();
+  }catch(e){AI.err=true;console.warn("[bamboozle] fetchAIQuestions échec, repli sur banque locale",new Date().toISOString(),e&&e.message)}
+  AI.fq=false;
 }
 async function fetchAIWango(){
-  AI.fw=true;updAIBadge();const lg=LANG;
+  AI.fw=true;const lg=LANG;
   try{
     const prompt=lg==="fr"
       ?"Génère 6 questions SPÉCIALES type « Wicked Wango » en FRANÇAIS pour un jeu télévisé parodique : réplique culte de film ou série à identifier, « épelle ce mot à l'envers », défi chrono « cite 3 X en 5 secondes », vrai/faux piégeux, devinette, défi où l'animateur mime ou fredonne. INTERDIT : paroles de chansons. Faits exacts ; réponses courtes ou « Validation de l'animateur ». Champ t = catégorie très courte en MAJUSCULES. Réponds UNIQUEMENT avec un tableau JSON valide sans markdown : [{\"t\":\"RÉPLIQUE CULTE\",\"x\":\"question\",\"ans\":\"réponse\"}]"
@@ -1462,8 +1465,8 @@ async function fetchAIWango(){
     const arr=await askClaude(prompt);
     if(lg===LANG)arr.forEach(o=>{if(o&&o.x&&o.ans)AI.w.push({t:String(o.t||"WICKED WANGO"),x:String(o.x),ans:String(o.ans)})});
     AI.err=false;
-  }catch(e){AI.err=true}
-  AI.fw=false;updAIBadge();
+  }catch(e){AI.err=true;console.warn("[bamboozle] fetchAIWango échec, repli sur banque locale",new Date().toISOString(),e&&e.message)}
+  AI.fw=false;
 }
 
 /* ============================================================
@@ -1473,38 +1476,11 @@ async function fetchAIWango(){
 const API_URL="https://bamboozle-ai.sam1chirat.workers.dev";
 const API_MODEL="claude-opus-5";
 
-/* =============== EXTRAITS SONORES (fichiers locaux de l'animateur) =============== */
-const SND={clips:[],used:[]};
-const AUD=new Audio();
-function cleanName(f){
-  return f.replace(/\.[a-z0-9]+$/i,"").replace(/[_-]+/g," ").replace(/^\s*\d+[\s.)-]*/,"").trim();
-}
-function loadClips(ev){
-  const files=[...(ev.target.files||[])];
-  if(!files.length)return;
-  SND.clips=files.map(f=>({name:cleanName(f.name),url:URL.createObjectURL(f)}));
-  SND.used=[];
-  const info=document.getElementById("sndinfo");
-  if(info)info.textContent=T().sndOK(SND.clips.length);
-}
-function playClip(){if(!S||!S.sndUrl)return;try{AUD.src=S.sndUrl;AUD.currentTime=0;AUD.play()}catch(e){}}
-function stopClip(){try{AUD.pause()}catch(e){}}
-function goSound(){
-  if(!SND.clips.length)return;
-  if(SND.used.length>=SND.clips.length)SND.used=[];
-  let i;do{i=Math.floor(Math.random()*SND.clips.length)}while(SND.used.includes(i));
-  SND.used.push(i);
-  const c=SND.clips[i];
-  S.q=[T().sndQ,c.name];S.sndUrl=c.url;
-  S.isSound=true;S.isRetro=false;S.isFriends=false;S.retroUsed=true;S.showA=false;
-  render();playClip();
-}
-
 /* =============== STATE =============== */
 let S=null;
 function newGame(names){
   S={screen:"game",players:names.map(n=>({name:n,score:0,angel:0,mudhut:0,hopping:0,dbl:false,streak:0,dares:[],lastGain:0,rung:0,seen:{},shield:false,contract:null})),
-     cur:0,phase:"question",q:null,showA:false,isRetro:false,isFriends:false,isSound:false,sndUrl:null,retroUsed:false,bonus:null,
+     cur:0,phase:"question",q:null,showA:false,isRetro:false,isFriends:false,retroUsed:false,bonus:null,
      usedQ:[],usedR:[],usedF:[],usedH:[],usedWQ:[],deckG:shuffle([...Array(DATA.fr.G.length).keys()]),wango:null,
      wangoDouble:false,turnGain:0,bonusQ:null,ttt:null,final:null,duel:null,lastB:[],log:[]};
   PREV=S.players.map(p=>p.score);
@@ -1546,7 +1522,7 @@ function pickFresh(bank,used){
 /* =============== QUESTIONS =============== */
 function drawQuestion(){
   topUpAI();
-  S.isRetro=false;S.isFriends=false;S.isSound=false;S.sndUrl=null;S.retroUsed=false;S.showA=false;stopClip();
+  S.isRetro=false;S.isFriends=false;S.retroUsed=false;S.showA=false;
   const bank=D().B,recent=S.lastB||[];
   const libres=bank.filter(x=>!recent.includes(x));
   S.bonus=(libres.length?libres:bank)[Math.floor(Math.random()*(libres.length?libres.length:bank.length))];
@@ -1567,11 +1543,11 @@ function angelSkip(){
 }
 function goFriends(){S.q=pickFresh(D().F,S.usedF);S.isFriends=true;S.isRetro=false;S.retroUsed=true;S.showA=false;sfx("reveal");render()}
 function gainFor(p){
-  let g=p.hopping>0?75:(S.isFriends?150:(S.isSound?100:(S.isRetro?75:50)));
+  let g=p.hopping>0?75:(S.isFriends?150:(S.isRetro?75:50));
   if(p.dbl)g*=2;
   return g;
 }
-function lossFor(p){return p.dbl?50:((S&&(S.isFriends||S.isSound))?50:25)}
+function lossFor(p){return p.dbl?50:(S&&S.isFriends?50:25)}
 
 /* Le VRAI Bamboozle : sanction rare et catastrophique (moitié des points). */
 function triggerBamboozle(p,why){
@@ -1586,7 +1562,6 @@ function triggerBamboozle(p,why){
 }
 
 function answer(ok,bonus){ // bonus = défi du tour relevé (+50)
-  stopClip();
   const p=cp();
   if(p.hopping>0)p.hopping--;
   if(ok){
@@ -2127,8 +2102,8 @@ function meterHTML(){let h='<div class="meter">';for(let i=0;i<11;i++)h+='<i sty
 function showEvent(icon,title,sub,anim,after,confetti){
   hideBanner();
   const o=document.getElementById("overlay");
-  o.innerHTML='<div class="evt '+anim+'"><div class="evt-ico">'+icon+'</div><div class="evt-title">'+title+'</div></div>'+(confetti?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" style="max-width:240px" onclick="hideStamp()">'+T().cont+'</button>';
-  if(confetti){marqueeCascade(o);sfx("fanfare")}
+  o.innerHTML='<div class="dialog-card"><div class="evt '+anim+'"><div class="evt-ico">'+icon+'</div><div class="evt-title">'+title+'</div></div>'+(confetti?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" onclick="hideStamp()">'+T().cont+'</button></div>';
+  if(confetti){marqueeCascade(o.querySelector(".dialog-card"));sfx("fanfare")}
   o.classList.add("show");o._after=after;
 }
 function marqueeCascade(o){
@@ -2166,7 +2141,7 @@ function showStamp(html,sub,after){
   hideBanner();buzz([60,50,60,50,120]);
   const o=document.getElementById("overlay");
   const gold=html.includes("Golden")||html.includes("🌳");
-  o.innerHTML='<div class="stamp '+(gold?"mk":"")+'">'+html+'</div>'+(gold?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" style="max-width:240px" onclick="hideStamp()">'+T().cont+'</button>';
+  o.innerHTML='<div class="dialog-card"><div class="stamp '+(gold?"mk":"")+'">'+html+'</div>'+(gold?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" onclick="hideStamp()">'+T().cont+'</button></div>';
   if(gold)sfx("fanfare");else sfx("doom");
   o.classList.add("show");o._after=after;
 }
@@ -2628,29 +2603,26 @@ function render(){
   const p=cp();
   if(S.phase==="question"){
     const g=gainFor(p);
-    st.innerHTML='<div class="card live drop-in"'+(S.isFriends?' style="border-color:var(--nmint)"':(S.isSound?' style="border-color:var(--nviolet)"':(S.isRetro?' style="border-color:var(--norange)"':'')))+'><div class="eyebrow">'+
-      (S.bonusQ?T().bq:'')+(S.isFriends?T().friendsTag:'')+(S.isSound?T().sndTag:'')+(S.isRetro?T().retroTag:'')+T().qFor+p.name+
+    st.innerHTML='<div class="card live drop-in"'+(S.isFriends?' style="border-color:var(--nmint)"':(S.isRetro?' style="border-color:var(--norange)"':''))+'><div class="eyebrow">'+
+      (S.bonusQ?T().bq:'')+(S.isFriends?T().friendsTag:'')+(S.isRetro?T().retroTag:'')+T().qFor+p.name+
       (p.hopping>0?T().hopF:'')+(p.mudhut>0?T().hutF:'')+'</div>'+
-      '<div class="valrow"><span class="val '+(S.isFriends?"mint":(S.isSound?"viol":(S.isRetro?"orange":"")))+'">+'+g+'</span>'+
+      '<div class="valrow"><span class="val '+(S.isFriends?"mint":(S.isRetro?"orange":""))+'">+'+g+'</span>'+
         '<span class="valbonus">'+T().valBonus(g+50)+'</span>'+
         '<span class="val mal">−'+lossFor(p)+'</span>'+
         '<span class="diffbadge">'+diffShort()+'</span></div>'+
       '<div class="qtext">'+S.q[0]+'</div>'+
-      (S.isSound?'<div class="btnrow"><button class="b-mg" onclick="playClip()">'+(S.showA?T().sndAgain:T().sndPlay)+'</button><button class="b-ghost" onclick="stopClip()">'+T().sndStop+'</button></div>':'')+
       (S.showA?'<div class="atext">'+T().ans+S.q[1]+'</div>':'')+
       '<div class="btnrow">'+
       (!S.showA?'<button class="b-cy" onclick="S.showA=true;render()">'+T().reveal+'</button>'+
         (p.angel>0?'<button class="b-ghost" onclick="angelSkip()" style="border-color:var(--nblue);color:var(--nblue)">'+T().angSkipBtn+'</button>':'')+
         (!S.bonusQ&&!S.retroUsed?'<button class="b-ghost" onclick="goRetro()">'+T().retroBtn+'</button>'+
-         '<button class="b-ghost" onclick="goFriends()" style="border-color:var(--nmint);color:var(--nmint)">'+T().friendsBtn+'</button>'+
-         (SND.clips.length?'<button class="b-ghost" onclick="goSound()" style="border-color:var(--nviolet);color:var(--nviolet)">'+T().sndBtn+'</button>':''):''):
+         '<button class="b-ghost" onclick="goFriends()" style="border-color:var(--nmint);color:var(--nmint)">'+T().friendsBtn+'</button>':''):
       '<button class="b-gold" onclick="answer(true,false)">'+T().ok+' +'+g+'</button>'+
       '<button class="b-gold" onclick="answer(true,true)">'+T().okB+' +'+(g+50)+'</button>'+
       '<button class="b-rd" onclick="answer(false,false)">'+T().miss+' −'+lossFor(p)+'</button>')+
       '</div>'+
       '<div class="challenge"><b>'+T().chipTitle+'</b>'+S.bonus+T().chipTail+'</div>'+
       (S.isFriends?'<div class="hint" style="color:var(--nmint)">'+T().friendsHint+'</div>':'')+
-      (S.isSound?'<div class="hint" style="color:var(--nviolet)">'+T().sndHint2+'</div>':'')+
       (S.showA?'<div class="hint">'+T().hQ+'</div>':'')+
       '</div>';
   }
@@ -2801,9 +2773,7 @@ function renderSetup(){
     '<div class="btnrow" style="margin-top:6px"><button class="b-ghost b-sm" onclick="onSaveApiKey()">'+T().apiKeySave+'</button><button class="b-ghost b-sm" onclick="onClearApiKey()">'+T().apiKeyClear+'</button></div>'+
     '<div class="hint" id="apiKeyInfo">'+(userApiKey()?T().apiKeyLocal:T().apiKeyProxy)+'</div>'+
     '<div class="hint">'+T().apiKeyHint+'</div>'+
-    '<div class="btnrow"><label class="b-ghost" for="sndfile" style="display:block;text-align:center;cursor:pointer;border-radius:12px;padding:13px 12px;font-family:var(--sans);letter-spacing:.12em;font-size:18px;text-transform:uppercase;border:2px solid rgba(178,108,255,.4);color:var(--cream2)">'+T().sndLoad+'</label>'+
-    '<input type="file" id="sndfile" accept="audio/*" multiple style="display:none" onchange="loadClips(event)"></div>'+
-    '<div class="hint" id="sndinfo">'+T().sndHint+'</div>'+
+
     '<div class="btnrow"><label class="b-ghost" for="importfile" style="display:block;text-align:center;cursor:pointer;border-radius:12px;padding:13px 12px;font-family:var(--sans);letter-spacing:.12em;font-size:16px;text-transform:uppercase;border:2px solid rgba(178,108,255,.4);color:var(--cream2)">'+T().importBtn+'</label>'+
     '<input type="file" id="importfile" accept="application/json,.json" style="display:none" onchange="importGame(event)"></div>'+
     '<div class="btnrow"><button class="b-gold" id="startbtn" onclick="tryStart()">'+T().start+'</button></div>'+
