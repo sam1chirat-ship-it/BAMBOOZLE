@@ -441,7 +441,7 @@
     background:#12030A;
     background-image:radial-gradient(ellipse 120% 70% at 50% -10%, #4E0A1C 0%, #12030A 62%),
                      radial-gradient(ellipse 80% 40% at 50% 115%, rgba(214,60,80,.16) 0%, transparent 60%);
-    display:none;flex-direction:column;padding:14px 14px 24px;overflow-y:auto}
+    display:none;flex-direction:column;padding:max(30px,calc(10px + var(--sat))) 14px calc(24px + var(--sab));overflow-y:auto}
   #cups.show{display:flex;animation:cupsIn .5s cubic-bezier(.2,1.2,.35,1)}
   @keyframes cupsIn{from{opacity:0;transform:scale(1.05)}to{opacity:1;transform:none}}
   /* scanlines + vignette, comme l'enseigne principale */
@@ -514,6 +514,17 @@
     box-shadow:0 0 14px rgba(255,213,74,.35), inset 0 0 12px rgba(255,213,74,.1)}
   .b-felt2{border-color:#FF5E72;color:#FF8A9C;text-shadow:0 0 8px rgba(255,94,114,.85);
     box-shadow:0 0 14px rgba(255,60,85,.32), inset 0 0 12px rgba(255,60,85,.12)}
+  .cpick{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+  .cpickslot{background:rgba(18,3,10,.72);border:1.5px solid rgba(255,94,114,.35);border-radius:14px;
+    padding:12px 12px 14px;box-shadow:0 0 18px rgba(255,60,85,.12), inset 0 0 20px rgba(255,60,85,.05)}
+  .cpickslot .cn{font-family:var(--sans);font-size:13px;letter-spacing:.22em;color:#FFB3C0;text-transform:uppercase;text-align:center;margin-bottom:10px}
+  .cnames{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .cnames button{background:rgba(18,3,10,.65);border:2px solid rgba(255,94,114,.4);border-bottom-width:4px;border-radius:10px;
+    color:#FFE8C8;font-family:var(--sans);font-size:14px;letter-spacing:.08em;padding:8px 14px;
+    text-transform:uppercase;min-height:38px}
+  .cnames button.on{border-color:#FFD54A;color:#FFD54A;text-shadow:0 0 8px rgba(255,213,74,.85);
+    box-shadow:0 0 14px rgba(255,213,74,.35), inset 0 0 12px rgba(255,213,74,.1)}
+  .cnames button.taken{opacity:.35;filter:grayscale(.5)}
   #cups textarea{width:100%;background:rgba(18,3,10,.75);border:2px solid rgba(255,94,114,.4);border-radius:12px;
     color:#FFE8C8;font-size:16px;padding:12px;margin-top:10px;font-family:var(--serif);min-height:82px;resize:vertical}
   #cups textarea:focus{outline:none;border-color:#FFD54A;box-shadow:0 0 14px rgba(255,213,74,.3)}
@@ -767,6 +778,8 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  secAnswers:["rue de levis","rue levis","levis","rue de lévis","rue lévis"],
  cupsSub:"RÈGLES RECONSTITUÉES PAR LES FANS — CLASSEMENT INVERSÉ",
  cupsP1:"Joueur 1",cupsP2:"Joueur 2",
+ cupsPickT:"Choisir les deux joueurs",cupsPickHint:"Tapez un nom en haut, un en bas.",
+ cupsPickSlot1:"À la place 1",cupsPickSlot2:"À la place 2",cupsPickStart:"Distribuer",
  cupsReveal:"Retourner les mains",cupsNext:"Distribuer",cupsAgain:"Rejouer",cupsBack:"Retour à Bamboozled",
  cupsSitBtn:n=>n+" s'est assis en premier",
  cupsTie:"Égalité parfaite. Qui s'est assis le premier ?",
@@ -973,6 +986,8 @@ en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EX
  secAnswers:["rue de levis","rue levis","levis","rue de lévis","rue lévis"],
  cupsSub:"FAN-RECONSTRUCTED RULES — THE RANKING IS REVERSED",
  cupsP1:"Player 1",cupsP2:"Player 2",
+ cupsPickT:"Pick the two players",cupsPickHint:"Tap one for the top slot, one for the bottom.",
+ cupsPickSlot1:"In slot 1",cupsPickSlot2:"In slot 2",cupsPickStart:"Deal",
  cupsReveal:"Turn the hands over",cupsNext:"Deal",cupsAgain:"Play again",cupsBack:"Back to Bamboozled",
  cupsSitBtn:n=>n+" sat down first",
  cupsTie:"Dead heat. Who sat down first?",
@@ -1330,6 +1345,8 @@ I18N.it=Object.assign({},I18N.en,{
  secPlace:"la tua risposta",secGo:"Apri",secBack:"Richiudi",secWrong:"L'insegna sfrigola. Non è questa la parola.",
  cupsSub:"REGOLE RICOSTRUITE DAI FAN — CLASSIFICA INVERTITA",
  cupsP1:"Giocatore 1",cupsP2:"Giocatore 2",
+ cupsPickT:"Scegli i due giocatori",cupsPickHint:"Tocca un nome sopra, uno sotto.",
+ cupsPickSlot1:"Al posto 1",cupsPickSlot2:"Al posto 2",cupsPickStart:"Distribuisci",
  cupsReveal:"Gira le mani",cupsNext:"Distribuisci",cupsAgain:"Rigioca",cupsBack:"Torna a Bamboozled",
  cupsSitBtn:n=>n+" si è seduto per primo",
  cupsTie:"Pareggio perfetto. Chi si è seduto per primo?",
@@ -2310,10 +2327,24 @@ function cupsEval(h){
   return {rank:3+best,pay:half?100:50,key:half?"half":"trick"};
 }
 function openCups(){
-  
-  const names=(S&&S.players&&S.players.length>=2)?[S.players[0].name,S.players[1].name]:[T().cupsP1,T().cupsP2];
-  CUPS.st={deck:cupsDeck(),names,money:[0,0],hands:[[],[]],phase:"deal",verdict:"",doubled:[false,false],winner:null};
+  const pool=(S&&S.players&&S.players.length)?S.players.map(p=>p.name):[];
+  if(pool.length>=2){
+    CUPS.st={deck:cupsDeck(),names:[pool[0],pool[1]],money:[0,0],hands:[[],[]],phase:"pick",verdict:"",doubled:[false,false],winner:null,pool,pick:[pool[0],pool[1]]};
+  }else{
+    const names=[T().cupsP1,T().cupsP2];
+    CUPS.st={deck:cupsDeck(),names,money:[0,0],hands:[[],[]],phase:"deal",verdict:"",doubled:[false,false],winner:null};
+  }
   document.getElementById("cups").classList.add("show");
+  if(CUPS.st.phase==="pick")renderCups(); else cupsDeal();
+}
+function cupsPickSet(slot,name){
+  const g=CUPS.st;if(!g||g.phase!=="pick")return;
+  g.pick[slot]=name;renderCups();
+}
+function cupsPickGo(){
+  const g=CUPS.st;if(!g||g.phase!=="pick")return;
+  if(!g.pick[0]||!g.pick[1]||g.pick[0]===g.pick[1])return;
+  g.names=[g.pick[0],g.pick[1]];g.phase="deal";
   cupsDeal();
 }
 function closeCups(){document.getElementById("cups").classList.remove("show")}
@@ -2390,6 +2421,27 @@ function renderCups(){
   const card=(c,hide)=>hide?'<div class="ccard hidden">?</div>':
     '<div class="ccard'+(c.red?" red":"")+'">'+c.label+'<span class="cs">'+c.s+'</span></div>';
   const hide=(g.phase==="reveal");
+  if(g.phase==="pick"){
+    const ready=g.pick[0]&&g.pick[1]&&g.pick[0]!==g.pick[1];
+    const slot=(idx)=>'<div class="cpickslot"><div class="cn">'+(idx===0?T().cupsPickSlot1:T().cupsPickSlot2)+'</div>'+
+      '<div class="cnames">'+g.pool.map(n=>{
+        const other=g.pick[1-idx]===n, on=g.pick[idx]===n;
+        const cls=on?" on":(other?" taken":"");
+        const dis=other?" disabled":"";
+        return '<button class="'+cls.trim()+'"'+dis+' onclick="cupsPickSet('+idx+','+JSON.stringify(n)+')">'+n+'</button>';
+      }).join("")+'</div></div>';
+    box.innerHTML=
+      '<h2>C<span class="fu">U</span>PS</h2>'+
+      '<div class="cdots"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
+      '<div class="csub">'+T().cupsPickT+'</div>'+
+      '<div class="cpick">'+slot(0)+slot(1)+'</div>'+
+      '<div class="btnrow" style="justify-content:center;margin-top:16px">'+
+        '<button class="b-felt"'+(ready?"":" disabled")+' onclick="cupsPickGo()">'+T().cupsPickStart+'</button>'+
+        '<button class="b-ghost b-sm" onclick="closeCups()">'+T().cupsBack+'</button>'+
+      '</div>'+
+      '<div class="crules" style="text-align:center">'+T().cupsPickHint+'</div>';
+    return;
+  }
   box.innerHTML=
     '<h2>C<span class="fu">U</span>PS</h2>'+
     '<div class="cdots"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
