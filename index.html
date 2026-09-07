@@ -2337,8 +2337,10 @@ function openCups(){
   document.getElementById("cups").classList.add("show");
   if(CUPS.st.phase==="pick")renderCups(); else cupsDeal();
 }
-function cupsPickSet(slot,name){
+function cupsPickSet(slot,poolIdx){
   const g=CUPS.st;if(!g||g.phase!=="pick")return;
+  const name=(typeof poolIdx==="number")?g.pool[poolIdx]:poolIdx;
+  if(!name)return;
   g.pick[slot]=name;renderCups();
 }
 function cupsPickGo(){
@@ -2424,11 +2426,11 @@ function renderCups(){
   if(g.phase==="pick"){
     const ready=g.pick[0]&&g.pick[1]&&g.pick[0]!==g.pick[1];
     const slot=(idx)=>'<div class="cpickslot"><div class="cn">'+(idx===0?T().cupsPickSlot1:T().cupsPickSlot2)+'</div>'+
-      '<div class="cnames">'+g.pool.map(n=>{
+      '<div class="cnames">'+g.pool.map((n,pi)=>{
         const other=g.pick[1-idx]===n, on=g.pick[idx]===n;
         const cls=on?" on":(other?" taken":"");
         const dis=other?" disabled":"";
-        return '<button class="'+cls.trim()+'"'+dis+' onclick="cupsPickSet('+idx+','+JSON.stringify(n)+')">'+n+'</button>';
+        return '<button class="'+cls.trim()+'"'+dis+' onclick="cupsPickSet('+idx+','+pi+')">'+n+'</button>';
       }).join("")+'</div></div>';
     box.innerHTML=
       '<h2>C<span class="fu">U</span>PS</h2>'+
