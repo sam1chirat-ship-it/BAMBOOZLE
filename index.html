@@ -420,6 +420,7 @@
     5.6%,5.8%{opacity:.5}
     48.5%,49.3%{opacity:.66}
     48.9%{opacity:.34}}
+  #secret .sectitle .nobrk{white-space:nowrap}
   #secret .sectitle .tube{display:inline-block;animation:secTube 4.3s linear infinite}
   @keyframes secTube{
     0%,7%,11%,55%,61%,100%{opacity:1;text-shadow:inherit}
@@ -1651,8 +1652,6 @@ function climbLadder(p,n){
     for(let r=before+1;r<=p.rung;r++){
       if(STATIONS[r]&&!p.seen[r]){p.pending=r;p.seen[r]=true}
     }
-    /* célébration légère si aucune station n'est en attente (sinon handleStation prendra le relais) */
-    if(!p.pending)celebrateMilestone("⤴️",T().climbT(p.rung,LADDER),p.name);
   }else log(T().slipLog(p.name,p.rung));
 }
 /* une station en attente est traitée avant de passer la main */
@@ -2132,10 +2131,6 @@ function marqueeCascade(o){
   o.appendChild(wrap);
   setTimeout(()=>wrap.remove(),1800);
 }
-function celebrateMilestone(icon,title,name){
-  showEvent(icon,title,name,"climb",null,true);
-  setTimeout(()=>{const o=document.getElementById("overlay");if(o&&o.classList.contains("show"))hideStamp()},1200);
-}
 function dropConfetti(o){
   const cols=["#FFD54A","#FF7A3D","#4FC3F7","#FFF4E0","#FF4D5A","#4DE6A8"];
   for(let i=0;i<60;i++){const c=document.createElement("span");c.className="confetti";
@@ -2248,7 +2243,7 @@ function raiseFog(){
 /* Avant l'énigme, une question. Répondre « non » referme la porte. */
 function askWorthy(){
   const e=document.getElementById("secret");
-  e.innerHTML='<div class="sectitle">'+T().secT.replace(/A(?=SMAR)/,'<span class="tube">A</span>')+'</div>'+
+  e.innerHTML='<div class="sectitle">'+T().secT.replace(/ELASMAR/,'<span class="nobrk">EL<span class="tube">A</span>SMAR</span>')+'</div>'+
     '<div class="sectext worthy">'+T().worthyQ+'</div>'+
     '<div class="secbtns"><button class="b-gold b-sm" onclick="worthyYes()">'+T().worthyYes+'</button>'+
     '<button class="b-ghost b-sm" onclick="worthyNo()">'+T().worthyNo+'</button></div>';
@@ -2257,7 +2252,7 @@ function askWorthy(){
 function worthyYes(){buzz([30,50,120]);sfx("reveal");openSecret()}
 function worthyNo(){
   const e=document.getElementById("secret");
-  e.innerHTML='<div class="sectitle">'+T().secT.replace(/A(?=SMAR)/,'<span class="tube">A</span>')+'</div>'+
+  e.innerHTML='<div class="sectitle">'+T().secT.replace(/ELASMAR/,'<span class="nobrk">EL<span class="tube">A</span>SMAR</span>')+'</div>'+
     '<div class="sectext worthy">'+T().worthyBack+'</div>'+
     '<div class="secbtns"><button class="b-ghost b-sm" onclick="closeSecret()">'+T().secBack+'</button>'+
     '<button class="b-gold b-sm" onclick="askWorthy()">'+T().worthyAgain+'</button></div>';
@@ -2265,7 +2260,7 @@ function worthyNo(){
 }
 function openSecret(){
   const e=document.getElementById("secret");
-  e.innerHTML='<div class="sectitle">'+T().secT.replace(/A(?=SMAR)/,'<span class="tube">A</span>')+'</div>'+
+  e.innerHTML='<div class="sectitle">'+T().secT.replace(/ELASMAR/,'<span class="nobrk">EL<span class="tube">A</span>SMAR</span>')+'</div>'+
     '<div class="sectext">'+T().secRiddle+'</div>'+
     '<input type="text" id="secin" placeholder="'+T().secPlace+'" maxlength="24" autocomplete="off">'+
     '<div class="secerr" id="secerr"></div>'+
