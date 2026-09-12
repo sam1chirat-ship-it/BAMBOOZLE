@@ -131,6 +131,7 @@
   .btnrow button{letter-spacing:.04em;line-height:1.25;hyphens:none}
   button{flex:1;min-width:120px;background:rgba(18,8,33,.65);border:2px solid;border-radius:12px;padding:13px 12px;
     font-family:var(--sans);letter-spacing:.12em;font-size:18px;text-transform:uppercase;cursor:pointer;line-height:1;
+    touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;
     transition:transform .08s,box-shadow .2s;animation:btnhum 4.2s ease-in-out infinite alternate}
   @keyframes btnhum{from{filter:brightness(.96)}to{filter:brightness(1.08)}}
   button:active{transform:scale(.97)}
@@ -824,6 +825,7 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  duelWin:(w,l)=>"⚔️ FACE-OFF : <b>"+w+"</b> bat <b>"+l+"</b> — +150 contre −50 !",
  duelNone:(a,b)=>"⚔️ FACE-OFF : ni <b>"+a+"</b> ni <b>"+b+"</b> n'a trouvé. Personne ne marque.",
  duelHut:(w,l)=>"<b>"+l+"</b> perd le duel, mais la Golden Mudhut lui évite la pénalité.",
+ hutSaved:n=>"🛖 <b>"+n+"</b> est à l'abri dans la Mudhut — aucune perte.",
  duelWT:w=>w+" gagne !",duelWS:(w,l)=>w+" rafle 150 points sous le nez de "+l+".",
  duelBtn:"⚔️ Organiser le duel",
 
@@ -1032,6 +1034,7 @@ en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EX
  duelWin:(w,l)=>"⚔️ FACE-OFF: <b>"+w+"</b> beats <b>"+l+"</b> — +150 against −50!",
  duelNone:(a,b)=>"⚔️ FACE-OFF: neither <b>"+a+"</b> nor <b>"+b+"</b> got it. Nobody scores.",
  duelHut:(w,l)=>"<b>"+l+"</b> loses the duel, but the Golden Mudhut spares them the penalty.",
+ hutSaved:n=>"🛖 <b>"+n+"</b> is safe inside the Mudhut — no loss.",
  duelWT:w=>w+" wins!",duelWS:(w,l)=>w+" snatches 150 points from under "+l+"'s nose.",
  duelBtn:"⚔️ Call the duel",
 
@@ -1303,6 +1306,7 @@ I18N.it=Object.assign({},I18N.en,{
  duelWin:(w,l)=>"⚔️ FACE-OFF: <b>"+w+"</b> batte <b>"+l+"</b> — +150 contro −50!",
  duelNone:(a,b)=>"⚔️ FACE-OFF: né <b>"+a+"</b> né <b>"+b+"</b> ha indovinato. Nessun punto.",
  duelHut:(w,l)=>"<b>"+l+"</b> perde il duello, ma la Golden Mudhut gli evita la penalità.",
+ hutSaved:n=>"🛖 <b>"+n+"</b> è al riparo nella Mudhut — nessuna perdita.",
  duelWT:w=>w+" vince!",duelWS:(w,l)=>w+" strappa 150 punti sotto il naso di "+l+".",
  duelBtn:"⚔️ Organizza il duello",
  fiT:"🏆 Paradise Pond — Prova finale",fiFace:n=>n+" sul bordo della Vasca",
@@ -1573,6 +1577,29 @@ function gainFor(p){
 }
 function lossFor(p){return p.dbl?50:(S&&S.isFriends?50:25)}
 
+/* ===== GOLDEN MUDHUT — protection centralisée =====
+   Toute perte de score ou contrainte hostile passe par ces helpers.
+   Un joueur en Mudhut (mudhut>0) est totalement intouchable : aucune
+   perte, aucune contrainte imposée. Il continue de gagner normalement.
+*/
+function isProtected(p){return !!(p&&p.mudhut>0)}
+function takePoints(p,amt){
+  if(!p||!amt||amt<=0)return 0;
+  if(isProtected(p)){log(T().hutSaved(p.name));return 0}
+  const b=p.score;p.score=Math.max(0,p.score-amt);
+  return b-p.score;
+}
+function applyHostileFlag(p,key,val){
+  if(!p)return false;
+  if(isProtected(p)){log(T().hutSaved(p.name));return false}
+  p[key]=val;return true;
+}
+function pushDare(p,entry){
+  if(!p)return false;
+  if(isProtected(p)){log(T().hutSaved(p.name));return false}
+  (p.dares=p.dares||[]).push(entry);return true;
+}
+
 /* Le VRAI Bamboozle : sanction rare et catastrophique (moitié des points). */
 function triggerBamboozle(p,why){
   p.dbl=false;
@@ -1609,11 +1636,13 @@ function answer(ok,bonus){ // bonus = défi du tour relevé (+50)
       if(p.shield){p.shield=false;log(T().dbShieldUsed(p.name));
         if(p.contract!==undefined&&p.contract!==null){resolveContract(p,false)}
         S.bonusQ=null;endTurn();return}
-      p.score=Math.max(0,p.score-L);
-      log(T().logMiss(p.name,L,fmt(p.score),p.streak));
+      const lost=takePoints(p,L);
+      if(lost>0){
+        log(T().logMiss(p.name,L,fmt(p.score),p.streak));
+        buzz([40,70,40]);
+        banner("bad","🙈",T().badT(L),T().badS(p.streak));
+      }
       if(p.contract!==undefined&&p.contract!==null)resolveContract(p,false);
-      buzz([40,70,40]);
-      banner("bad","🙈",T().badT(L),T().badS(p.streak));
       S.bonusQ=null;endTurn();
     };
     if(p.angel>0){
@@ -1630,8 +1659,8 @@ function answer(ok,bonus){ // bonus = défi du tour relevé (+50)
 function resolveContract(p,reussi){
   const idx=p.contract;p.contract=null;
   const owner=S.players[idx];if(!owner)return;
-  if(reussi){const amt=Math.min(50,owner.score);owner.score-=amt;p.score+=amt;
-    log(T().dbContractWin(p.name,owner.name,amt))}
+  if(reussi){const amt=Math.min(50,owner.score);const taken=takePoints(owner,amt);
+    if(taken>0){p.score+=taken;log(T().dbContractWin(p.name,owner.name,taken))}}
   else{owner.score+=100;log(T().dbContractLost(owner.name,p.name))}
 }
 function endTurn(){
@@ -1758,8 +1787,8 @@ function yankResult(ok){
     showEvent("🐒",T().yankT,T().yankS(p.name),"spin",()=>startFinal(S.cur),true);
   }else{
     p.rung=0;p.seen={};          /* la chute est totale : on repart du bas de l'Échelle */
-    p.score=Math.max(0,p.score-100);
-    log(T().yankFailLog(p.name,fmt(p.score)));
+    const lost=takePoints(p,100);
+    if(lost>0)log(T().yankFailLog(p.name,fmt(p.score)));
     fx("monkey");
     showEvent("🙈",T().yankFT,T().yankFS(p.name),"shake",()=>endTurn());
   }
@@ -1772,6 +1801,8 @@ function stayBelow(){
 
 /* =============== ROUE =============== */
 function spinWheel(){
+  if(S.spinning)return;         /* verrou de réentrance : un lancer à la fois */
+  S.spinning=true;
   climbLadder(cp(),1);          /* on lance la Roue pour grimper l'Échelle */
   S.phase="wheel";render();sfx("roll");
   const d1=document.getElementById("d1"),d2=document.getElementById("d2");
@@ -1783,6 +1814,7 @@ function spinWheel(){
       d1.textContent=a;d2.textContent=b;d1.classList.remove("rolling");d2.classList.remove("rolling");
       S.isDouble=(a===b);
       if(S.isDouble){d1.classList.add("dbl");d2.classList.add("dbl")}
+      S.spinning=false;
       resolveWheel(a+b);
     }
   },90);
@@ -1801,7 +1833,9 @@ function dblResolve(kind,arg){
   const done=()=>{S.dbcard=null;if(after)after();else endTurn()};
   switch(kind){
     case "mirror":{
-      const v=arg;const mine=p.score;p.score=v.score;v.score=mine;
+      const v=arg;
+      if(isProtected(v)||isProtected(p)){log(T().hutSaved((isProtected(p)?p:v).name));fx("mudhut");done();break}
+      const mine=p.score;p.score=v.score;v.score=mine;
       log(T().dbMirrorLog(p.name,v.name,fmt(p.score),fmt(v.score)));
       fx("mayhem");done();break}
     case "tribut":{
@@ -1809,6 +1843,7 @@ function dblResolve(kind,arg){
       p.score+=tot;S.turnGain+=tot;
       log(T().dbTributLog(p.name,tot));fx("gimme");done();break}
     case "impot":{
+      if(isProtected(p)){log(T().hutSaved(p.name));fx("mudhut");done();break}
       let tot=0;S.players.forEach(x=>{if(x!==p){x.score+=25;tot+=25}});
       p.score=Math.max(0,p.score-tot);
       log(T().dbImpotLog(p.name,tot));fx("monkey");done();break}
@@ -1823,10 +1858,11 @@ function dblResolve(kind,arg){
     case "roulette":{
       const win=arg;
       if(win){p.score+=300;S.turnGain+=300;log(T().dbRouletteWin(p.name,fmt(p.score)));fx("jackpot")}
-      else{p.score=Math.max(0,p.score-200);log(T().dbRouletteLose(p.name,fmt(p.score)));fx("bamboozle")}
+      else{const lost=takePoints(p,200);if(lost>0){log(T().dbRouletteLose(p.name,fmt(p.score)));fx("bamboozle")}else fx("mudhut")}
       done();break}
     case "contract":{
-      const v=arg;v.contract=S.cur;
+      const v=arg;
+      if(!applyHostileFlag(v,'contract',S.cur)){fx("mudhut");done();break}
       log(T().dbContractLog(p.name,v.name));fx("duel");done();break}
     default:done();
   }
@@ -1866,7 +1902,7 @@ function resolveWheel(n){
 }
 function bwOK(ok){const p=cp();
   if(ok){p.score+=150;S.turnGain+=150;p.streak=0;log(T().bwOK(p.name,fmt(p.score)))}
-  else{p.score=Math.max(0,p.score-50);log(T().bwKO(p.name,fmt(p.score)))}
+  else{const lost=takePoints(p,50);if(lost>0)log(T().bwKO(p.name,fmt(p.score)))}
   endTurn();
 }
 function enterMudhut(n){const p=cp();p.mudhut=n+1;
@@ -1988,7 +2024,9 @@ function actionGoogle(){
 function chooseGoogleTarget(c,dbl){
   const B=document.getElementById("cardbtn");B.innerHTML="";
   if(c.k!=="dare"){renderGoogleButtons(c,dbl,cp());return}
-  const others=S.players.map((x,i)=>({x,i})).filter(o=>o.i!==S.cur);
+  const hostileDare=c.a!=="dance";
+  const others=S.players.map((x,i)=>({x,i})).filter(o=>o.i!==S.cur&&(!hostileDare||o.x.mudhut===0));
+  if(others.length===0){log(T().noTgt);endTurn();return}
   if(others.length===1){log(T().gInf(cp().name,c.t,others[0].x.name));renderGoogleButtons(c,dbl,others[0].x);return}
   B.insertAdjacentHTML("beforebegin",'<div class="hint" id="wtgt">'+T().gWho+'</div>');
   others.forEach(o=>{const b=document.createElement("button");b.className="b-cy";b.textContent=o.x.name;b.onclick=()=>{
@@ -2011,9 +2049,9 @@ function renderGoogleButtons(c,dbl,t){
       if(c.a==="dance"){
         btn(T().gDanceOK(t.name),"b-gold",()=>{t.score+=100;log(T().gDanceLog(t.name,fmt(t.score)));next()});
         btn(T().gSoul,"b-rd",()=>{log(T().gSoulLog);next()});
-      }else if(c.a==="hop"){t.hopping=2;btn(T().gHop(t.name),"b-gold",next)}
-      else{t.dares=(t.dares||[]);t.dares.push({t:c.t});
-        btn(T().gDareB,"b-gold",()=>{log(T().gDareLog(t.name));next()})}
+      }else if(c.a==="hop"){if(applyHostileFlag(t,'hopping',2))btn(T().gHop(t.name),"b-gold",next);else btn(T().cont,"b-gold",next)}
+      else{const added=pushDare(t,{t:c.t});
+        btn(T().gDareB,"b-gold",()=>{if(added)log(T().gDareLog(t.name));next()})}
       break;
     case "adv":
       switch(c.fx){
@@ -2027,8 +2065,8 @@ function renderGoogleButtons(c,dbl,t){
         case "steal100":btn(T().gStealB,"b-mg",()=>pickTarget(T().gStealQ,true,(v)=>{
             withAngel(v,T().gTgt(v.name),()=>{const amt=Math.min(100,v.score);v.score-=amt;p.score+=amt;S.turnGain+=amt;
               log(T().gStealLog(p.name,amt,v.name));next()});}));break;
-        case "skip":btn(T().gSkipB,"b-mg",()=>pickTarget(T().gSkipQ,false,(v)=>{
-            v.skip=true;log(T().gSkipLog(v.name));next()}));break;
+        case "skip":btn(T().gSkipB,"b-mg",()=>pickTarget(T().gSkipQ,true,(v)=>{
+            if(applyHostileFlag(v,'skip',true))log(T().gSkipLog(v.name));next()}));break;
       }break;
     case "gimme":
       btn(T().gStealB,"b-mg",()=>{
@@ -2746,7 +2784,7 @@ function render(){
     const btn=(l,cl,fn)=>'<button class="'+cl+'" onclick="'+fn+'">'+l+'</button>';
     let actions="";
     if(c.k==="mirror"||c.k==="contract"){
-      actions=S.players.map((x,i)=>i===S.cur?"":btn(x.name,"b-cy","dblPick('"+c.k+"',"+i+")")).join("");
+      actions=S.players.map((x,i)=>(i===S.cur||x.mudhut>0)?"":btn(x.name,"b-cy","dblPick('"+c.k+"',"+i+")")).join("");
     }else if(c.k==="roulette"){
       actions=btn(T().dbHeads,"b-gold","dblResolve('roulette',true)")+btn(T().dbTails,"b-rd","dblResolve('roulette',false)");
     }else{
@@ -2872,6 +2910,24 @@ seenLoad();
     el.addEventListener("transitionend",write);
     window.addEventListener("resize",write);
   }
+})();
+
+/* ===== Anti double-tap global sur les boutons =====
+   Un double-tap involontaire (mobile) ou un rebond de clic ne doit
+   jamais déclencher deux fois la même action. Sur le MÊME bouton,
+   tout second clic dans les 350 ms qui suivent le premier est ignoré.
+   Capture-phase pour couper avant les onclick inline. */
+(function installDoubleTapGuard(){
+  const WINDOW_MS=350;
+  const last=new WeakMap();
+  document.addEventListener("click",function(e){
+    const b=e.target&&e.target.closest?e.target.closest("button"):null;
+    if(!b)return;
+    const now=performance.now();
+    const t=last.get(b)||0;
+    if(now-t<WINDOW_MS){e.stopImmediatePropagation();e.preventDefault();return}
+    last.set(b,now);
+  },true);
 })();
 
 renderSetup();
