@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.anthropic.com https://bamboozle-ai.sam1chirat.workers.dev; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://api.anthropic.com https://bamboozle-ai.sam1chirat.workers.dev https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; manifest-src 'self'; worker-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <title>BAMBOOZLED</title>
 <!-- écran d'accueil : nom et icône (le B de l'enseigne) -->
@@ -342,6 +342,12 @@
   /* barre supérieure */
   .topbar{position:relative;z-index:4;display:flex;justify-content:flex-end;gap:8px;padding:max(30px,calc(10px + var(--sat))) 12px 0;max-width:560px;margin:0 auto}
   .topbar button{flex:0 0 auto;min-width:0;padding:6px 12px;font-size:13px}
+  /* Mode télé : état du bouton (connecté / en attente) et modale de saisie du code */
+  #tvbtn.tv-on{border-color:var(--nmint);color:var(--nmint)}
+  #tvbtn.tv-wait{border-color:var(--nyellow);color:var(--nyellow)}
+  #modal .tvstat{font-family:var(--serif);font-size:14px;line-height:1.45;color:var(--cream);margin:0 0 12px}
+  #modal .tvstat.err{color:var(--nred);margin-top:10px}
+  #modal #tvcode{text-align:center;font-family:var(--sans);font-size:30px;letter-spacing:.35em;text-transform:uppercase;margin:0 0 12px;padding-left:calc(14px + .35em)}
 
   /* ============ ÉCRAN DE LANCEMENT : LE B QUI GRÉSILLE ============ */
   #boot{position:fixed;inset:0;z-index:95;background:#120821;
@@ -688,7 +694,8 @@
   <button class="b-ghost b-xs" id="sfxbtn" onclick="toggleSFX()">🔊</button>
   <button class="b-ghost b-xs" id="langbtn" onclick="cycleLang()" style="letter-spacing:.14em">EN</button>
   <button class="b-ghost b-xs" id="expbtn" onclick="exportGame()" title="Save">💾</button>
-  <button class="b-ghost b-xs" id="tblbtn" onclick="toggleTableMode()" title="Table">📺</button>
+  <button class="b-ghost b-xs" id="tblbtn" onclick="toggleTableMode()" title="Scores">🏆</button>
+  <button class="b-ghost b-xs" id="tvbtn" onclick="tvOpen()" title="TV">📺 TV</button>
 </div>
 <header>
   <h1>BAMB<span class="flicko" id="secretO" onclick="openPortal()" title="">O</span>OZLED</h1>
@@ -1393,7 +1400,7 @@ function setLang(l){
   const lb=document.getElementById("langbtn");if(lb)lb.textContent=T().lang;
   const sb=document.getElementById("subline");if(sb)sb.textContent=T().sub;
   const lw=document.getElementById("logwrap");lw.dataset.closed=T().logC;lw.dataset.open=T().logO;
-  document.documentElement.lang=LANG;
+  document.documentElement.lang=LANG;tvSync();
   if(S)topUpAI();
   if(S){
     if(S.phase==="question")drawQuestion();
@@ -1542,6 +1549,261 @@ async function fetchAIWango(){
    CONFIGURATION — proxy Cloudflare qui détient la clé API.
    Si l'adresse du Worker change un jour, c'est la seule ligne à modifier.
    ============================================================ */
+/* =============== MODE TÉLÉ ===============
+   Le téléphone reste la télécommande ; la télé (tv.html) affiche une « vue publique »
+   relayée par un petit serveur temps réel (tv-relay/). La vue ne contient JAMAIS une
+   réponse non révélée. Si le relais est injoignable, le jeu continue sans rien bloquer. */
+const TV_RELAY_PROD="wss://bamboozle-tv.sam1chirat.workers.dev";
+const TV_RELAY_DEV="ws://127.0.0.1:8790";
+const TV_CODE_RE=/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}$/;
+const TV_CODE_KEY="bamboozle.tv.code";
+const TV_THROTTLE_MS=150,TV_MAX_BYTES=8000,TV_TEXT_MAX=600,TV_NAME_MAX=20,TV_MAX_PLAYERS=16;
+const TV_BACKOFF_MIN_MS=1000,TV_BACKOFF_MAX_MS=15000,TV_BANNER_EXTRA_MS=1500;
+const TV_CLOSE_REPLACED=4001,TV_CLOSE_NO_ROOM=4004;
+const TV_T={
+  fr:{title:"📺 Mode télé",hint:"Sur la télé, ouvre la page tv.html du jeu, puis tape ici le code affiché.",go:"Connecter",cancel:"Annuler",close:"Fermer",off:"Déconnecter",
+      bad:"Code invalide : 4 caractères, lettres et chiffres.",gone:"Code inconnu ou expiré. Vérifie le code affiché sur la télé.",taken:"Une autre télécommande a pris la main sur ce code.",
+      wait:c=>"Code "+c+" — connexion au relais…",on:(c,n)=>"Code "+c+" — "+n+(n>1?" écrans connectés":" écran connecté")},
+  en:{title:"📺 TV mode",hint:"On the TV, open the game's tv.html page, then type the code it shows here.",go:"Connect",cancel:"Cancel",close:"Close",off:"Disconnect",
+      bad:"Invalid code: 4 characters, letters and digits.",gone:"Unknown or expired code. Check the code shown on the TV.",taken:"Another remote took over this code.",
+      wait:c=>"Code "+c+" — connecting to the relay…",on:(c,n)=>"Code "+c+" — "+n+(n===1?" screen connected":" screens connected")},
+  it:{title:"📺 Modalità TV",hint:"Sulla TV apri la pagina tv.html del gioco, poi scrivi qui il codice mostrato.",go:"Collega",cancel:"Annulla",close:"Chiudi",off:"Scollega",
+      bad:"Codice non valido: 4 caratteri, lettere e cifre.",gone:"Codice sconosciuto o scaduto. Controlla il codice sulla TV.",taken:"Un altro telecomando ha preso il controllo di questo codice.",
+      wait:c=>"Codice "+c+" — connessione al relay…",on:(c,n)=>"Codice "+c+" — "+n+(n===1?" schermo collegato":" schermi collegati")}
+};
+const TV={code:null,ws:null,open:false,n:0,retry:0,retryT:null,sendT:null,last:"",lastAt:0,bn:null,bnT:null,bnSeq:0,ev:null,err:""};
+const tvT=()=>TV_T[LANG]||TV_T.fr;
+/* Relais local uniquement pour une page servie en http sur la machine de dev
+   (l'app iPhone tourne sur capacitor://localhost : elle doit viser la prod). */
+function tvRelayURL(){
+  const dev=location.protocol==="http:"&&(location.hostname==="localhost"||location.hostname==="127.0.0.1");
+  return dev?TV_RELAY_DEV:TV_RELAY_PROD;
+}
+/* Texte brut pour la télé : balises retirées, entités décodées (un <textarea> ne crée aucun élément). */
+const TV_DECODER=document.createElement("textarea");
+function tvText(s,max){
+  if(s===undefined||s===null)return "";
+  TV_DECODER.innerHTML=String(s).replace(/<br\s*\/?>/gi," ").replace(/<[^>]*>/g,"");
+  const t=TV_DECODER.value.replace(/\s+/g," ").trim(),m=max||TV_TEXT_MAX;
+  return t.length>m?t.slice(0,m-1)+"…":t;
+}
+function tvQA(q){if(!q)return ["",""];return Array.isArray(q)?[q[0],q[1]]:[q.x,q.ans]}
+function tvBadges(p){
+  const b=[];
+  if(p.angel>0)b.push("😇 ×"+p.angel);
+  if(p.mudhut>0)b.push("🛖 "+p.mudhut);
+  if(p.hopping>0)b.push("🦵 "+p.hopping);
+  if(p.dbl)b.push("×2");
+  if(p.skip)b.push("🔇");
+  if(p.shield)b.push("🛡");
+  if(p.streak>0)b.push("💥 "+p.streak+"/3");
+  if((p.combo||0)>=2)b.push("🔥 ×"+p.combo);
+  return b;
+}
+function tvPlayers(){
+  const focus=S.screen==="game"?S.cur:(S.final?S.final.idx:-1);
+  return S.players.slice(0,TV_MAX_PLAYERS).map((p,i)=>{
+    const o={n:String(p.name).slice(0,TV_NAME_MAX),s:p.score},b=tvBadges(p);
+    if(i===focus)o.a=1;
+    if(b.length)o.b=b;
+    if(p.rung)o.r=p.rung;
+    return o;
+  });
+}
+/* La scène : même découpage que render(). Une réponse n'est copiée que si elle est révélée. */
+function tvStage(v){
+  const t=T();
+  if(S.screen==="winner"){
+    const w=S.players[S.final.idx];
+    v.ph="winner";v.win={n:String(w.name).slice(0,TV_NAME_MAX),s:w.score};
+    v.title=tvText(t.winT(w.name),160);v.sub=tvText(t.winX(fmt(w.score)),300);return;
+  }
+  if(S.screen==="final"){
+    const f=S.players[S.final.idx];v.ph="final";
+    if(!S.final.started){v.title=tvText(t.fiT,160);v.q=tvText(t.fiFace(f.name));v.sub=tvText(t.fiX(fmt(f.score)),400)}
+    else{const qa=tvQA(S.q);v.title=tvText(t.fiQ(S.final.qn,S.final.ok),160);v.q=tvText(qa[0]);
+      if(S.showA)v.a=tvText(qa[1],300);v.timer=[S.timer,S.timerMax]}
+    return;
+  }
+  const p=cp();v.ph=S.phase;
+  if(S.phase==="question"){
+    const qa=tvQA(S.q);
+    v.title=tvText((S.bonusQ?t.bq:"")+(S.isFriends?t.friendsTag:"")+(S.isRetro?t.retroTag:"")+t.qFor+p.name+(p.hopping>0?t.hopF:"")+(p.mudhut>0?t.hutF:""),160);
+    v.q=tvText(qa[0]);if(S.showA)v.a=tvText(qa[1],300);
+    v.val=["+"+gainFor(p),"−"+lossFor(p)];
+    v.sub=tvText(t.chipTitle,60)+" — "+tvText(S.bonus+t.chipTail,240);
+  }else if(S.phase==="action"){
+    v.title=tvText(t.actT(p.name),160);
+    v.opts=[t.actWheel,t.actWango,t.actGoogle(S.wangoDouble)].map(x=>tvText(x,60));
+  }else if(S.phase==="wango"){
+    const W=S.wango,L=D().LV[W.lvl-1];
+    if(W.state==="won"){v.title=tvText(t.wgWonT(L.n),160);v.q=tvText(t.wgBank(fmt(W.bank)))}
+    else{v.title=tvText(t.wgLvl+L.n+"/7 — "+W.q.t,160);v.sub=tvText(t.wgCons+L.c,300);v.q=tvText(W.q.x);
+      if(W.showA)v.a=tvText(W.q.ans,300)}
+  }else if(S.phase==="ring"){
+    const b=S.bj,hide=b.state==="play";
+    v.title=tvText("🌈 "+t.bjEye,160);
+    v.q=tvText(p.name+" : "+b.me.map(c=>c.label).join("  ")+"  = "+bjTotal(b.me));
+    v.sub=tvText(t.bjMonkey+" : "+(hide?b.monkey[0].label+"  ?":b.monkey.map(c=>c.label).join("  ")+"  = "+bjTotal(b.monkey)),300);
+  }else if(S.phase==="yank"){
+    v.title=tvText("🐒 "+t.yankEye,160);v.q=tvText(S.yank.dare);
+  }else if(S.phase==="monkeygate"){
+    v.title=tvText("🐒 "+t.gateT,160);v.q=tvText(t.gateX(p.name));
+  }else if(S.phase==="double"){
+    v.title=tvText(t.dbEye,160);v.q=tvText(S.dbcard.c.t);v.sub=tvText(S.dbcard.c.x,400);
+  }else if(S.phase==="duel"){
+    const d=S.duel;v.title=tvText(t.duelEye,160);
+    if(d.b===null){v.q=tvText(d.a===null?t.duelPick1:t.duelPick2);v.sub=tvText(t.duelRules,400)}
+    else{v.vs=[d.a,d.b].map(i=>String(S.players[i].name).slice(0,TV_NAME_MAX));v.q=tvText(d.q[0]);
+      if(d.showA)v.a=tvText(d.q[1],300)}
+  }else if(S.phase==="wheel"){
+    v.title=tvText("🎡 "+t.whT,160);
+    const d1=document.getElementById("d1"),d2=document.getElementById("d2"),res=document.getElementById("wres");
+    if(d1&&d2&&!d1.classList.contains("rolling"))v.dice=[tvText(d1.textContent,2),tvText(d2.textContent,2)];
+    const big=res&&res.querySelector(".big"),txt=res&&res.querySelector(".cardtxt");
+    if(big)v.q=tvText(big.textContent);
+    if(txt)v.sub=tvText(txt.textContent,400);
+  }else if(S.phase==="ttt"){
+    const qa=tvQA(S.q);
+    v.title=tvText("🌳 "+t.tttQ+S.ttt.idx+" / 3",160);v.q=tvText(qa[0]);
+    if(S.showA)v.a=tvText(qa[1],300);v.timer=[S.timer,S.timerMax];
+  }else if(S.phase==="card"){
+    v.title=tvText(S.card.deck,160);v.q=tvText(S.card.c.t);v.sub=tvText(S.card.c.x,400);
+  }
+}
+function tvBuildView(){
+  const v={v:1,lang:LANG,screen:S?S.screen:"setup"};
+  if(TV.ev)v.ev=TV.ev;
+  if(TV.bn)v.bn=TV.bn;
+  if(!S||S.screen==="setup")return v;
+  v.goal=GOAL;v.ladder=LADDER;v.players=tvPlayers();
+  if(S.log&&S.log.length)v.log=tvText(S.log[0],200);
+  /* Un état inattendu ne doit jamais casser le jeu : on envoie au moins les podiums. */
+  try{tvStage(v)}catch(e){console.warn("TV vue",e.message)}
+  return v;
+}
+function tvBytes(s){try{return new TextEncoder().encode(s).length}catch(e){return s.length*3}}
+function tvSerialize(){
+  const v=tvBuildView();
+  let s=JSON.stringify({type:"view",view:v});
+  if(tvBytes(s)<=TV_MAX_BYTES)return s;
+  /* Trop gros (très nombreux joueurs) : on allège sans toucher aux noms ni aux scores. */
+  const slim=Object.assign({},v,{players:(v.players||[]).map(p=>({n:p.n,s:p.s,a:p.a}))});
+  delete slim.log;delete slim.sub;delete slim.ev;delete slim.bn;
+  s=JSON.stringify({type:"view",view:slim});
+  return tvBytes(s)<=TV_MAX_BYTES?s:JSON.stringify({type:"view",view:{v:1,lang:LANG,screen:v.screen}});
+}
+/* Demande d'envoi : regroupée (au plus un message toutes les 150 ms), l'état est lu à l'envoi. */
+function tvSync(){
+  if(!TV.open||TV.sendT)return;
+  TV.sendT=setTimeout(tvFlush,Math.max(0,TV_THROTTLE_MS-(Date.now()-TV.lastAt)));
+}
+function tvFlush(){
+  TV.sendT=null;
+  if(!TV.open||!TV.ws)return;
+  try{
+    const s=tvSerialize();
+    if(s===TV.last)return;
+    TV.ws.send(s);TV.last=s;TV.lastAt=Date.now();
+  }catch(e){console.warn("TV envoi",e.message)}
+}
+function tvNote(kind,icon,title,sub,ms){
+  if(!TV.code)return;
+  TV.bn={id:++TV.bnSeq,k:tvText(kind,12),i:tvText(icon,12),t:tvText(title,120),s:tvText(sub,200)};
+  clearTimeout(TV.bnT);TV.bnT=setTimeout(()=>{TV.bn=null;tvSync()},(ms||1900)+TV_BANNER_EXTRA_MS);
+  tvSync();
+}
+function tvEvent(icon,title,sub){
+  if(!TV.code)return;
+  TV.ev={i:tvText(icon,16),t:tvText(title,160),s:tvText(sub,300)};tvSync();
+}
+function tvEventEnd(){if(TV.ev){TV.ev=null;tvSync()}}
+function tvBadge(){
+  const b=document.getElementById("tvbtn");
+  if(b){
+    b.classList.toggle("tv-on",TV.open);b.classList.toggle("tv-wait",!!TV.code&&!TV.open);
+    b.textContent=TV.open?"📺 "+TV.n:(TV.code?"📺 …":"📺 TV");
+  }
+  if(tvModalUp())tvModal();
+}
+function tvDial(){
+  clearTimeout(TV.retryT);TV.retryT=null;
+  if(!TV.code||TV.ws)return;
+  let ws;
+  try{ws=new WebSocket(tvRelayURL()+"/ws?code="+TV.code+"&role=host")}
+  catch(e){console.warn("TV relais",e.message);tvRetry();return}
+  TV.ws=ws;
+  ws.onopen=()=>{if(TV.ws!==ws)return;TV.open=true;TV.retry=0;TV.last="";TV.err="";tvBadge();tvSync()};
+  ws.onmessage=ev=>{
+    if(TV.ws!==ws)return;
+    let m;try{m=JSON.parse(ev.data)}catch(e){return}
+    if(m&&m.type==="tvs"&&Number.isInteger(m.n)){TV.n=Math.max(0,Math.min(9,m.n));tvBadge()}
+  };
+  ws.onerror=()=>{};   /* onclose suit toujours : c'est lui qui décide de la suite */
+  ws.onclose=ev=>{
+    if(TV.ws!==ws)return;
+    TV.ws=null;TV.open=false;TV.n=0;
+    if(ev.code===TV_CLOSE_NO_ROOM){tvForget();TV.err="gone"}
+    else if(ev.code===TV_CLOSE_REPLACED){tvForget();TV.err="taken"}
+    else tvRetry();
+    tvBadge();
+  };
+}
+function tvRetry(){
+  if(!TV.code||TV.retryT)return;
+  const wait=Math.min(TV_BACKOFF_MAX_MS,TV_BACKOFF_MIN_MS*Math.pow(2,TV.retry++))+Math.floor(Math.random()*400);
+  TV.retryT=setTimeout(()=>{TV.retryT=null;tvDial()},wait);
+}
+function tvForget(){
+  TV.code=null;TV.retry=0;clearTimeout(TV.retryT);TV.retryT=null;clearTimeout(TV.bnT);TV.bn=null;TV.ev=null;
+}
+function tvConnect(code){
+  tvDisconnect();
+  TV.code=code;TV.err="";
+  try{sessionStorage.setItem(TV_CODE_KEY,code)}catch(e){}
+  tvDial();tvBadge();
+}
+function tvDisconnect(){
+  const ws=TV.ws;
+  TV.ws=null;TV.open=false;TV.n=0;tvForget();
+  if(ws){try{ws.close(1000,"bye")}catch(e){}}
+  tvBadge();
+}
+function tvCleanCode(s){return String(s||"").toUpperCase().replace(/[^ABCDEFGHJKLMNPQRSTUVWXYZ23456789]/g,"").slice(0,4)}
+function tvModalUp(){const m=document.getElementById("modal");return !!(m&&m.classList.contains("show")&&m.querySelector("[data-tv]"))}
+function tvOpen(){tvModal()}
+function tvModal(){
+  const t=tvT(),say=(cls,txt)=>{const d=document.createElement("div");d.className=cls;d.dataset.tv="1";d.textContent=txt;return d};
+  if(TV.code){
+    askModal(t.title,[{l:t.off,c:"b-rd",f:()=>{closeModal();tvDisconnect()}},{l:t.close,c:"b-ghost",f:closeModal}]);
+    const B=document.getElementById("mbtns");
+    B.parentNode.insertBefore(say("tvstat",TV.open?t.on(TV.code,TV.n):t.wait(TV.code)),B);
+    return;
+  }
+  const had=document.getElementById("tvcode"),typed=had?had.value:null;
+  const submit=()=>{
+    const i=document.getElementById("tvcode"),code=tvCleanCode(i&&i.value);
+    if(!TV_CODE_RE.test(code)){TV.err="bad";tvModal();return}
+    tvConnect(code);
+  };
+  askModal(t.title,[{l:t.go,c:"b-gold",f:submit},{l:t.cancel,c:"b-ghost",f:()=>{TV.err="";closeModal()}}]);
+  const B=document.getElementById("mbtns"),sheet=B.parentNode;
+  sheet.insertBefore(say("tvstat",t.hint),B);
+  const i=document.createElement("input");
+  i.type="text";i.id="tvcode";i.maxLength=4;i.placeholder="····";
+  i.setAttribute("autocomplete","off");i.setAttribute("autocapitalize","characters");i.setAttribute("autocorrect","off");i.setAttribute("spellcheck","false");
+  let saved="";try{saved=sessionStorage.getItem(TV_CODE_KEY)||""}catch(e){}
+  i.value=tvCleanCode(typed!==null?typed:saved);
+  i.oninput=()=>{const c=tvCleanCode(i.value);if(c!==i.value)i.value=c};
+  i.onkeydown=e=>{if(e.key==="Enter")submit()};
+  sheet.insertBefore(i,B);
+  if(TV.err&&t[TV.err])sheet.insertBefore(say("tvstat err",t[TV.err]),B);
+}
+/* Retour au premier plan ou réseau revenu : on retente tout de suite si une session est en cours. */
+function tvWake(){if(TV.code&&!TV.ws){TV.retry=0;tvDial()}}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)tvWake()});
+window.addEventListener("online",tvWake);
+
 const API_URL="https://bamboozle-ai.sam1chirat.workers.dev";
 const API_MODEL="claude-opus-5";
 
@@ -1558,7 +1820,7 @@ function newGame(names){
 }
 function cp(){return S.players[S.cur]}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function log(m){S.log.unshift(m);S.log=S.log.slice(0,30);renderLog()}
+function log(m){S.log.unshift(m);S.log=S.log.slice(0,30);renderLog();tvSync()}
 function fmt(n){return n.toLocaleString(LANG==="fr"?"fr-FR":"en-US")}
 function pick(bank,used){if(used.length>=bank.length)used.length=0;
   let i;do{i=Math.floor(Math.random()*bank.length)}while(used.includes(i));used.push(i);return bank[i]}
@@ -2185,7 +2447,7 @@ let TI=null;
 function startTimer(sec,onEnd){stopTimer();S.timer=sec;S.timerMax=sec;updTimer();
   TI=setInterval(()=>{S.timer--;updTimer();if(S.timer<=10&&S.timer>0)sfx("tick");if(S.timer<=0){stopTimer();onEnd()}},1000)}
 function stopTimer(){if(TI){clearInterval(TI);TI=null}}
-function updTimer(){const e=document.getElementById("timer");if(!e)return;
+function updTimer(){tvSync();const e=document.getElementById("timer");if(!e)return;
   const total=S.timerMax||1;
   const pct=Math.max(0,Math.min(100,(S.timer/total)*100));
   if(!e.querySelector(".timer-bar")){
@@ -2201,7 +2463,7 @@ function updTimer(){const e=document.getElementById("timer");if(!e)return;
 /* =============== UI GÉNÉRIQUE =============== */
 function meterHTML(){let h='<div class="meter">';for(let i=0;i<11;i++)h+='<i style="animation-delay:'+(i*0.07).toFixed(2)+'s;animation-duration:'+(0.4+Math.random()*0.35).toFixed(2)+'s"></i>';return h+'</div>'}
 function showEvent(icon,title,sub,anim,after,confetti){
-  hideBanner();
+  hideBanner();tvEvent(icon,title,sub);
   const o=document.getElementById("overlay");
   o.innerHTML='<div class="dialog-card"><div class="evt '+anim+'"><div class="evt-ico">'+icon+'</div><div class="evt-title">'+title+'</div></div>'+(confetti?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" onclick="hideStamp()">'+T().cont+'</button></div>';
   if(confetti){marqueeCascade(o.querySelector(".dialog-card"));sfx("fanfare")}
@@ -2235,14 +2497,14 @@ function dropConfetti(o){
     c.style.transform="rotate("+Math.random()*360+"deg)";o.appendChild(c)}
 }
 function showStamp(html,sub,after){
-  hideBanner();buzz([60,50,60,50,120]);
+  hideBanner();tvEvent("",html,sub);buzz([60,50,60,50,120]);
   const o=document.getElementById("overlay");
   const gold=html.includes("Golden")||html.includes("🌳");
   o.innerHTML='<div class="dialog-card"><div class="stamp '+(gold?"mk":"")+'">'+html+'</div>'+(gold?meterHTML():'')+'<div class="sub2">'+sub+'</div><button class="b-gold" onclick="hideStamp()">'+T().cont+'</button></div>';
   if(gold)sfx("fanfare");else sfx("doom");
   o.classList.add("show");o._after=after;
 }
-function hideStamp(){const o=document.getElementById("overlay");o.classList.remove("show");
+function hideStamp(){tvEventEnd();const o=document.getElementById("overlay");o.classList.remove("show");
   const f=o._after;o._after=null;if(f)f();}
 function askModal(title,btns){
   const m=document.getElementById("modal");
@@ -2614,8 +2876,15 @@ function dropConfetti(){}
 
 /* =============== BANDEAU DE VERDICT + HAPTIQUE =============== */
 let BT=null;
-function buzz(pattern){try{if(navigator.vibrate)navigator.vibrate(pattern)}catch(e){}}
+/* App iPhone (Capacitor) : Safari bloque navigator.vibrate, on passe par le moteur haptique natif.
+   Chaque segment « vibration » du motif devient un impact léger / moyen / fort selon sa durée. */
+function isNativeApp(){return !!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())}
+function buzz(pattern){try{
+  const H=isNativeApp()&&Capacitor.Plugins&&Capacitor.Plugins.Haptics;
+  if(H){let t=0;pattern.forEach((d,i)=>{if(i%2===0){const style=d<20?"LIGHT":d<80?"MEDIUM":"HEAVY";setTimeout(()=>H.impact({style}).catch(()=>{}),t)}t+=d});return}
+  if(navigator.vibrate)navigator.vibrate(pattern)}catch(e){}}
 function banner(kind,icon,title,sub,ms){
+  tvNote(kind,icon,title,sub,ms);
   const e=document.getElementById("banner");if(!e)return;
   /* Rattacher le banner juste après les podiums : plus jamais fixé au bas d'écran,
      ne peut donc plus recouvrir un bouton de gameplay. */
@@ -2701,6 +2970,7 @@ function renderPodiums(){
   PREV=S.players.map(p=>p.score);
 }
 function render(){
+  tvSync();   /* mode télé : la vue publique part après le rendu (envoi différé) */
   renderPodiums();
   const st=document.getElementById("stage");
   if(!S||S.screen==="setup"){renderSetup();return}
@@ -2973,7 +3243,9 @@ seenLoad();
 
 renderSetup();
 /* Application iPhone : service worker = jeu disponible hors ligne (https ou localhost uniquement) */
-if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
+/* App iPhone : écran toujours allumé pendant la soirée (le service worker est inutile, le jeu est embarqué) */
+if(isNativeApp()){const K=Capacitor.Plugins&&Capacitor.Plugins.KeepAwake;if(K)K.keepAwake().catch(e=>console.warn("KeepAwake",e.message))}
+else if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
   window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(e=>console.warn("SW",e.message))});
 }
 

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Le script inline est épinglé par son empreinte : après toute modification du script,
+     recalculer l'empreinte (voir ARCHITECTURE.md §12 ; test-tv-mode.mjs la vérifie).
+     'unsafe-inline' n'est là que pour les très vieux navigateurs qui ignorent les empreintes. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5RawxxYkcgBEB92OcQRlJKc3PdBpfSB+uXVfO+HlC+A=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#120821">
+<title>BAMBOOZLED — TV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Monoton&family=Bebas+Neue&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#120821; --ink2:#1B0F33; --ink3:#251543;
+    --nyellow:#FFD54A; --nviolet:#B26CFF; --norange:#FF7A3D; --nblue:#4FC3F7; --nred:#FF4D5A; --nmint:#4DE6A8;
+    --cream:#FFF4E0; --muted:#8E7FA8; --line:rgba(178,108,255,.35);
+    --sans:'Bebas Neue','Arial Narrow',Arial,sans-serif;
+    --serif:'Lora',Georgia,serif;
+    --accent:var(--nviolet);
+  }
+  /* 1rem = 1/160 de la largeur d'un cadre 16:9 inscrit dans l'écran (12 px en 1920×1080).
+     Le script affine la valeur ; ce repli en vw suffit sur un écran 16:9. */
+  html{font-size:.625vw}
+  *{margin:0;padding:0;box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{height:100%;overflow:hidden}
+  body{background:#120821;background:var(--ink);
+    background-image:radial-gradient(ellipse 120% 70% at 50% -10%, #2A1550 0%, #120821 60%);
+    color:#FFF4E0;color:var(--cream);font-family:var(--serif);cursor:default}
+  #frame{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;padding:2.2rem 3.5rem 2rem}
+
+  /* ---- barre du haut ---- */
+  #top{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;height:6rem}
+  #logo{font-family:'Monoton',var(--sans);font-size:4.4rem;line-height:1;color:var(--nyellow);letter-spacing:.06em;
+    text-shadow:0 0 1.2rem rgba(255,213,74,.55),0 0 3.5rem rgba(255,122,61,.35)}
+  #topr{display:flex;align-items:center}
+  #topr>*{margin-left:1.4rem}
+  .pill{font-family:var(--sans);font-size:2.3rem;letter-spacing:.14em;padding:.5rem 1.5rem;border-radius:5rem;border:.15rem solid var(--line);color:var(--muted);white-space:nowrap}
+  #codechip b{color:var(--nyellow);font-weight:400;letter-spacing:.24em;margin-left:.6rem}
+  #hostpill{border-color:var(--nred);color:var(--nred)}
+  #fsbtn{font-family:var(--sans);font-size:2.3rem;letter-spacing:.12em;padding:.5rem 1.5rem;border-radius:5rem;border:.15rem solid var(--line);
+    background:transparent;color:var(--muted);cursor:pointer}
+  #fsbtn:hover,#fsbtn:focus{color:var(--cream);border-color:var(--nviolet);outline:none}
+
+  .scr{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+
+  /* ---- accueil : le code en très grand ---- */
+  #lobby{align-items:center;justify-content:center;text-align:center}
+  #lbl1{font-family:var(--sans);font-size:4.6rem;letter-spacing:.14em;color:var(--cream)}
+  #bigcode{font-family:var(--sans);font-size:30rem;line-height:1;letter-spacing:.16em;margin:1rem 0 1.5rem .16em;color:var(--nyellow);
+    text-shadow:0 0 2.2rem rgba(255,213,74,.6),0 0 7rem rgba(255,122,61,.4);min-height:30rem}
+  #lbl2{font-size:3.4rem;color:var(--cream);max-width:120rem}
+  #status{font-family:var(--sans);font-size:2.8rem;letter-spacing:.14em;margin-top:2.6rem;color:var(--muted);min-height:3.4rem}
+  #status.ok{color:var(--nmint)}
+  #status.bad{color:var(--norange)}
+
+  /* ---- plateau ---- */
+  #pods{display:flex;flex-wrap:wrap;justify-content:center;flex:0 0 auto;margin:1rem -0.8rem 0}
+  .pod{flex:1 1 0;min-width:17rem;max-width:36rem;margin:.8rem;padding:1.3rem 1.4rem 1.2rem;border-radius:1.8rem;text-align:center;
+    background:rgba(27,15,51,.85);border:.2rem solid var(--line);position:relative;transition:transform .35s,box-shadow .35s,border-color .35s}
+  .pod .nm{font-family:var(--sans);font-size:3.4rem;letter-spacing:.1em;line-height:1.05;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pod .sc{font-family:var(--sans);font-size:6.4rem;line-height:1;color:var(--nyellow);margin-top:.3rem}
+  .pod .bd{min-height:2.9rem;margin-top:.4rem;font-size:2rem;line-height:1.4;color:var(--cream);white-space:nowrap;overflow:hidden}
+  .pod .bd span{display:inline-block;margin:0 .45rem;font-family:var(--sans);letter-spacing:.06em}
+  .pod .prog{height:.9rem;border-radius:.5rem;background:rgba(255,255,255,.09);margin-top:.7rem;overflow:hidden}
+  .pod .prog i{display:block;height:100%;width:0;background:var(--nviolet);border-radius:.5rem;transition:width .6s}
+  .pod.active{border-color:var(--nyellow);transform:translateY(-.6rem) scale(1.05);z-index:2;
+    box-shadow:0 0 2.6rem rgba(255,213,74,.5),inset 0 0 1.6rem rgba(255,213,74,.12)}
+  .pod.active .nm{color:var(--nyellow)}
+  .pod.active .prog i{background:var(--nyellow)}
+  .pod.up .sc{color:var(--nmint)}
+  .pod.down .sc{color:var(--nred)}
+  #pods.many .pod{min-width:13rem;padding:.9rem 1rem .8rem;margin:.5rem}
+  #pods.many .pod .nm{font-size:2.5rem}
+  #pods.many .pod .sc{font-size:4.2rem}
+  #pods.many .pod .bd{font-size:1.6rem;min-height:2.3rem}
+  #pods.crowd .pod{flex:0 0 11.5%;min-width:0}
+
+  #mid{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;position:relative;padding-top:1.2rem}
+  #card{background:rgba(27,15,51,.92);border:.25rem solid var(--accent);border-radius:2.6rem;padding:2.4rem 4rem 2.6rem;text-align:center;
+    box-shadow:0 0 3rem rgba(178,108,255,.22);max-height:100%;overflow:hidden}
+  #ctitle{font-family:var(--sans);font-size:3.6rem;letter-spacing:.14em;color:var(--accent);line-height:1.15}
+  #cvals{margin-top:.8rem;font-family:var(--sans);font-size:3rem;letter-spacing:.08em}
+  #cvals span{display:inline-block;margin:0 1rem;padding:.1rem 1.6rem;border-radius:5rem;border:.15rem solid var(--nmint);color:var(--nmint)}
+  #cvals span.mal{border-color:var(--nred);color:var(--nred)}
+  #cvs{margin-top:1rem;font-family:var(--sans);font-size:6rem;letter-spacing:.08em;color:var(--cream)}
+  #cvs i{font-style:normal;color:var(--nred);margin:0 2.4rem;font-size:4.4rem}
+  #cdice{margin-top:1.2rem}
+  #cdice span{display:inline-block;width:9rem;height:9rem;line-height:9rem;margin:0 1rem;border-radius:1.6rem;background:var(--cream);color:var(--ink);
+    font-family:var(--sans);font-size:6.5rem}
+  #cq{font-size:5.6rem;line-height:1.22;font-weight:600;color:var(--cream);margin-top:1.6rem}
+  #cq.s2{font-size:4.7rem} #cq.s3{font-size:3.9rem} #cq.s4{font-size:3.2rem} #cq.s5{font-size:2.6rem}
+  #ca{margin:2rem auto 0;display:inline-block;padding:1rem 3rem 1.2rem;border-radius:1.8rem;border:.25rem solid var(--nmint);
+    background:rgba(77,230,168,.1);box-shadow:0 0 2.4rem rgba(77,230,168,.35)}
+  #calbl{font-family:var(--sans);font-size:2.4rem;letter-spacing:.2em;color:var(--nmint)}
+  #catxt{font-size:4.8rem;line-height:1.2;font-weight:600;color:var(--cream)}
+  #catxt.s2{font-size:3.6rem} #catxt.s3{font-size:2.8rem}
+  #csub{font-size:2.7rem;line-height:1.35;color:var(--muted);margin-top:1.6rem;font-style:italic}
+  #copts{margin-top:1.6rem}
+  #copts span{display:inline-block;margin:.6rem .8rem;padding:.7rem 2.2rem;border-radius:5rem;border:.2rem solid var(--line);
+    font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--cream)}
+  #ctimer{margin:1.6rem auto 0;max-width:90rem}
+  #tnum{font-family:var(--sans);font-size:6rem;line-height:1;color:var(--nyellow)}
+  #tbar{height:1.2rem;border-radius:.6rem;background:rgba(255,255,255,.1);margin-top:.6rem;overflow:hidden}
+  #tbar i{display:block;height:100%;background:var(--nyellow);border-radius:.6rem;transition:width .9s linear}
+  #ctimer.warn #tnum{color:var(--norange)} #ctimer.warn #tbar i{background:var(--norange)}
+  #ctimer.hot #tnum{color:var(--nred)} #ctimer.hot #tbar i{background:var(--nred)}
+
+  /* accent de la carte selon la phase */
+  body[data-ph="wango"],body[data-ph="card"]{--accent:var(--nblue)}
+  body[data-ph="duel"]{--accent:var(--nred)}
+  body[data-ph="ttt"],body[data-ph="yank"]{--accent:var(--norange)}
+  body[data-ph="final"],body[data-ph="wheel"],body[data-ph="monkeygate"],body[data-ph="action"]{--accent:var(--nyellow)}
+
+  /* ---- bandeau de verdict (bonne / mauvaise réponse, série…) ---- */
+  #banner{position:absolute;left:50%;top:0;transform:translate(-50%,-55%);z-index:5;display:flex;align-items:center;max-width:140rem;
+    padding:1rem 3.4rem 1.1rem 2.4rem;border-radius:5rem;background:var(--ink3);border:.25rem solid var(--nyellow);
+    box-shadow:0 1rem 4rem rgba(0,0,0,.6),0 0 3rem rgba(255,213,74,.35);animation:pop .35s ease-out}
+  #banner.good{border-color:var(--nmint);box-shadow:0 1rem 4rem rgba(0,0,0,.6),0 0 3rem rgba(77,230,168,.45)}
+  #banner.bad{border-color:var(--nred);box-shadow:0 1rem 4rem rgba(0,0,0,.6),0 0 3rem rgba(255,77,90,.45)}
+  #banner.fire{border-color:var(--norange);box-shadow:0 1rem 4rem rgba(0,0,0,.6),0 0 3rem rgba(255,122,61,.5)}
+  #bico{font-size:5rem;line-height:1;margin-right:1.8rem}
+  #btit{font-family:var(--sans);font-size:4.2rem;letter-spacing:.1em;line-height:1.05;color:var(--cream)}
+  #bsub{font-size:2.4rem;color:var(--muted);margin-top:.2rem}
+
+  #ticker{flex:0 0 auto;height:4.2rem;line-height:4.2rem;margin-top:1.2rem;text-align:center;font-size:2.4rem;color:var(--muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* ---- grand événement (Bamboozle, Mayhem, Paradise Pond…) ---- */
+  #event{position:absolute;left:0;top:0;right:0;bottom:0;z-index:20;background:rgba(10,4,20,.9);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:4rem 8rem}
+  #eico{font-size:17rem;line-height:1.1;animation:pop .5s ease-out}
+  #etit{font-family:var(--sans);font-size:11rem;line-height:1.02;letter-spacing:.08em;color:var(--nyellow);margin-top:1rem;
+    text-shadow:0 0 2rem rgba(255,213,74,.55),0 0 6rem rgba(255,122,61,.4)}
+  #esub{font-size:4rem;line-height:1.3;color:var(--cream);margin-top:2.4rem;max-width:130rem}
+
+  /* ---- vainqueur ---- */
+  #winner{align-items:center;justify-content:center;text-align:center}
+  #wico{font-size:14rem;line-height:1.1;animation:pop .6s ease-out}
+  #wname{font-family:var(--sans);font-size:16rem;line-height:1;letter-spacing:.08em;color:var(--nyellow);
+    text-shadow:0 0 2.4rem rgba(255,213,74,.6),0 0 7rem rgba(255,122,61,.45)}
+  #wtitle{font-family:var(--sans);font-size:4.8rem;letter-spacing:.12em;color:var(--cream);margin-top:1rem}
+  #wscore{font-family:var(--sans);font-size:7rem;color:var(--nmint);margin-top:.6rem}
+  #wrank{margin-top:2rem;font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--muted)}
+  #wrank span{display:inline-block;margin:0 1.6rem}
+
+  @keyframes pop{0%{opacity:0;transform:scale(.7)}100%{opacity:1;transform:scale(1)}}
+  #banner{animation-name:popb}
+  @keyframes popb{0%{opacity:0;transform:translate(-50%,-55%) scale(.8)}100%{opacity:1;transform:translate(-50%,-55%) scale(1)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<div id="frame">
+  <div id="top">
+    <div id="logo">BAMBOOZLED</div>
+    <div id="topr">
+      <span class="pill" id="hostpill" hidden></span>
+      <span class="pill" id="codechip" hidden></span>
+      <button id="fsbtn" type="button" hidden></button>
+    </div>
+  </div>
+
+  <div class="scr" id="lobby">
+    <div id="lbl1"></div>
+    <div id="bigcode"></div>
+    <div id="lbl2"></div>
+    <div id="status"></div>
+  </div>
+
+  <div class="scr" id="board" hidden>
+    <div id="pods"></div>
+    <div id="mid">
+      <div id="banner" hidden><div id="bico"></div><div><div id="btit"></div><div id="bsub"></div></div></div>
+      <div id="card">
+        <div id="ctitle"></div>
+        <div id="cvals" hidden></div>
+        <div id="cvs" hidden></div>
+        <div id="cdice" hidden></div>
+        <div id="ctimer" hidden><div id="tnum"></div><div id="tbar"><i></i></div></div>
+        <div id="cq"></div>
+        <div id="ca" hidden><div id="calbl"></div><div id="catxt"></div></div>
+        <div id="copts" hidden></div>
+        <div id="csub" hidden></div>
+      </div>
+    </div>
+    <div id="ticker"></div>
+  </div>
+
+  <div class="scr" id="winner" hidden>
+    <div id="wico">🏆</div>
+    <div id="wname"></div>
+    <div id="wtitle"></div>
+    <div id="wscore"></div>
+    <div id="wrank"></div>
+  </div>
+</div>
+<div id="event" hidden><div id="eico"></div><div id="etit"></div><div id="esub"></div></div>
+
+<script>
+/* Écran télé de Bamboozled — page autonome, volontairement écrite en JavaScript « ancien »
+   (ES5 : var, function, XMLHttpRequest) pour tourner sur les navigateurs de télé.
+   Elle n'affiche que ce que le téléphone de l'animateur lui envoie via le relais.
+   RÈGLE : tout texte reçu passe par textContent / createElement, jamais innerHTML. */
+(function () {
+  "use strict";
+
+  var RELAY_PROD = "https://bamboozle-tv.sam1chirat.workers.dev";
+  var RELAY_DEV = "http://127.0.0.1:8790";
+  var IS_DEV = location.protocol === "http:" && (location.hostname === "localhost" || location.hostname === "127.0.0.1");
+  var RELAY_HTTP = IS_DEV ? RELAY_DEV : RELAY_PROD;
+  var RELAY_WS = RELAY_HTTP.replace(/^http/, "ws");
+
+  var CODE_RE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{4}$/;
+  var CODE_KEY = "bamboozle.tv.room";
+  var CLOSE_FULL = 4003, CLOSE_NO_ROOM = 4004;
+  var BACKOFF_MIN_MS = 1000, BACKOFF_MAX_MS = 20000, FULL_RETRY_MS = 30000;
+  var PING_EVERY_MS = 25000, SILENCE_MAX_MS = 70000;
+  var MAX_PLAYERS = 16, MAX_BADGES = 8, NAME_MAX = 32, SCORE_TWEEN_MS = 700;
+  var LANGS = ["fr", "en", "it"];
+
+  var L = {
+    fr: { l1: "Mode télé — code de la partie", l2: "Sur ton téléphone : bouton 📺 TV puis tape ce code",
+          making: "Connexion au relais…", ready: "En attente de la télécommande…", hostOn: "Télécommande connectée — lance la partie !",
+          down: "Relais injoignable — nouvel essai…", full: "Déjà 4 écrans sur ce code — nouvel essai dans 30 s",
+          hostOff: "📵 Télécommande déconnectée", code: "CODE", fs: "⛶ Plein écran", ans: "RÉPONSE", pts: " pts" },
+    en: { l1: "TV mode — game code", l2: "On your phone: tap 📺 TV, then type this code",
+          making: "Connecting to the relay…", ready: "Waiting for the remote…", hostOn: "Remote connected — start the game!",
+          down: "Relay unreachable — retrying…", full: "Already 4 screens on this code — retrying in 30 s",
+          hostOff: "📵 Remote disconnected", code: "CODE", fs: "⛶ Full screen", ans: "ANSWER", pts: " pts" },
+    it: { l1: "Modalità TV — codice della partita", l2: "Sul telefono: tocca 📺 TV, poi scrivi questo codice",
+          making: "Connessione al relay…", ready: "In attesa del telecomando…", hostOn: "Telecomando collegato — avvia la partita!",
+          down: "Relay irraggiungibile — nuovo tentativo…", full: "Già 4 schermi su questo codice — nuovo tentativo tra 30 s",
+          hostOff: "📵 Telecomando scollegato", code: "CODICE", fs: "⛶ Schermo intero", ans: "RISPOSTA", pts: " pt" }
+  };
+
+  var st = { code: "", ws: null, retry: 0, timer: null, lang: "fr", view: null, hostOn: false,
+             status: "making", lastMsgAt: 0, scores: [], bannerId: null };
+
+  function $(id) { return document.getElementById(id); }
+  function t() { return L[st.lang] || L.fr; }
+  function show(node, on) { node.hidden = !on; }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  /* Rien de ce qui arrive du réseau n'est cru sur parole : types et longueurs bornés. */
+  function str(x, max) {
+    if (typeof x !== "string" && typeof x !== "number") return "";
+    var s = String(x);
+    return s.length > max ? s.slice(0, max) : s;
+  }
+  function num(x) { return typeof x === "number" && isFinite(x) ? Math.round(x) : 0; }
+  function fmt(n) {
+    var sep = st.lang === "fr" ? " " : ",";
+    var s = String(Math.abs(n)).replace(/\B(?=(\d{3})+(?!\d))/g, sep);
+    return (n < 0 ? "−" : "") + s;
+  }
+  function sizeClass(len, steps) {
+    for (var i = 0; i < steps.length; i++) if (len <= steps[i]) return i === 0 ? "" : "s" + (i + 1);
+    return "s" + (steps.length + 1);
+  }
+  function stored() {
+    try { var c = localStorage.getItem(CODE_KEY) || ""; return CODE_RE.test(c) ? c : ""; } catch (e) { return ""; }
+  }
+  function remember(code) {
+    try { if (code) localStorage.setItem(CODE_KEY, code); else localStorage.removeItem(CODE_KEY); } catch (e) { /* stockage indisponible */ }
+  }
+  function urlCode() {
+    var m = /[?&#]code=([A-Za-z0-9]{4})(?:[&#]|$)/.exec(location.search + location.hash);
+    var c = m ? m[1].toUpperCase() : "";
+    return CODE_RE.test(c) ? c : "";
+  }
+
+  /* ---------- mise à l'échelle : 1rem = 1/160 d'un cadre 16:9 inscrit ---------- */
+  function fit() {
+    var w = window.innerWidth || document.documentElement.clientWidth, h = window.innerHeight || document.documentElement.clientHeight;
+    if (w > 0 && h > 0) document.documentElement.style.fontSize = Math.min(w / 160, h / 90).toFixed(3) + "px";
+  }
+
+  /* ---------- rendu ---------- */
+  function setStatus(key) { st.status = key; renderChrome(); }
+
+  function renderChrome() {
+    var T = t();
+    document.documentElement.lang = st.lang;
+    $("lbl1").textContent = T.l1;
+    $("lbl2").textContent = T.l2;
+    $("bigcode").textContent = st.code;
+    var key = st.status === "ready" && st.hostOn ? "hostOn" : st.status;
+    var s = $("status");
+    s.textContent = T[key] || "";
+    s.className = key === "hostOn" ? "ok" : (key === "down" || key === "full" ? "bad" : "");
+    var chip = $("codechip");
+    clear(chip);
+    chip.appendChild(document.createTextNode(T.code));
+    chip.appendChild(el("b", "", st.code));
+    $("fsbtn").textContent = T.fs;
+    $("calbl").textContent = T.ans;
+    $("hostpill").textContent = T.hostOff;
+    var playing = !!(st.view && st.view.screen !== "setup");
+    show(chip, playing && !!st.code);
+    show($("hostpill"), playing && !st.hostOn);
+  }
+
+  function tween(node, from, to) {
+    if (from === to || !window.requestAnimationFrame) { node.textContent = fmt(to); return; }
+    var t0 = null;
+    function step(now) {
+      if (t0 === null) t0 = now;
+      var k = Math.min(1, (now - t0) / SCORE_TWEEN_MS), e = 1 - Math.pow(1 - k, 3);
+      node.textContent = fmt(Math.round(from + (to - from) * e));
+      if (k < 1) window.requestAnimationFrame(step);
+    }
+    node.textContent = fmt(from);
+    window.requestAnimationFrame(step);
+  }
+
+  function renderPods(v) {
+    var box = $("pods"), list = Array.isArray(v.players) ? v.players.slice(0, MAX_PLAYERS) : [];
+    var goal = num(v.goal) > 0 ? num(v.goal) : 1500, next = [];
+    clear(box);
+    box.className = list.length > 8 ? "many crowd" : (list.length > 5 ? "many" : "");
+    list.forEach(function (p, i) {
+      if (!p || typeof p !== "object") return;
+      var score = num(p.s), before = typeof st.scores[i] === "number" ? st.scores[i] : score;
+      var pod = el("div", "pod" + (p.a ? " active" : "") + (score > before ? " up" : (score < before ? " down" : "")));
+      pod.appendChild(el("div", "nm", str(p.n, NAME_MAX)));
+      var sc = el("div", "sc");
+      tween(sc, before, score);
+      pod.appendChild(sc);
+      var bd = el("div", "bd");
+      (Array.isArray(p.b) ? p.b.slice(0, MAX_BADGES) : []).forEach(function (b) { bd.appendChild(el("span", "", str(b, 12))); });
+      pod.appendChild(bd);
+      var prog = el("div", "prog"), bar = el("i");
+      bar.style.width = Math.max(0, Math.min(100, Math.round(score / goal * 100))) + "%";
+      prog.appendChild(bar);
+      pod.appendChild(prog);
+      box.appendChild(pod);
+      next[i] = score;
+    });
+    st.scores = next;
+  }
+
+  function fillSpans(node, items, max, cls) {
+    clear(node);
+    var list = Array.isArray(items) ? items.slice(0, 6) : [];
+    list.forEach(function (x, i) { node.appendChild(el("span", cls && cls[i] ? cls[i] : "", str(x, max))); });
+    show(node, list.length > 0);
+  }
+
+  function renderCard(v) {
+    var q = str(v.q, 700), a = str(v.a, 400), sub = str(v.sub, 500);
+    $("ctitle").textContent = str(v.title, 200);
+    var cq = $("cq");
+    cq.textContent = q;
+    cq.className = sizeClass(q.length + (a ? 60 : 0) + (sub ? 40 : 0), [110, 190, 300, 460]);
+    show(cq, !!q);
+    $("catxt").textContent = a;
+    $("catxt").className = sizeClass(a.length, [50, 120]);
+    show($("ca"), !!a);
+    $("csub").textContent = sub;
+    show($("csub"), !!sub);
+    fillSpans($("cvals"), v.val, 10, ["", "mal"]);
+    fillSpans($("copts"), v.opts, 70);
+    fillSpans($("cdice"), v.dice, 2);
+
+    var vs = $("cvs"), duo = Array.isArray(v.vs) && v.vs.length === 2;
+    clear(vs);
+    if (duo) {
+      vs.appendChild(document.createTextNode(str(v.vs[0], NAME_MAX)));
+      vs.appendChild(el("i", "", "VS"));
+      vs.appendChild(document.createTextNode(str(v.vs[1], NAME_MAX)));
+    }
+    show(vs, duo);
+
+    var tm = Array.isArray(v.timer) && v.timer.length === 2 ? v.timer : null, box = $("ctimer");
+    if (tm) {
+      var left = Math.max(0, num(tm[0])), max = Math.max(1, num(tm[1]));
+      $("tnum").textContent = left + " s";
+      $("tbar").firstChild.style.width = Math.max(0, Math.min(100, left / max * 100)) + "%";
+      box.className = left <= 5 ? "hot" : (left <= 10 ? "warn" : "");
+    }
+    show(box, !!tm);
+  }
+
+  function renderBanner(v) {
+    var b = v.bn && typeof v.bn === "object" ? v.bn : null, node = $("banner");
+    if (!b) { show(node, false); st.bannerId = null; return; }
+    $("bico").textContent = str(b.i, 16);
+    $("btit").textContent = str(b.t, 140);
+    $("bsub").textContent = str(b.s, 220);
+    show($("bsub"), !!b.s);
+    var kind = str(b.k, 12);
+    node.className = kind === "good" || kind === "bad" || kind === "fire" ? kind : "";
+    if (st.bannerId !== b.id) { show(node, false); void node.offsetWidth; }   /* rejoue l'animation */
+    st.bannerId = b.id;
+    show(node, true);
+  }
+
+  function renderEvent(v) {
+    var e = v.ev && typeof v.ev === "object" ? v.ev : null;
+    if (e) {
+      $("eico").textContent = str(e.i, 24);
+      $("etit").textContent = str(e.t, 180);
+      $("esub").textContent = str(e.s, 320);
+      show($("eico"), !!e.i);
+    }
+    show($("event"), !!e);
+  }
+
+  function renderWinner(v) {
+    var w = v.win && typeof v.win === "object" ? v.win : {};
+    $("wname").textContent = str(w.n, NAME_MAX);
+    $("wtitle").textContent = str(v.title, 200);
+    $("wscore").textContent = fmt(num(w.s)) + t().pts;
+    var rank = $("wrank"), list = Array.isArray(v.players) ? v.players.slice(0, MAX_PLAYERS) : [];
+    clear(rank);
+    list.filter(function (p) { return p && typeof p === "object"; })
+        .sort(function (a, b) { return num(b.s) - num(a.s); })
+        .slice(0, 6)
+        .forEach(function (p, i) { rank.appendChild(el("span", "", (i + 1) + ". " + str(p.n, NAME_MAX) + " — " + fmt(num(p.s)))); });
+  }
+
+  function render() {
+    var v = st.view, screen = v ? str(v.screen, 12) : "setup";
+    var won = screen === "winner", playing = !!v && screen !== "setup";
+    document.body.setAttribute("data-ph", playing ? str(v.ph, 16) : "");
+    show($("lobby"), !playing);
+    show($("board"), playing && !won);
+    show($("winner"), won);
+    if (playing) {
+      if (won) renderWinner(v); else { renderPods(v); renderCard(v); renderBanner(v); $("ticker").textContent = str(v.log, 220); }
+    } else {
+      st.scores = [];
+    }
+    renderEvent(v || {});
+    renderChrome();
+  }
+
+  function onView(view) {
+    if (!view || typeof view !== "object" || Array.isArray(view)) return;
+    if (LANGS.indexOf(view.lang) !== -1) st.lang = view.lang;
+    st.view = view;
+    render();
+  }
+
+  /* ---------- réseau ---------- */
+  function later(fn, ms) { clearTimeout(st.timer); st.timer = setTimeout(fn, ms); }
+  function backoff() {
+    var ms = Math.min(BACKOFF_MAX_MS, BACKOFF_MIN_MS * Math.pow(2, st.retry)) + Math.floor(Math.random() * 500);
+    st.retry += 1;
+    return ms;
+  }
+
+  function createRoom() {
+    setStatus(st.retry > 0 ? "down" : "making");
+    var failed = false;
+    function fail() { if (failed) return; failed = true; setStatus("down"); later(createRoom, backoff()); }
+    try {
+      var x = new XMLHttpRequest();
+      x.open("POST", RELAY_HTTP + "/room", true);
+      x.timeout = 10000;
+      x.onload = function () {
+        var code = "";
+        try { code = String(JSON.parse(x.responseText).code || ""); } catch (e) { code = ""; }
+        if (x.status !== 200 || !CODE_RE.test(code)) { fail(); return; }
+        st.code = code; st.view = null; st.hostOn = false;
+        remember(code);
+        render();
+        connect();
+      };
+      x.onerror = fail;
+      x.ontimeout = fail;
+      x.send();
+    } catch (e) { fail(); }
+  }
+
+  function connect() {
+    var ws;
+    try { ws = new WebSocket(RELAY_WS + "/ws?code=" + st.code + "&role=tv"); }
+    catch (e) { setStatus("down"); later(connect, backoff()); return; }
+    st.ws = ws;
+    ws.onopen = function () { if (st.ws !== ws) return; st.retry = 0; st.lastMsgAt = Date.now(); setStatus("ready"); };
+    ws.onmessage = function (ev) {
+      if (st.ws !== ws) return;
+      st.lastMsgAt = Date.now();
+      var m;
+      try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (!m || typeof m !== "object") return;
+      if (m.type === "view") onView(m.view);
+      else if (m.type === "host") { st.hostOn = m.on === true; renderChrome(); }
+    };
+    ws.onerror = function () { /* onclose suit */ };
+    ws.onclose = function (ev) {
+      if (st.ws !== ws) return;
+      st.ws = null; st.hostOn = false;
+      if (ev.code === CLOSE_NO_ROOM) {           /* salle expirée ou inconnue : on en ouvre une autre */
+        st.code = ""; st.view = null; remember("");
+        render(); createRoom();
+      } else if (ev.code === CLOSE_FULL) {
+        setStatus("full"); later(connect, FULL_RETRY_MS);
+      } else {
+        setStatus("down"); later(connect, backoff());
+      }
+    };
+  }
+
+  /* Ping applicatif : garde la connexion vivante et détecte une liaison morte sans événement close. */
+  setInterval(function () {
+    var ws = st.ws;
+    if (!ws || ws.readyState !== 1) return;
+    if (Date.now() - st.lastMsgAt > SILENCE_MAX_MS) { try { ws.close(); } catch (e) { /* déjà fermée */ } return; }
+    try { ws.send('{"type":"ping"}'); } catch (e) { /* la fermeture suivra */ }
+  }, PING_EVERY_MS);
+
+  /* ---------- confort : plein écran et écran toujours allumé (optionnels) ---------- */
+  function fsElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+  function initFullscreen() {
+    var root = document.documentElement, btn = $("fsbtn");
+    var req = root.requestFullscreen || root.webkitRequestFullscreen;
+    if (!req) return;
+    show(btn, true);
+    btn.onclick = function () {
+      try { var p = req.call(root); if (p && p.catch) p.catch(function () { /* refusé : tant pis */ }); } catch (e) { /* idem */ }
+      keepAwake();
+    };
+    function sync() { show(btn, !fsElement()); }
+    document.addEventListener("fullscreenchange", sync);
+    document.addEventListener("webkitfullscreenchange", sync);
+  }
+  var lock = null;
+  function keepAwake() {
+    try {
+      if (!navigator.wakeLock || !navigator.wakeLock.request || lock) return;
+      navigator.wakeLock.request("screen").then(function (l) {
+        lock = l;
+        if (l && l.addEventListener) l.addEventListener("release", function () { lock = null; });
+      }).catch(function () { /* non accordé : la télé gère sa veille */ });
+    } catch (e) { /* API absente */ }
+  }
+
+  /* ---------- démarrage ---------- */
+  var nav = String(navigator.language || "fr").slice(0, 2).toLowerCase();
+  if (LANGS.indexOf(nav) !== -1) st.lang = nav;
+  fit();
+  window.addEventListener("resize", fit);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) keepAwake(); });
+  initFullscreen();
+  keepAwake();
+  render();
+  st.code = urlCode() || stored();
+  if (st.code) { render(); connect(); } else { createRoom(); }
+})();
+</script>
+</body>
+</html>
