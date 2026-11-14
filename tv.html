@@ -6,7 +6,7 @@
 <!-- Le script inline est épinglé par son empreinte : après toute modification du script,
      recalculer l'empreinte (voir ARCHITECTURE.md §12 ; test-tv-mode.mjs la vérifie).
      'unsafe-inline' n'est là que pour les très vieux navigateurs qui ignorent les empreintes. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-5RawxxYkcgBEB92OcQRlJKc3PdBpfSB+uXVfO+HlC+A=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-3CfAw+Edw3EzqtjCIBWC6RWFGeEPT3IZytJ7QpQG0oA=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#120821">
@@ -42,9 +42,9 @@
   .pill{font-family:var(--sans);font-size:2.3rem;letter-spacing:.14em;padding:.5rem 1.5rem;border-radius:5rem;border:.15rem solid var(--line);color:var(--muted);white-space:nowrap}
   #codechip b{color:var(--nyellow);font-weight:400;letter-spacing:.24em;margin-left:.6rem}
   #hostpill{border-color:var(--nred);color:var(--nred)}
-  #fsbtn{font-family:var(--sans);font-size:2.3rem;letter-spacing:.12em;padding:.5rem 1.5rem;border-radius:5rem;border:.15rem solid var(--line);
+  #fsbtn,#sndbtn{font-family:var(--sans);font-size:2.3rem;letter-spacing:.12em;padding:.5rem 1.5rem;border-radius:5rem;border:.15rem solid var(--line);
     background:transparent;color:var(--muted);cursor:pointer}
-  #fsbtn:hover,#fsbtn:focus{color:var(--cream);border-color:var(--nviolet);outline:none}
+  #fsbtn:hover,#fsbtn:focus,#sndbtn:hover,#sndbtn:focus{color:var(--cream);border-color:var(--nviolet);outline:none}
 
   .scr{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
 
@@ -148,6 +148,40 @@
   #wrank{margin-top:2rem;font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--muted)}
   #wrank span{display:inline-block;margin:0 1.6rem}
 
+  /* ---- mini-échelle sous chaque podium (même dessin que sur le téléphone) ---- */
+  .pod .lad{display:flex;justify-content:center;margin-top:.7rem}
+  .pod .lad i{flex:1 1 0;max-width:3.2rem;height:.9rem;margin:0 .15rem;border-radius:.2rem;background:rgba(244,235,216,.16)}
+  .pod .lad i.st{background:rgba(178,108,255,.5)}
+  .pod .lad i.on{background:var(--nyellow);box-shadow:0 0 1.2rem rgba(255,213,74,.9)}
+
+  /* ---- calques d'effets (vides au repos, ne changent rien à la mise en page) ---- */
+  #fxl{position:fixed;left:0;top:0;right:0;bottom:0;z-index:30;pointer-events:none;overflow:hidden}
+  #cfx{position:fixed;left:0;top:0;width:100%;height:100%;z-index:31;pointer-events:none}
+  #edge{position:fixed;left:0;top:0;right:0;bottom:0;z-index:29;pointer-events:none;opacity:0}
+  .fly{position:absolute;left:0;top:0;font-family:var(--sans);font-size:6rem;line-height:1;white-space:nowrap}
+  .fly.good{color:var(--nmint);text-shadow:0 0 1.6rem rgba(77,230,168,.9)}
+  .fly.bad{color:var(--nred);text-shadow:0 0 1.6rem rgba(255,77,90,.9)}
+  .spk{position:absolute;left:0;top:0;width:1rem;height:1rem;margin:-.5rem 0 0 -.5rem;border-radius:50%}
+  .shock{position:absolute;left:0;top:0;width:20rem;height:20rem;margin:-10rem 0 0 -10rem;border-radius:50%;border:.6rem solid var(--nmint)}
+  #ca{position:relative;overflow:hidden}
+  #ca .sheen{position:absolute;top:-30%;bottom:-30%;left:0;width:35%;pointer-events:none;opacity:0;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent)}
+  #cq span,#etit span,#wname span{display:inline-block;white-space:pre}
+  #card{transition:border-color .5s,box-shadow .5s}
+  #erays{position:absolute;left:50%;top:50%;width:220rem;height:220rem;margin:-110rem 0 0 -110rem;border-radius:50%;opacity:0;pointer-events:none;
+    background:repeating-conic-gradient(rgba(255,213,74,.16) 0 6deg,transparent 6deg 18deg)}
+  #event>*:not(#erays){position:relative}
+  /* ---- 3D : rien de visible au repos (perspective sans rotation = rendu identique) ---- */
+  #pods{perspective:110rem}
+  #cdice b.cube{position:absolute;left:0;top:0;width:100%;height:100%;font-weight:400;transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
+  #cdice b.cube span{position:absolute;left:0;top:0;margin:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  #cdice b.cube span b{position:absolute;left:0;top:0;right:0;bottom:0;border-radius:1.6rem;
+    box-shadow:inset 0 0 0 .3rem rgba(18,8,33,.22),inset 0 0 2.2rem rgba(18,8,33,.2)}
+  #cdice em.dsh{position:absolute;left:4%;right:4%;bottom:-2.4rem;height:1.8rem;border-radius:50%;opacity:0;pointer-events:none;
+    background:radial-gradient(ellipse at center,rgba(0,0,0,.6),transparent 70%)}
+  .shd{position:absolute;left:0;top:0;height:3.2rem;border-radius:50%;opacity:0;
+    background:radial-gradient(ellipse at center,rgba(0,0,0,.6),transparent 70%)}
+
   @keyframes pop{0%{opacity:0;transform:scale(.7)}100%{opacity:1;transform:scale(1)}}
   #banner{animation-name:popb}
   @keyframes popb{0%{opacity:0;transform:translate(-50%,-55%) scale(.8)}100%{opacity:1;transform:translate(-50%,-55%) scale(1)}}
@@ -161,6 +195,7 @@
     <div id="topr">
       <span class="pill" id="hostpill" hidden></span>
       <span class="pill" id="codechip" hidden></span>
+      <button id="sndbtn" type="button" hidden></button>
       <button id="fsbtn" type="button" hidden></button>
     </div>
   </div>
@@ -199,7 +234,10 @@
     <div id="wrank"></div>
   </div>
 </div>
-<div id="event" hidden><div id="eico"></div><div id="etit"></div><div id="esub"></div></div>
+<div id="event" hidden><div id="erays"></div><div id="eico"></div><div id="etit"></div><div id="esub"></div></div>
+<div id="edge"></div>
+<div id="fxl"></div>
+<canvas id="cfx"></canvas>
 
 <script>
 /* Écran télé de Bamboozled — page autonome, volontairement écrite en JavaScript « ancien »
@@ -323,30 +361,342 @@
     window.requestAnimationFrame(step);
   }
 
+  /* ---------- animations : effets seulement, la mise en page ne change pas ----------
+     Tout est déclenché par une DIFFÉRENCE entre deux vues (score, barreau, question,
+     réponse révélée, verdict, événement). Sans Web Animations ou avec « animations
+     réduites », la page s'affiche exactement comme avant, sans effet. */
+  var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  var CAN_ANIM = !REDUCED && typeof document.body.animate === "function";
+  var HAS_3D = CAN_ANIM && !!(window.CSS && CSS.supports && CSS.supports("transform-style", "preserve-3d"));
+  var LADDER_STATIONS = { 2: 1, 4: 1, 6: 1 };   /* mêmes stations que STATIONS dans index.html */
+  var VERDICT_MS = 1400, RUNG_STEP_MS = 170, MAX_CONFETTI = 600;
+  var CONFETTI = ["#FFD54A", "#FF7A3D", "#4FC3F7", "#FFF4E0", "#FF4D5A", "#4DE6A8", "#B26CFF"];
+  var MINT = ["#4DE6A8", "#FFD54A", "#FFF4E0"], GOLD = ["#FFD54A", "#FFF4E0"];
+
+  /* ---- son synthétisé (aucun fichier) ----
+     Les navigateurs interdisent le son avant un geste : il reste coupé jusqu'au clic
+     sur 🔇. Le choix est mémorisé et réactivé au premier clic ou appui de touche. */
+  var SND_KEY = "bamboozle.tv.sound";
+  var snd = { on: false, ac: null, out: null };
+  function sndCtx() {
+    if (snd.ac) return snd.ac;
+    var C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    try {
+      snd.ac = new C();
+      var comp = snd.ac.createDynamicsCompressor();
+      snd.out = snd.ac.createGain(); snd.out.gain.value = .5;
+      snd.out.connect(comp); comp.connect(snd.ac.destination);
+    } catch (e) { snd.ac = null; }
+    return snd.ac;
+  }
+  function tone(f, at, d, type, g, f2) {
+    var ac = snd.ac, o = ac.createOscillator(), v = ac.createGain(), t0 = ac.currentTime + at;
+    o.type = type || "triangle"; o.frequency.setValueAtTime(f, t0);
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + d);
+    v.gain.setValueAtTime(0, t0); v.gain.linearRampToValueAtTime(g || .12, t0 + .012); v.gain.exponentialRampToValueAtTime(.0008, t0 + d);
+    o.connect(v); v.connect(snd.out); o.start(t0); o.stop(t0 + d + .05);
+  }
+  function noise(at, d, f0, f1, g) {
+    var ac = snd.ac, n = Math.floor(ac.sampleRate * d), buf = ac.createBuffer(1, n, ac.sampleRate), data = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) data[i] = Math.random() * 2 - 1;
+    var src = ac.createBufferSource(), bp = ac.createBiquadFilter(), v = ac.createGain(), t0 = ac.currentTime + at;
+    src.buffer = buf; bp.type = "bandpass"; bp.Q.value = 1.2;
+    bp.frequency.setValueAtTime(f0, t0); bp.frequency.exponentialRampToValueAtTime(f1, t0 + d);
+    v.gain.setValueAtTime(0, t0); v.gain.linearRampToValueAtTime(g || .2, t0 + d * .4); v.gain.linearRampToValueAtTime(0, t0 + d);
+    src.connect(bp); bp.connect(v); v.connect(snd.out); src.start(t0);
+  }
+  function chord(fs, at, d, type, g) { for (var i = 0; i < fs.length; i++) tone(fs[i], at, d, type, g); }
+  var SFX = {
+    whoosh: function () { noise(0, .4, 400, 3000, .14); },
+    reveal: function () { noise(0, .25, 2200, 500, .1); tone(784, .15, .25, "triangle", .14); tone(1175, .24, .5, "sine", .12); tone(2349, .28, .6, "sine", .04); },
+    good: function () { [523, 659, 784, 1047].forEach(function (f, i) { tone(f, i * .065, .3, "square", .05); }); tone(1047, .28, .8, "triangle", .1); tone(1568, .28, .8, "sine", .05); },
+    bad: function () { tone(196, 0, .55, "sawtooth", .11, 98); tone(185, .02, .55, "square", .06, 92); },
+    fire: function () { noise(0, .6, 300, 5000, .16); [659, 831, 988, 1319].forEach(function (f, i) { tone(f, .1 + i * .06, .35, "square", .05); }); },
+    land: function () { tone(1568, 0, .1, "square", .04); tone(2093, .04, .25, "sine", .06); },
+    rung: function (r) { var f = 392 * Math.pow(2, r * 2 / 12); tone(f, 0, .22, "triangle", .13); tone(f * 2, .02, .18, "sine", .04); },
+    fall: function () { tone(880, 0, .7, "sawtooth", .06, 110); noise(0, .6, 3000, 300, .1); },
+    event: function () { chord([523, 659, 784], 0, .2, "sawtooth", .03); chord([587, 740, 880], .2, .2, "sawtooth", .03); chord([659, 831, 988, 1319], .4, 1.1, "sawtooth", .03); chord([330, 415, 494], .4, 1.1, "triangle", .05); },
+    dark: function () { chord([110, 116.5], 0, 1.4, "sawtooth", .07); noise(0, 1, 200, 80, .15); },
+    win: function () { SFX.event(); [1047, 1319, 1568, 2093, 2637].forEach(function (f, i) { tone(f, .9 + i * .08, .5, "square", .035); }); noise(.8, 1.2, 300, 6000, .1); },
+    roll: function () { for (var i = 0; i < 6; i++) noise(i * .07, .05, 1800 + Math.random() * 1500, 900, .12); },
+    tick: function (left) { tone(left <= 2 ? 1320 : 990, 0, .08, "square", .06); },
+    buzzer: function () { tone(150, 0, .9, "sawtooth", .12); tone(155, 0, .9, "square", .06); },
+    clash: function () { noise(0, .35, 4000, 200, .3); tone(110, .05, .6, "sawtooth", .12, 55); },
+    level: function (n) { for (var i = 0; i < n; i++) tone(523 * Math.pow(2, i * 2 / 12), i * .055, .25, "square", .045); }
+  };
+  function sfx(name, arg) { if (!snd.on || !snd.ac) return; try { SFX[name](arg); } catch (e) { /* son indisponible : on continue sans */ } }
+  function renderSoundBtn() { $("sndbtn").textContent = snd.on ? "🔊" : "🔇"; }
+  function setSound(on) {
+    snd.on = !!on && !!sndCtx();
+    if (snd.on && snd.ac.state === "suspended" && snd.ac.resume) snd.ac.resume();
+    try { localStorage.setItem(SND_KEY, snd.on ? "1" : "0"); } catch (e) { /* stockage indisponible */ }
+    renderSoundBtn();
+    sfx("land");
+  }
+  function initSound() {
+    if (!(window.AudioContext || window.webkitAudioContext)) return;
+    var btn = $("sndbtn"), want = false;
+    show(btn, true);
+    btn.onclick = function () { setSound(!snd.on); };
+    try { want = localStorage.getItem(SND_KEY) === "1"; } catch (e) { want = false; }
+    if (want) {
+      var once = function (ev) {
+        document.removeEventListener("click", once, true); document.removeEventListener("keydown", once, true);
+        if (ev.target !== btn && !snd.on) setSound(true);
+      };
+      document.addEventListener("click", once, true); document.addEventListener("keydown", once, true);
+    }
+    renderSoundBtn();
+  }
+
+  function anim(node, frames, opts, done) {
+    if (!CAN_ANIM || !node) { if (done) done(); return null; }
+    try {
+      var a = node.animate(frames, opts);
+      if (done) a.onfinish = done;
+      return a;
+    } catch (e) { if (done) done(); return null; }
+  }
+  function later2(fn, ms) { setTimeout(fn, CAN_ANIM ? ms : 0); }
+  function remPx(n) { return n * (parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 12); }
+  function mid(node) { var r = node.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+  function fxNode(cls, text) { var d = el("div", cls, text); $("fxl").appendChild(d); return d; }
+  function drop(node) { if (node && node.parentNode) node.parentNode.removeChild(node); }
+  function dropper(node) { return function () { drop(node); }; }
+
+  function sparks(at, colors, n, spread) {
+    if (!CAN_ANIM) return;
+    for (var i = 0; i < n; i++) {
+      var s = fxNode("spk"), c = colors[i % colors.length];
+      s.style.background = c; s.style.boxShadow = "0 0 1rem " + c;
+      var ang = Math.PI * 2 * i / n + Math.random() * .5, d = spread * (.6 + Math.random() * .7);
+      var dx = Math.cos(ang) * d, dy = Math.sin(ang) * d + spread * .3;
+      anim(s, [{ transform: "translate(" + at.x + "px," + at.y + "px) scale(1.2)", opacity: 1 },
+               { transform: "translate(" + (at.x + dx) + "px," + (at.y + dy) + "px) scale(.1)", opacity: 0 }],
+        { duration: 700 + Math.random() * 400, easing: "cubic-bezier(.2,.8,.3,1)" }, dropper(s));
+    }
+  }
+  /* « +50 » ou « −25 » qui jaillit du score. */
+  function floatText(text, kind, at) {
+    if (!CAN_ANIM) return;
+    var f = fxNode("fly " + kind, text), w = f.offsetWidth, h = f.offsetHeight, x = at.x - w / 2, y = at.y - h / 2, up = kind === "good";
+    anim(f, [{ transform: "translate(" + x + "px," + (y + remPx(1)) + "px) scale(.5)", opacity: 0 },
+             { transform: "translate(" + x + "px," + (y - remPx(up ? 4 : 1)) + "px) scale(1.4)", opacity: 1, offset: .25 },
+             { transform: "translate(" + x + "px," + (y + remPx(up ? -10 : 7)) + "px) scale(1)", opacity: 0 }],
+      { duration: 1400, easing: "cubic-bezier(.2,.7,.3,1)" }, dropper(f));
+  }
+  function edgeFlash(color) {
+    var e = $("edge");
+    e.style.background = "radial-gradient(ellipse at center,transparent 40%," + color + " 100%)";
+    anim(e, [{ opacity: 0 }, { opacity: 1, offset: .2 }, { opacity: 0 }], { duration: 800, easing: "ease-out" });
+  }
+  function shockwave(at, color) {
+    if (!CAN_ANIM) return;
+    var s = fxNode("shock");
+    s.style.borderColor = color;
+    anim(s, [{ transform: "translate(" + at.x + "px," + at.y + "px) scale(.2)", opacity: 1 },
+             { transform: "translate(" + at.x + "px," + at.y + "px) scale(4)", opacity: 0 }],
+      { duration: 800, easing: "cubic-bezier(.16,1,.3,1)" }, dropper(s));
+  }
+  /* « translate » et « scale » s'ajoutent au transform CSS existant (podium actif, bandeau centré). */
+  function shake(node, amp) {
+    var f = [], k = 8;
+    for (var i = 0; i <= k; i++) {
+      var d = amp * (1 - i / k);
+      f.push({ translate: i === k ? "0 0" : ((Math.random() - .5) * 2 * d) + "rem " + ((Math.random() - .5) * d) + "rem" });
+    }
+    anim(node, f, { duration: 480, easing: "linear" });
+  }
+  function popIn(node, delay) {
+    anim(node, [{ transform: "scale(0)", opacity: 0 }, { transform: "scale(1.25)", opacity: 1, offset: .6 }, { transform: "scale(1)", opacity: 1 }],
+      { duration: 480, delay: delay || 0, easing: "ease-out", fill: "backwards" });
+  }
+
+  /* Découpe en mots (ou en lettres groupées par mot, pour ne jamais couper un mot en fin de ligne). */
+  function splitText(node, text, letters) {
+    clear(node);
+    var out = [], words = text.split(" ");
+    for (var i = 0; i < words.length; i++) {
+      if (i) node.appendChild(document.createTextNode(" "));
+      var w = words[i];
+      if (!w) continue;
+      if (!letters || /[\uD800-\uDFFF‍️]/.test(w)) { var s = el("span", "", w); node.appendChild(s); out.push(s); continue; }
+      var wrap = el("span", "");
+      node.appendChild(wrap);
+      for (var k = 0; k < w.length; k++) { var c = el("span", "", w.charAt(k)); wrap.appendChild(c); out.push(c); }
+    }
+    return out;
+  }
+  /* 3D : les mots basculent (rotateX), les lettres (deep) sortent du fond de l'écran (translateZ). */
+  function cascade(spans, step, rise, delay0, deep) {
+    var p = "perspective(" + (deep ? 40 : 60) + "rem) ";
+    var f = deep
+      ? [{ opacity: 0, transform: p + "translateY(" + rise + "rem) translateZ(-38rem) rotateX(-85deg)" },
+         { opacity: 1, transform: p + "translateY(0rem) translateZ(5rem) rotateX(14deg)", offset: .7 },
+         { opacity: 1, transform: p + "translateY(0rem) translateZ(0rem) rotateX(0deg)" }]
+      : [{ opacity: 0, transform: p + "translateY(" + rise + "rem) translateZ(-10rem) rotateX(-70deg)" },
+         { opacity: 1, transform: p + "translateY(0rem) translateZ(0rem) rotateX(0deg)" }];
+    for (var i = 0; i < spans.length; i++) {
+      anim(spans[i], f, { duration: deep ? 640 : 480, delay: (delay0 || 0) + i * step, easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" });
+    }
+  }
+  function animatedText(node, text, letters, step, rise, delay0) {
+    if (CAN_ANIM && text) cascade(splitText(node, text, letters), step, rise, delay0, letters);
+    else node.textContent = text;
+  }
+
+  /* ---- confettis (canvas) ---- */
+  var cf = { bits: [], raf: 0, ctx: null };
+  function sizeConfetti() {
+    var c = $("cfx"), r = Math.min(2, window.devicePixelRatio || 1);
+    c.width = window.innerWidth * r; c.height = window.innerHeight * r;
+    if (cf.ctx) cf.ctx.setTransform(r, 0, 0, r, 0, 0);
+  }
+  function confettiCtx() {
+    if (!cf.ctx && $("cfx").getContext) { cf.ctx = $("cfx").getContext("2d"); sizeConfetti(); }
+    return cf.ctx;
+  }
+  function confetti(x, y, angle, spread, n, power) {
+    if (!CAN_ANIM || !window.requestAnimationFrame || !confettiCtx()) return;
+    var unit = window.innerHeight / 1080;
+    for (var i = 0; i < n && cf.bits.length < MAX_CONFETTI; i++) {
+      var a = (angle + (Math.random() - .5) * spread) * Math.PI / 180, v = power * unit * (.55 + Math.random() * .6);
+      cf.bits.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6.28, vr: (Math.random() - .5) * .35,
+        w: (8 + Math.random() * 8) * unit, h: (5 + Math.random() * 6) * unit, c: CONFETTI[i % CONFETTI.length], t: Math.random() * 6.28, vt: .08 + Math.random() * .12, g: .32 * unit });
+    }
+    if (!cf.raf) cf.raf = window.requestAnimationFrame(stepConfetti);
+  }
+  function stepConfetti() {
+    var c = cf.ctx, H = window.innerHeight, keep = [];
+    c.clearRect(0, 0, window.innerWidth, H);
+    for (var i = 0; i < cf.bits.length; i++) {
+      var b = cf.bits[i];
+      b.vy += b.g; b.vx *= .985; b.vy *= .985; b.x += b.vx; b.y += b.vy; b.r += b.vr; b.t += b.vt;
+      if (b.y > H + 40) continue;
+      keep.push(b);
+      c.save(); c.translate(b.x, b.y); c.rotate(b.r); c.scale(1, Math.cos(b.t));
+      c.fillStyle = b.c; c.fillRect(-b.w / 2, -b.h / 2, b.w, b.h); c.restore();
+    }
+    cf.bits = keep;
+    cf.raf = keep.length ? window.requestAnimationFrame(stepConfetti) : 0;
+  }
+  function cannons(n) {
+    confetti(0, window.innerHeight * .92, -55, 32, n, 30);
+    confetti(window.innerWidth, window.innerHeight * .92, -125, 32, n, 30);
+  }
+  function rain(n) {
+    for (var i = 0; i < n; i++) confetti(Math.random() * window.innerWidth, -20, 90, 50, 1, 4);
+  }
+  window.addEventListener("resize", function () { if (cf.ctx) sizeConfetti(); });
+
+  /* ---------- podiums : mis à jour sur place pour que les animations ne soient pas coupées ---------- */
+  function buildPod() {
+    var o = { root: el("div", "pod"), nm: el("div", "nm"), sc: el("div", "sc"), bd: el("div", "bd"), prog: el("div", "prog"), bar: el("i"),
+      lad: el("div", "lad"), segs: [], badges: null, rung: -1, score: null, tint: "", tintT: null };
+    o.prog.appendChild(o.bar);
+    o.root.appendChild(o.nm); o.root.appendChild(o.sc); o.root.appendChild(o.bd); o.root.appendChild(o.prog); o.root.appendChild(o.lad);
+    return o;
+  }
+  function setTint(o, cls) {
+    clearTimeout(o.tintT);
+    o.tint = cls;
+    o.tintT = setTimeout(function () { o.tint = ""; o.root.className = o.root.className.replace(/ (up|down)\b/g, ""); }, VERDICT_MS);
+  }
+  function scoreFx(o, from, to) {
+    var good = to > from, at = mid(o.sc);
+    setTint(o, good ? "up" : "down");
+    floatText((good ? "+" : "−") + fmt(Math.abs(to - from)), good ? "good" : "bad", at);
+    if (good) {
+      anim(o.root, [{ scale: "1" }, { scale: "1.14", offset: .3 }, { scale: ".97", offset: .65 }, { scale: "1" }], { duration: 560, easing: "ease-out" });
+      tilt(o.root, "1 0 0", [0, -26, 13, -5, 0], 720);     /* bascule vers le public puis rebond */
+      sparks(at, MINT, 18, remPx(8));
+    } else { shake(o.root, 1.2); tilt(o.root, "0 1 0", [0, 20, -15, 9, -4, 0], 700); }   /* vacille */
+  }
+  /* Rotation dans l'espace d'un podium (#pods porte la perspective). « rotate » s'ajoute au
+     transform CSS du podium actif, comme « translate » et « scale ». */
+  function tilt(node, axis, degs, ms) {
+    var f = [];
+    for (var i = 0; i < degs.length; i++) f.push({ rotate: axis + " " + degs[i] + "deg" });
+    anim(node, f, { duration: ms, easing: "ease-out" });
+  }
+  function segClass(s, on) { s.className = (s.station ? "st" : "") + (on ? " on" : ""); }
+  function setSegs(o, rung) { for (var i = 0; i < o.segs.length; i++) segClass(o.segs[i], i < rung); }
+  function lightSeg(o, r, k) {
+    later2(function () {
+      var s = o.segs[r - 1];
+      if (!s) return;
+      sfx("rung", r);
+      /* tuile qui se retourne : elle s'allume quand elle passe sur la tranche */
+      if (CAN_ANIM) setTimeout(function () { if (o.rung >= r) segClass(s, true); }, 150); else segClass(s, true);
+      anim(s, [{ transform: "perspective(8rem) rotateX(-180deg) scale(1,1)", filter: "brightness(1)" },
+               { transform: "perspective(8rem) rotateX(-90deg) scale(1.5,2.4)", filter: "brightness(1)", offset: .28 },
+               { transform: "perspective(8rem) rotateX(20deg) scale(1.6,2.6)", filter: "brightness(2.4)", offset: .6 },
+               { transform: "perspective(8rem) rotateX(0deg) scale(1,1)", filter: "brightness(1)" }],
+        { duration: 540, easing: "linear" });
+      var big = !!LADDER_STATIONS[r];
+      sparks(mid(s), big ? ["#B26CFF", "#FFD54A", "#FFF4E0"] : GOLD, big ? 22 : 10, remPx(big ? 9 : 5));
+    }, k * RUNG_STEP_MS);
+  }
+  function rungFx(o, from, to) {
+    if (to > from) {
+      for (var r = from + 1; r <= to; r++) lightSeg(o, r, r - from - 1);
+      anim(o.root, [{ translate: "0 0" }, { translate: "0 -1.6rem", offset: .4 }, { translate: "0 0" }], { duration: 650, easing: "cubic-bezier(.34,1.56,.64,1)" });
+      return;
+    }
+    setSegs(o, to);
+    sfx("fall");
+    for (var q = to + 1; q <= from; q++) {
+      anim(o.segs[q - 1], [{ background: "#FF4D5A", opacity: 1 }, { opacity: .2, offset: .3 }, { background: "#FF4D5A", opacity: 1, offset: .6 }, { opacity: 1 }], { duration: 750 });
+    }
+    shake(o.root, 1.4);
+  }
+  function updatePod(o, p, goal, ladder) {
+    var first = o.score === null, score = num(p.s), rung = Math.max(0, Math.min(ladder, num(p.r)));
+    var name = str(p.n, NAME_MAX);
+    if (o.nm.textContent !== name) o.nm.textContent = name;
+    if (first) o.sc.textContent = fmt(score);
+    else if (score !== o.score) { tween(o.sc, o.score, score); scoreFx(o, o.score, score); }
+    o.score = score;
+    o.root.className = "pod" + (p.a ? " active" : "") + (o.tint ? " " + o.tint : "");
+    if (!first && p.a && !o.active) tilt(o.root, "0 1 0", [0, -44, 12, -4, 0], 720);   /* le nouveau candidat pivote vers le public */
+    o.active = !!p.a;
+
+    var badges = (Array.isArray(p.b) ? p.b.slice(0, MAX_BADGES) : []).map(function (b) { return str(b, 12); });
+    var key = badges.join("\u0001");
+    if (key !== o.badges) {
+      var old = o.badges ? o.badges.split("\u0001") : [];
+      clear(o.bd);
+      badges.forEach(function (b, i) {
+        var s = el("span", "", b);
+        o.bd.appendChild(s);
+        if (!first && old.indexOf(b) === -1) popIn(s, i * 60);
+      });
+      o.badges = key;
+    }
+    o.bar.style.width = Math.max(0, Math.min(100, Math.round(score / goal * 100))) + "%";
+
+    if (o.segs.length !== ladder) {
+      clear(o.lad); o.segs = [];
+      for (var r = 1; r <= ladder; r++) { var s2 = el("i"); s2.station = !!LADDER_STATIONS[r]; o.lad.appendChild(s2); o.segs.push(s2); }
+      setSegs(o, rung); o.rung = rung;
+    }
+    show(o.lad, ladder > 0);
+    if (rung !== o.rung) {
+      if (!first && o.rung >= 0) rungFx(o, o.rung, rung); else setSegs(o, rung);
+      o.rung = rung;
+    }
+  }
   function renderPods(v) {
-    var box = $("pods"), list = Array.isArray(v.players) ? v.players.slice(0, MAX_PLAYERS) : [];
-    var goal = num(v.goal) > 0 ? num(v.goal) : 1500, next = [];
-    clear(box);
+    var box = $("pods"), list = (Array.isArray(v.players) ? v.players.slice(0, MAX_PLAYERS) : [])
+      .filter(function (p) { return p && typeof p === "object"; });
+    var goal = num(v.goal) > 0 ? num(v.goal) : 1500, ladder = Math.max(0, Math.min(12, num(v.ladder)));
     box.className = list.length > 8 ? "many crowd" : (list.length > 5 ? "many" : "");
-    list.forEach(function (p, i) {
-      if (!p || typeof p !== "object") return;
-      var score = num(p.s), before = typeof st.scores[i] === "number" ? st.scores[i] : score;
-      var pod = el("div", "pod" + (p.a ? " active" : "") + (score > before ? " up" : (score < before ? " down" : "")));
-      pod.appendChild(el("div", "nm", str(p.n, NAME_MAX)));
-      var sc = el("div", "sc");
-      tween(sc, before, score);
-      pod.appendChild(sc);
-      var bd = el("div", "bd");
-      (Array.isArray(p.b) ? p.b.slice(0, MAX_BADGES) : []).forEach(function (b) { bd.appendChild(el("span", "", str(b, 12))); });
-      pod.appendChild(bd);
-      var prog = el("div", "prog"), bar = el("i");
-      bar.style.width = Math.max(0, Math.min(100, Math.round(score / goal * 100))) + "%";
-      prog.appendChild(bar);
-      pod.appendChild(prog);
-      box.appendChild(pod);
-      next[i] = score;
-    });
-    st.scores = next;
+    if (!st.pods || st.pods.length !== list.length) {
+      clear(box); st.pods = [];
+      list.forEach(function () { var o = buildPod(); box.appendChild(o.root); st.pods.push(o); });
+    }
+    list.forEach(function (p, i) { updatePod(st.pods[i], p, goal, ladder); });
   }
 
   function fillSpans(node, items, max, cls) {
@@ -355,29 +705,177 @@
     list.forEach(function (x, i) { node.appendChild(el("span", cls && cls[i] ? cls[i] : "", str(x, max))); });
     show(node, list.length > 0);
   }
+  function popChildren(node, delay0) {
+    for (var i = 0; i < node.childNodes.length; i++) popIn(node.childNodes[i], delay0 + i * 90);
+  }
 
+  /* ---------- carte ---------- */
+  function cardEnter() {
+    sfx("whoosh");
+    anim($("card"), [{ opacity: .2, transform: "perspective(150rem) translateY(2.4rem) translateZ(-28rem) rotateX(-34deg) rotateY(7deg)" },
+                     { opacity: 1, transform: "perspective(150rem) translateY(0rem) translateZ(0rem) rotateX(3deg) rotateY(-1deg)", offset: .72 },
+                     { opacity: 1, transform: "perspective(150rem) translateY(0rem) translateZ(0rem) rotateX(0deg) rotateY(0deg)" }],
+      { duration: 640, easing: "cubic-bezier(.16,1,.3,1)" });
+    anim($("ctitle"), [{ opacity: 0, letterSpacing: ".5em" }, { opacity: 1, letterSpacing: ".14em" }], { duration: 650, easing: "cubic-bezier(.16,1,.3,1)" });
+    popChildren($("cvals"), 300);
+    popChildren($("copts"), 420);
+  }
+  function revealFx() {
+    var ca = $("ca"), sh = ca.querySelector(".sheen"), r = ca.getBoundingClientRect();
+    sfx("reveal");
+    anim(ca, [{ transform: "perspective(60rem) translateZ(-24rem) rotateX(-100deg)", opacity: 0 },
+              { transform: "perspective(60rem) translateZ(5rem) rotateX(16deg)", opacity: 1, offset: .65 },
+              { transform: "perspective(60rem) translateZ(1.5rem) rotateX(-5deg)", offset: .85 },
+              { transform: "perspective(60rem) translateZ(0rem) rotateX(0deg)", opacity: 1 }],
+      { duration: 760, easing: "ease-out" });
+    if (CAN_ANIM) {   /* ombre portée : large quand le volet est en l'air, disparue quand il est posé */
+      var shd = fxNode("shd"), at0 = "translate(" + r.left + "px," + (r.bottom - remPx(1.2)) + "px) ";
+      shd.style.width = r.width + "px";
+      anim(shd, [{ opacity: 0, transform: at0 + "scale(.5,.6)" }, { opacity: .9, transform: at0 + "scale(1.12,1.5)", offset: .6 },
+                 { opacity: .5, transform: at0 + "scale(1,1)", offset: .82 }, { opacity: 0, transform: at0 + "scale(.96,.5)" }],
+        { duration: 900, easing: "ease-out" }, dropper(shd));
+    }
+    anim(sh, [{ opacity: 1, transform: "translateX(-120%) skewX(-15deg)" }, { opacity: 1, transform: "translateX(420%) skewX(-15deg)" }],
+      { duration: 850, delay: 480, easing: "cubic-bezier(.4,0,.2,1)" });
+    later2(function () { var at = mid(ca); sparks(at, MINT, 26, remPx(14)); shockwave(at, "#4DE6A8"); }, 460);
+  }
+  /* ---- dés en vrais cubes 3D, seulement pendant le mouvement ----
+     Le cube est construit dans le dé (#cdice span) : six faces qui reprennent le style du dé
+     (ce sont des span de #cdice), la face avant porte la valeur. Le cube est reculé d'une
+     demi-arête (DIE_HALF) : rotation nulle = face avant exactement à la place du dé plat.
+     uncube() remet ensuite le dé d'origine (un simple texte, aucun style en ligne). */
+  var DIE_HALF = "4.5rem";
+  var FACE_TF = ["", "rotateY(180deg) ", "rotateY(90deg) ", "rotateY(-90deg) ", "rotateX(90deg) ", "rotateX(-90deg) "];
+  function cubeTf(rx, ry) { return "translateZ(-" + DIE_HALF + ") rotateX(" + rx + "deg) rotateY(" + ry + "deg)"; }
+  function cubeDie(die, front) {
+    var cube = el("b", "cube"), sh = el("em", "dsh"), n = parseInt(front, 10), shades = [], k = 0;
+    for (var i = 0; i < 6; i++) {
+      if (i) { k++; if (k === n) k++; }
+      var f = el("span", "", i ? String(k > 6 ? 6 : k) : front), s = el("b");
+      f.style.transform = FACE_TF[i] + "translateZ(" + DIE_HALF + ")";
+      f.appendChild(s); shades.push(s); cube.appendChild(f);
+    }
+    die.style.position = "relative"; die.style.background = "transparent"; die.style.color = "transparent"; die.style.perspective = "42rem";
+    die.appendChild(sh); die.appendChild(cube);
+    return { cube: cube, shadow: sh, frontShade: shades[0] };
+  }
+  function uncube(die, text) { die.textContent = text; die.removeAttribute("style"); }
+  function startRoll() {
+    if (st.rolling) return;
+    st.rolling = true;
+    var box = $("cdice");
+    clear(box);
+    box.appendChild(el("span", "", "?")); box.appendChild(el("span", "", "?"));
+    show(box, true);
+    if (HAS_3D) {
+      for (var j = 0; j < 2; j++) {
+        var die = box.childNodes[j], c = cubeDie(die, "1"), s = j ? -1 : 1;
+        anim(c.cube, [{ transform: cubeTf(0, 0) }, { transform: cubeTf(360 * s, -720 * s) }], { duration: 640 + j * 110, iterations: Infinity, easing: "linear" });
+        anim(die, [{ translate: "0 0", scale: ".86" }, { translate: "0 -1.4rem", scale: ".86" }], { duration: 210 + j * 30, iterations: Infinity, direction: "alternate", easing: "cubic-bezier(0,0,.4,1)" });
+        anim(c.shadow, [{ opacity: .75, transform: "translateY(0rem) scale(1)" }, { opacity: .35, transform: "translateY(1.4rem) scale(.7)" }],
+          { duration: 210 + j * 30, iterations: Infinity, direction: "alternate", easing: "cubic-bezier(0,0,.4,1)" });
+      }
+    } else {
+      st.rollT = setInterval(function () {
+        for (var i = 0; i < box.childNodes.length; i++) {
+          box.childNodes[i].textContent = String(1 + Math.floor(Math.random() * 6));
+          anim(box.childNodes[i], [{ transform: "rotate(" + (Math.random() * 40 - 20) + "deg) scale(1.1)" }, { transform: "none" }], { duration: 120 });
+        }
+      }, 90);
+    }
+    sfx("roll");
+  }
+  function stopRoll() { st.rolling = false; if (st.rollT) { clearInterval(st.rollT); st.rollT = null; } }
+  /* Le cube retombe en tournant et se pose, la valeur face au public. */
+  function landDie(die, i) {
+    var text = die.textContent, c = cubeDie(die, text), s = i ? -1 : 1;
+    var o = { duration: 820, delay: i * 90, easing: "cubic-bezier(.25,.6,.4,1)", fill: "both" };
+    anim(c.cube, [{ transform: cubeTf(-630 * s, 450 * s) }, { transform: cubeTf(18 * s, -12 * s), offset: .68 },
+                  { transform: cubeTf(-7 * s, 5 * s), offset: .86 }, { transform: cubeTf(0, 0) }], o, function () { uncube(die, text); });
+    anim(die, [{ translate: "0 -3rem", scale: ".86" }, { translate: "0 0", scale: "1", offset: .5 }, { translate: "0 -1.2rem", scale: "1.04", offset: .68 },
+               { translate: "0 0", scale: "1", offset: .86 }, { translate: "0 0", scale: "1" }],
+      { duration: o.duration, delay: o.delay, easing: o.easing, fill: "backwards" });   /* pas de « forwards » : rien ne doit rester sur le dé posé */
+    anim(c.shadow, [{ opacity: .2, transform: "translateY(3rem) scale(.55)" }, { opacity: .8, transform: "translateY(0rem) scale(1)", offset: .5 },
+                    { opacity: .5, transform: "translateY(1.2rem) scale(.8)", offset: .68 }, { opacity: .8, transform: "translateY(0rem) scale(1)", offset: .86 },
+                    { opacity: 0, transform: "translateY(0rem) scale(1)" }], o);
+    anim(c.frontShade, [{ opacity: 1 }, { opacity: 1, offset: .7 }, { opacity: 0 }], o);
+  }
+  function diceFx() {
+    var d = $("cdice").childNodes;
+    sfx("land");
+    for (var k = 0; k < d.length; k++) later2((function (n) { return function () { var at = mid(n); sparks(at, GOLD, 14, remPx(7)); shockwave(at, "#FFD54A"); }; })(d[k]), (HAS_3D ? 430 : 650) + k * 90);
+    for (var i = 0; i < d.length; i++) {
+      if (HAS_3D) { landDie(d[i], i); continue; }
+      anim(d[i], [{ transform: "rotate(0) scale(1)" }, { transform: "rotate(" + (i ? -540 : 540) + "deg) scale(1.3)", offset: .7 }, { transform: "rotate(" + (i ? -720 : 720) + "deg) scale(1)" }],
+        { duration: 700, delay: i * 90, easing: "cubic-bezier(.2,.8,.3,1)" });
+    }
+  }
+  function clashFx(vs) {
+    var a = vs.childNodes[0], x = vs.childNodes[1], b = vs.childNodes[2];
+    if (!a || !b) return;
+    a.style.display = b.style.display = "inline-block";
+    var pp = "perspective(90rem) ";
+    anim(a, [{ transform: pp + "translateX(-70rem) translateZ(-40rem) rotateY(75deg)", opacity: 0 }, { transform: pp + "translateX(2rem) translateZ(8rem) rotateY(-10deg)", opacity: 1, offset: .75 },
+             { transform: pp + "translateX(0rem) translateZ(0rem) rotateY(0deg)", opacity: 1 }], { duration: 520, easing: "cubic-bezier(.5,0,.75,0)" });
+    anim(b, [{ transform: pp + "translateX(70rem) translateZ(-40rem) rotateY(-75deg)", opacity: 0 }, { transform: pp + "translateX(-2rem) translateZ(8rem) rotateY(10deg)", opacity: 1, offset: .75 },
+             { transform: pp + "translateX(0rem) translateZ(0rem) rotateY(0deg)", opacity: 1 }], { duration: 520, easing: "cubic-bezier(.5,0,.75,0)" });
+    anim(x, [{ transform: "perspective(40rem) scale(0) rotateY(-360deg)", opacity: 0 }, { transform: "perspective(40rem) scale(2.2) rotateY(-25deg)", opacity: 1, offset: .6 },
+             { transform: "perspective(40rem) scale(1) rotateY(0deg)", opacity: 1 }], { duration: 500, delay: 380, easing: "ease-out", fill: "backwards" });
+    later2(function () { var at = mid(x); shockwave(at, "#FF4D5A"); sparks(at, ["#FF4D5A", "#FFD54A", "#FFF4E0"], 26, remPx(16)); edgeFlash("rgba(255,77,90,.5)"); shake($("card"), 1.6); sfx("clash"); }, 420);
+  }
+  /* Palier du Wicked Wango franchi : plus le palier est haut, plus ça brille. */
+  function levelFx(n) {
+    anim($("ctitle"), [{ transform: "scale(1)" }, { transform: "scale(1.25)", offset: .35 }, { transform: "scale(1)" }], { duration: 600, easing: "cubic-bezier(.34,1.56,.64,1)" });
+    var at = mid($("ctitle"));
+    sparks(at, ["#4FC3F7", "#FFD54A", "#FFF4E0"], 8 + n * 5, remPx(8 + n * 2));
+    edgeFlash("rgba(79,195,247," + Math.min(.7, .2 + n * .07) + ")");
+    if (n >= 5) cannons(10 + n * 6);
+    sfx("level", n);
+  }
+  function timerFx(left) {
+    if (left > 0 && left <= 5) {
+      anim($("tnum"), [{ transform: "scale(1.5)" }, { transform: "scale(1)" }], { duration: 450, easing: "cubic-bezier(.34,1.56,.64,1)" });
+      edgeFlash("rgba(255,77,90," + (.12 + (5 - left) * .07) + ")");
+      sfx("tick", left);
+    } else if (left === 0) {
+      shake($("card"), 1.6); edgeFlash("rgba(255,77,90,.6)"); sfx("buzzer");
+    }
+  }
   function renderCard(v) {
-    var q = str(v.q, 700), a = str(v.a, 400), sub = str(v.sub, 500);
-    $("ctitle").textContent = str(v.title, 200);
+    var q = str(v.q, 700), a = str(v.a, 400), sub = str(v.sub, 500), title = str(v.title, 200);
+    var key = str(v.ph, 16) + "|" + title + "|" + q, fresh = key !== st.cardKey;
+    if (title !== st.cardTitle) { $("ctitle").textContent = title; st.cardTitle = title; }
     var cq = $("cq");
-    cq.textContent = q;
+    if (q !== st.cardQ) { animatedText(cq, q, false, 45, 2.2, 200); st.cardQ = q; }
     cq.className = sizeClass(q.length + (a ? 60 : 0) + (sub ? 40 : 0), [110, 190, 300, 460]);
     show(cq, !!q);
     $("catxt").textContent = a;
     $("catxt").className = sizeClass(a.length, [50, 120]);
+    if (!$("ca").querySelector(".sheen")) $("ca").appendChild(el("div", "sheen"));
     show($("ca"), !!a);
+    if (a && !st.cardA && !fresh) revealFx();
+    st.cardA = !!a;
     $("csub").textContent = sub;
     show($("csub"), !!sub);
     fillSpans($("cvals"), v.val, 10, ["", "mal"]);
     fillSpans($("copts"), v.opts, 70);
-    fillSpans($("cdice"), v.dice, 2);
+    var diceKey = Array.isArray(v.dice) ? v.dice.join(",") : "";
+    if (v.roll && !Array.isArray(v.dice)) startRoll();
+    else {
+      var wasRolling = st.rolling;
+      stopRoll();
+      /* mêmes dés qu'à la vue précédente : on n'y touche pas, sinon le cube serait coupé en plein vol */
+      if (wasRolling || !diceKey || diceKey !== st.diceKey) fillSpans($("cdice"), v.dice, 2);
+    }
+    if (diceKey && diceKey !== st.diceKey) diceFx();
+    st.diceKey = diceKey;
 
     var vs = $("cvs"), duo = Array.isArray(v.vs) && v.vs.length === 2;
     clear(vs);
     if (duo) {
-      vs.appendChild(document.createTextNode(str(v.vs[0], NAME_MAX)));
+      vs.appendChild(el("span", "", str(v.vs[0], NAME_MAX)));
       vs.appendChild(el("i", "", "VS"));
-      vs.appendChild(document.createTextNode(str(v.vs[1], NAME_MAX)));
+      vs.appendChild(el("span", "", str(v.vs[1], NAME_MAX)));
     }
     show(vs, duo);
 
@@ -387,10 +885,37 @@
       $("tnum").textContent = left + " s";
       $("tbar").firstChild.style.width = Math.max(0, Math.min(100, left / max * 100)) + "%";
       box.className = left <= 5 ? "hot" : (left <= 10 ? "warn" : "");
+      if (left !== st.tleft && typeof st.tleft === "number" && left < st.tleft) timerFx(left);
+      st.tleft = left;
     }
     show(box, !!tm);
+    if (!tm) st.tleft = null;
+    var lvl = str(v.ph, 16) === "wango" ? num(v.lvl) : 0;
+    if (lvl > 1 && st.wlvl && lvl > st.wlvl) levelFx(lvl);
+    st.wlvl = lvl;
+    if (fresh) {
+      st.cardKey = key;
+      cardEnter();
+      if (duo) { if (v.ev) st.pendingClash = true; else clashFx(vs); }   /* derrière une annonce : on attend qu'elle se ferme */
+    }
   }
 
+  /* ---------- bandeau de verdict ---------- */
+  function bannerFx(kind, node) {
+    /* bascule sur une charnière (bord haut), puis rebonds amortis ; le transform CSS de centrage est repris tel quel */
+    var hinge = "translate(-50%,-55%) perspective(90rem) rotateX(", top = "50% 0%";
+    anim(node, [{ opacity: 0, transformOrigin: top, transform: hinge + "-110deg)" },
+                { opacity: 1, transformOrigin: top, transform: hinge + "30deg)", offset: .42 },
+                { opacity: 1, transformOrigin: top, transform: hinge + "-16deg)", offset: .64 },
+                { opacity: 1, transformOrigin: top, transform: hinge + "7deg)", offset: .84 },
+                { opacity: 1, transformOrigin: top, transform: hinge + "0deg)" }], { duration: 680, easing: "ease-out" });
+    var at = mid(node);
+    sfx(kind === "good" || kind === "bad" || kind === "fire" ? kind : "land");
+    if (kind === "good") { edgeFlash("rgba(77,230,168,.5)"); shockwave(at, "#4DE6A8"); cannons(45); }
+    else if (kind === "bad") { edgeFlash("rgba(255,77,90,.55)"); shake($("card"), 1.4); }
+    else if (kind === "fire") { edgeFlash("rgba(255,122,61,.55)"); shockwave(at, "#FF7A3D"); sparks(at, ["#FF7A3D", "#FFD54A", "#FF4D5A"], 30, remPx(18)); cannons(30); }
+    else sparks(at, GOLD, 16, remPx(10));
+  }
   function renderBanner(v) {
     var b = v.bn && typeof v.bn === "object" ? v.bn : null, node = $("banner");
     if (!b) { show(node, false); st.bannerId = null; return; }
@@ -398,27 +923,67 @@
     $("btit").textContent = str(b.t, 140);
     $("bsub").textContent = str(b.s, 220);
     show($("bsub"), !!b.s);
-    var kind = str(b.k, 12);
+    var kind = str(b.k, 12), isNew = st.bannerId !== b.id;
     node.className = kind === "good" || kind === "bad" || kind === "fire" ? kind : "";
-    if (st.bannerId !== b.id) { show(node, false); void node.offsetWidth; }   /* rejoue l'animation */
+    if (isNew) { show(node, false); void node.offsetWidth; }   /* rejoue l'animation */
     st.bannerId = b.id;
     show(node, true);
+    if (isNew) bannerFx(kind, node);
   }
 
+  /* ---------- grand événement ---------- */
+  function eventFx() {
+    var pe = "perspective(70rem) ";   /* l'icône tourne sur elle-même avant de se poser */
+    anim($("eico"), [{ transform: pe + "scale(0) rotateY(-540deg)" }, { transform: pe + "scale(1.3) rotateY(-35deg)", offset: .62 },
+                     { transform: pe + "scale(.94) rotateY(12deg)", offset: .84 }, { transform: pe + "scale(1) rotateY(0deg)" }], { duration: 950, easing: "ease-out" });
+    anim($("erays"), [{ opacity: 0, transform: "scale(.4) rotate(0deg)" }, { opacity: 1, transform: "scale(1) rotate(50deg)", offset: .1 },
+                      { opacity: 1, transform: "scale(1) rotate(360deg)" }], { duration: 12000, easing: "linear", fill: "forwards" });
+    anim($("esub"), [{ opacity: 0, transform: "translateY(2rem)" }, { opacity: 1, transform: "none" }], { duration: 600, delay: 700, fill: "backwards" });
+    edgeFlash("rgba(255,213,74,.45)");
+    sfx("event");
+    later2(function () { cannons(60); }, 350);
+  }
   function renderEvent(v) {
     var e = v.ev && typeof v.ev === "object" ? v.ev : null;
-    if (e) {
+    var key = e ? str(e.i, 24) + "|" + str(e.t, 180) + "|" + str(e.s, 320) : "";
+    if (e && key !== st.evKey) {
       $("eico").textContent = str(e.i, 24);
-      $("etit").textContent = str(e.t, 180);
-      $("esub").textContent = str(e.s, 320);
       show($("eico"), !!e.i);
+      $("esub").textContent = str(e.s, 320);
+      show($("event"), true);
+      animatedText($("etit"), str(e.t, 180), true, 30, -5, 300);
+      eventFx();
     }
-    show($("event"), !!e);
+    if (!e) {
+      show($("event"), false);
+      var vs = $("cvs");
+      if (st.pendingClash && !vs.hidden && vs.childNodes.length === 3) clashFx(vs);
+      st.pendingClash = false;
+    }
+    st.evKey = key;
   }
 
+  /* ---------- vainqueur ---------- */
+  function winnerFx() {
+    var pw = "perspective(80rem) ";   /* le trophée tombe en tournant sur lui-même, puis refait trois tours d'honneur */
+    anim($("wico"), [{ transform: pw + "translateY(-30rem) scale(.4) rotateY(-900deg)" }, { transform: pw + "translateY(2rem) scale(1.2) rotateY(-70deg)", offset: .65 },
+                     { transform: pw + "translateY(-1rem) scale(.96) rotateY(16deg)", offset: .85 }, { transform: pw + "translateY(0rem) scale(1) rotateY(0deg)" }],
+      { duration: 1100, easing: "cubic-bezier(.4,.1,.5,1)" });
+    if (st.wspin) st.wspin.cancel();
+    st.wspin = anim($("wico"), [{ transform: pw + "rotateY(0deg)" }, { transform: pw + "rotateY(0deg)", offset: .68 }, { transform: pw + "rotateY(360deg)" }],
+      { duration: 3400, delay: 1300, iterations: 3, easing: "ease-in-out" });
+    anim($("wscore"), [{ opacity: 0, transform: "scale(.3)" }, { opacity: 1, transform: "scale(1.2)", offset: .7 }, { opacity: 1, transform: "none" }],
+      { duration: 650, delay: 1100, easing: "ease-out", fill: "backwards" });
+    popChildren($("wrank"), 1500);
+    sfx("win");
+    edgeFlash("rgba(255,213,74,.55)");
+    later2(function () { cannons(90); }, 600);
+    for (var i = 0; i < 6; i++) later2(function () { rain(40); }, 900 + i * 900);
+  }
   function renderWinner(v) {
     var w = v.win && typeof v.win === "object" ? v.win : {};
-    $("wname").textContent = str(w.n, NAME_MAX);
+    var name = str(w.n, NAME_MAX), key = name + "|" + num(w.s), isNew = key !== st.winKey;
+    if (isNew) animatedText($("wname"), name, true, 70, -8, 500);
     $("wtitle").textContent = str(v.title, 200);
     $("wscore").textContent = fmt(num(w.s)) + t().pts;
     var rank = $("wrank"), list = Array.isArray(v.players) ? v.players.slice(0, MAX_PLAYERS) : [];
@@ -427,7 +992,19 @@
         .sort(function (a, b) { return num(b.s) - num(a.s); })
         .slice(0, 6)
         .forEach(function (p, i) { rank.appendChild(el("span", "", (i + 1) + ". " + str(p.n, NAME_MAX) + " — " + fmt(num(p.s)))); });
+    if (isNew) winnerFx();
+    st.winKey = key;
   }
+
+  function renderTicker(text) {
+    if (text === st.tickText) return;
+    st.tickText = text;
+    $("ticker").textContent = text;
+    anim($("ticker"), [{ opacity: 0, transform: "translateY(1.4rem)" }, { opacity: 1, transform: "none" }], { duration: 420, easing: "cubic-bezier(.16,1,.3,1)" });
+  }
+
+  /* L'animation CSS d'origine est remplacée par les effets ci-dessus quand ils sont disponibles. */
+  if (CAN_ANIM) { $("banner").style.animation = "none"; $("eico").style.animation = "none"; $("wico").style.animation = "none"; }
 
   function render() {
     var v = st.view, screen = v ? str(v.screen, 12) : "setup";
@@ -437,10 +1014,11 @@
     show($("board"), playing && !won);
     show($("winner"), won);
     if (playing) {
-      if (won) renderWinner(v); else { renderPods(v); renderCard(v); renderBanner(v); $("ticker").textContent = str(v.log, 220); }
+      if (won) renderWinner(v); else { renderPods(v); renderCard(v); renderBanner(v); renderTicker(str(v.log, 220)); }
     } else {
-      st.scores = [];
+      st.pods = null; st.cardKey = null; clear($("pods"));
     }
+    if (!won) st.winKey = null;
     renderEvent(v || {});
     renderChrome();
   }
@@ -554,6 +1132,7 @@
   window.addEventListener("resize", fit);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) keepAwake(); });
   initFullscreen();
+  initSound();
   keepAwake();
   render();
   st.code = urlCode() || stored();
