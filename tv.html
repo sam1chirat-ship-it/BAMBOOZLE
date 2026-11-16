@@ -6,7 +6,7 @@
 <!-- Le script inline est épinglé par son empreinte : après toute modification du script,
      recalculer l'empreinte (voir ARCHITECTURE.md §12 ; test-tv-mode.mjs la vérifie).
      'unsafe-inline' n'est là que pour les très vieux navigateurs qui ignorent les empreintes. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-3CfAw+Edw3EzqtjCIBWC6RWFGeEPT3IZytJ7QpQG0oA=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D7zHzG2kbDCLgpMZxKUI5Xp/7mz+mDZwJkLsAQZ1lHo=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#120821">
@@ -64,8 +64,13 @@
     background:rgba(27,15,51,.85);border:.2rem solid var(--line);position:relative;transition:transform .35s,box-shadow .35s,border-color .35s}
   .pod .nm{font-family:var(--sans);font-size:3.4rem;letter-spacing:.1em;line-height:1.05;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .pod .sc{font-family:var(--sans);font-size:6.4rem;line-height:1;color:var(--nyellow);margin-top:.3rem}
-  .pod .bd{min-height:2.9rem;margin-top:.4rem;font-size:2rem;line-height:1.4;color:var(--cream);white-space:nowrap;overflow:hidden}
-  .pod .bd span{display:inline-block;margin:0 .45rem;font-family:var(--sans);letter-spacing:.06em}
+  .pod .bd{min-height:3rem;margin-top:.5rem;font-size:1.8rem;line-height:1.3;color:var(--cream);display:flex;flex-wrap:wrap;justify-content:center;
+    max-height:6.6rem;overflow:hidden}
+  .pod .bd span{display:inline-block;margin:.2rem .3rem;font-family:var(--sans);letter-spacing:.06em;white-space:nowrap}
+  .pod .bd .chip{padding:.05rem 1rem;border-radius:5rem;border:.15rem solid var(--bc,var(--line));color:var(--bc,var(--cream2,var(--cream)));
+    background:rgba(255,255,255,.04);text-shadow:0 0 .8rem var(--bc,transparent);text-transform:uppercase}
+  .pod .bd .chip.cy{--bc:var(--nblue)} .pod .bd .chip.gold{--bc:var(--nmint)} .pod .bd .chip.mg{--bc:var(--norange)}
+  .pod .bd .chip.rd{--bc:var(--nred)} .pod .bd .chip.fire{--bc:var(--norange);box-shadow:0 0 1rem rgba(255,122,61,.45)}
   .pod .prog{height:.9rem;border-radius:.5rem;background:rgba(255,255,255,.09);margin-top:.7rem;overflow:hidden}
   .pod .prog i{display:block;height:100%;width:0;background:var(--nviolet);border-radius:.5rem;transition:width .6s}
   .pod.active{border-color:var(--nyellow);transform:translateY(-.6rem) scale(1.05);z-index:2;
@@ -77,7 +82,8 @@
   #pods.many .pod{min-width:13rem;padding:.9rem 1rem .8rem;margin:.5rem}
   #pods.many .pod .nm{font-size:2.5rem}
   #pods.many .pod .sc{font-size:4.2rem}
-  #pods.many .pod .bd{font-size:1.6rem;min-height:2.3rem}
+  #pods.many .pod .bd{font-size:1.4rem;min-height:2.3rem}
+  #pods.many .pod .bd .chip{padding:0 .6rem}
   #pods.crowd .pod{flex:0 0 11.5%;min-width:0}
 
   #mid{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;position:relative;padding-top:1.2rem}
@@ -100,9 +106,28 @@
   #catxt{font-size:4.8rem;line-height:1.2;font-weight:600;color:var(--cream)}
   #catxt.s2{font-size:3.6rem} #catxt.s3{font-size:2.8rem}
   #csub{font-size:2.7rem;line-height:1.35;color:var(--muted);margin-top:1.6rem;font-style:italic}
-  #copts{margin-top:1.6rem}
-  #copts span{display:inline-block;margin:.6rem .8rem;padding:.7rem 2.2rem;border-radius:5rem;border:.2rem solid var(--line);
-    font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--cream)}
+  #copts{margin-top:2.2rem;display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch}
+  #coptl + #copts{margin-top:1rem}
+  #copts .opt{flex:1 1 22rem;max-width:46rem;margin:.6rem 1rem;padding:1.8rem 2rem 2rem;border-radius:2rem;
+    display:flex;flex-direction:column;justify-content:center;
+    border:.3rem solid var(--oc,var(--line));background:rgba(10,4,24,.55);
+    box-shadow:0 0 2.4rem -.6rem var(--oc,transparent),inset 0 0 2rem -1rem var(--oc,transparent)}
+  #copts .ot{font-family:var(--sans);font-size:3.4rem;letter-spacing:.08em;line-height:1.1;color:var(--oc,var(--cream));text-transform:uppercase}
+  #copts .os{margin-top:.8rem;font-size:2.3rem;line-height:1.3;color:var(--muted)}
+  #cbonus{display:table;margin:2.2rem auto 0;padding:1rem 2.8rem 1.2rem;max-width:130rem;border-radius:1.8rem;
+    border:.22rem solid rgba(255,213,74,.65);background:rgba(255,213,74,.08);box-shadow:0 0 1.8rem rgba(255,213,74,.2);
+    animation:bonusGlow 2.6s ease-in-out infinite alternate}
+  #cbonus .bk{font-family:var(--sans);font-size:2.5rem;letter-spacing:.16em;color:var(--nyellow)}
+  #cbonus .bv{display:inline-block;margin-left:1.4rem;padding:0 1.2rem;border-radius:5rem;border:.15rem solid var(--nmint);
+    font-family:var(--sans);font-size:2.3rem;letter-spacing:.08em;color:var(--nmint);vertical-align:.2rem}
+  #cbonus .bt{font-size:3rem;line-height:1.3;color:var(--cream);margin-top:.3rem}
+  #cbonus.dim{margin-top:1.6rem;padding:.6rem 2.2rem .8rem;animation:none;box-shadow:none;border-color:rgba(255,213,74,.35);background:rgba(255,213,74,.05)}
+  #cbonus.dim .bk{font-size:2rem} #cbonus.dim .bv{font-size:1.9rem} #cbonus.dim .bt{font-size:2.4rem;color:var(--muted)}
+  #coptl{margin-top:2rem;font-family:var(--sans);font-size:2.8rem;letter-spacing:.12em;color:var(--nyellow)}
+  #ctgt{display:table;margin:1.8rem auto 0;padding:.5rem 2.4rem;border-radius:5rem;border:.2rem solid var(--norange);
+    font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--norange);text-shadow:0 0 1rem rgba(255,122,61,.6)}
+  @keyframes bonusGlow{from{box-shadow:0 0 1.2rem rgba(255,213,74,.12)}to{box-shadow:0 0 2.6rem rgba(255,213,74,.38)}}
+  html.still *,html.still *::before,html.still *::after{animation:none!important;transition:none!important}
   #ctimer{margin:1.6rem auto 0;max-width:90rem}
   #tnum{font-family:var(--sans);font-size:6rem;line-height:1;color:var(--nyellow)}
   #tbar{height:1.2rem;border-radius:.6rem;background:rgba(255,255,255,.1);margin-top:.6rem;overflow:hidden}
@@ -219,7 +244,10 @@
         <div id="ctimer" hidden><div id="tnum"></div><div id="tbar"><i></i></div></div>
         <div id="cq"></div>
         <div id="ca" hidden><div id="calbl"></div><div id="catxt"></div></div>
+        <div id="ctgt" hidden></div>
+        <div id="coptl" hidden></div>
         <div id="copts" hidden></div>
+        <div id="cbonus" hidden><span class="bk"></span><span class="bv"></span><div class="bt"></div></div>
         <div id="csub" hidden></div>
       </div>
     </div>
@@ -349,7 +377,7 @@
   }
 
   function tween(node, from, to) {
-    if (from === to || !window.requestAnimationFrame) { node.textContent = fmt(to); return; }
+    if (from === to || !CAN_ANIM || !window.requestAnimationFrame) { node.textContent = fmt(to); return; }
     var t0 = null;
     function step(now) {
       if (t0 === null) t0 = now;
@@ -365,7 +393,10 @@
      Tout est déclenché par une DIFFÉRENCE entre deux vues (score, barreau, question,
      réponse révélée, verdict, événement). Sans Web Animations ou avec « animations
      réduites », la page s'affiche exactement comme avant, sans effet. */
-  var REDUCED = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  /* #local&still : diffusion en images (DLNA) — chaque vue doit être complète tout de suite. */
+  var STILL = /^#local&still(?:&|$)/.test(location.hash);
+  if (STILL) document.documentElement.className += " still";
+  var REDUCED = STILL || !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   var CAN_ANIM = !REDUCED && typeof document.body.animate === "function";
   var HAS_3D = CAN_ANIM && !!(window.CSS && CSS.supports && CSS.supports("transform-style", "preserve-3d"));
   var LADDER_STATIONS = { 2: 1, 4: 1, 6: 1 };   /* mêmes stations que STATIONS dans index.html */
@@ -662,15 +693,15 @@
     if (!first && p.a && !o.active) tilt(o.root, "0 1 0", [0, -44, 12, -4, 0], 720);   /* le nouveau candidat pivote vers le public */
     o.active = !!p.a;
 
-    var badges = (Array.isArray(p.b) ? p.b.slice(0, MAX_BADGES) : []).map(function (b) { return str(b, 12); });
-    var key = badges.join("\u0001");
+    var badges = (Array.isArray(p.b) ? p.b.slice(0, MAX_BADGES) : []).map(badgeOf);
+    var key = badges.map(function (b) { return b.k + ":" + b.t; }).join("\u0001");
     if (key !== o.badges) {
       var old = o.badges ? o.badges.split("\u0001") : [];
       clear(o.bd);
       badges.forEach(function (b, i) {
-        var s = el("span", "", b);
+        var s = el("span", "chip " + b.k, b.t);
         o.bd.appendChild(s);
-        if (!first && old.indexOf(b) === -1) popIn(s, i * 60);
+        if (!first && old.indexOf(b.k + ":" + b.t) === -1) popIn(s, i * 60);
       });
       o.badges = key;
     }
@@ -704,6 +735,37 @@
     var list = Array.isArray(items) ? items.slice(0, 6) : [];
     list.forEach(function (x, i) { node.appendChild(el("span", cls && cls[i] ? cls[i] : "", str(x, max))); });
     show(node, list.length > 0);
+  }
+  /* Tuiles de choix aux couleurs du téléphone ; « Titre — précision » sur deux lignes. */
+  var OPT_COLORS = { y: "var(--nyellow)", b: "var(--nblue)", o: "var(--norange)", v: "var(--nviolet)", m: "var(--nmint)", r: "var(--nred)" };
+  function fillOpts(node, items, kinds) {
+    clear(node);
+    var list = Array.isArray(items) ? items.slice(0, 16) : [];
+    for (var i = 0; i < list.length; i++) {
+      var parts = str(list[i], 80).split(" — ");
+      var tile = el("div", "opt"), k = Array.isArray(kinds) ? kinds[i] : "";
+      if (OPT_COLORS[k]) tile.style.setProperty("--oc", OPT_COLORS[k]);
+      tile.appendChild(el("div", "ot", parts[0]));
+      if (parts.length > 1) tile.appendChild(el("div", "os", parts.slice(1).join(" — ")));
+      node.appendChild(tile);
+    }
+    show(node, list.length > 0);
+  }
+  /* Défi bonus du tour : [libellé, points, consigne] — visible sans voler la vedette à la question. */
+  function renderBonus(b, dim) {
+    var box = $("cbonus");
+    box.className = dim ? "dim" : "";
+    show(box, !!b);
+    if (!b) return;
+    box.querySelector(".bk").textContent = str(b[0], 60);
+    box.querySelector(".bv").textContent = str(b[1], 8);
+    box.querySelector(".bt").textContent = str(b[2], 240);
+  }
+  /* Badge du podium : {k: couleur, t: texte} (ancien format : simple texte). */
+  var BADGE_KINDS = { cy: 1, gold: 1, mg: 1, rd: 1, fire: 1 };
+  function badgeOf(b) {
+    if (b && typeof b === "object") return { k: BADGE_KINDS[b.k] ? b.k : "", t: str(b.t, 28) };
+    return { k: "", t: str(b, 12) };
   }
   function popChildren(node, delay0) {
     for (var i = 0; i < node.childNodes.length; i++) popIn(node.childNodes[i], delay0 + i * 90);
@@ -847,7 +909,8 @@
     if (title !== st.cardTitle) { $("ctitle").textContent = title; st.cardTitle = title; }
     var cq = $("cq");
     if (q !== st.cardQ) { animatedText(cq, q, false, 45, 2.2, 200); st.cardQ = q; }
-    cq.className = sizeClass(q.length + (a ? 60 : 0) + (sub ? 40 : 0), [110, 190, 300, 460]);
+    var bonus = Array.isArray(v.bonus) ? v.bonus : null;
+    cq.className = sizeClass(q.length + (a ? 60 : 0) + (sub ? 40 : 0) + (bonus ? 50 : 0), [110, 190, 300, 460]);
     show(cq, !!q);
     $("catxt").textContent = a;
     $("catxt").className = sizeClass(a.length, [50, 120]);
@@ -858,7 +921,12 @@
     $("csub").textContent = sub;
     show($("csub"), !!sub);
     fillSpans($("cvals"), v.val, 10, ["", "mal"]);
-    fillSpans($("copts"), v.opts, 70);
+    $("coptl").textContent = str(v.optT, 120);
+    show($("coptl"), !!v.optT && Array.isArray(v.opts) && v.opts.length > 0);
+    $("ctgt").textContent = str(v.tgt, 80);
+    show($("ctgt"), !!v.tgt);
+    fillOpts($("copts"), v.opts, v.optk);
+    renderBonus(bonus, !!a);
     var diceKey = Array.isArray(v.dice) ? v.dice.join(",") : "";
     if (v.roll && !Array.isArray(v.dice)) startRoll();
     else {
@@ -1135,6 +1203,19 @@
   initSound();
   keepAwake();
   render();
+  /* Mode local (#local) : page embarquée dans l'app iPhone et affichée sur l'écran relié
+     (recopie AirPlay ou HDMI). L'app pousse les messages via window.bzLocal, sans relais. */
+  if (/^#local(?:&|$)/.test(location.hash)) {
+    window.bzLocal = function (m) {
+      if (!m || typeof m !== "object") return;
+      st.lastMsgAt = Date.now();
+      if (m.type === "view") onView(m.view);
+      else if (m.type === "host") { st.hostOn = m.on === true; renderChrome(); }
+    };
+    st.hostOn = true;
+    setStatus("ready");
+    return;
+  }
   st.code = urlCode() || stored();
   if (st.code) { render(); connect(); } else { createRoom(); }
 })();

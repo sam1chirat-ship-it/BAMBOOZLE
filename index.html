@@ -347,6 +347,9 @@
   #tvbtn.tv-wait{border-color:var(--nyellow);color:var(--nyellow)}
   #modal .tvstat{font-family:var(--serif);font-size:14px;line-height:1.45;color:var(--cream);margin:0 0 12px}
   #modal .tvstat.err{color:var(--nred);margin-top:10px}
+  #modal .tvlist{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+  #modal .tvscreen{width:100%;text-align:left;font-size:15px;padding:12px 14px}
+  #modal .tvlist .tvstat{margin:0}
   #modal #tvcode{text-align:center;font-family:var(--sans);font-size:30px;letter-spacing:.35em;text-transform:uppercase;margin:0 0 12px;padding-left:calc(14px + .35em)}
 
   /* ============ ÉCRAN DE LANCEMENT : LE B QUI GRÉSILLE ============ */
@@ -744,7 +747,7 @@ fr:{sub:"Bamboozled — régie officielle",lang:"EN",logC:"JOURNAL — TOUCHER P
  first:n=>"La partie commence ! Premier candidat : "+n+".",turn:(n,h)=>"Au tour de <b>"+n+"</b>"+(h>0?" — à cloche-pied ("+h+" question(s), changez de jambe !)":"")+".",
  skip:n=>"<b>"+n+"</b> passe son tour (Silence Radio).",
  qFor:"Question pour ",bq:"🎁 Question bonus — ",hopF:" — À CLOCHE-PIED, changez de jambe !",hutF:" — 🛖 à l'abri dans la Mudhut",retroTag:"🎞 RÉTRO — question vintage — ",
- reveal:"Voir la réponse",ans:"Réponse : ",ok:"Correct",miss:"Raté",retroBtn:"🎞 Question rétro (+75)",
+ reveal:"Voir la réponse",ans:"Réponse : ",ok:"Correct",miss:"Raté",retroBtn:"🎞 Question rétro (+75)",keepQ:"📺 Garder cette question",classicOpt:"❓ Question classique",pickT:" — choisis ta question",
  goodT:g=>"BONNE RÉPONSE ! +"+g,goodS:n=>n+" reste dans la course.",
  goodBonus:n=>"Défi bonus relevé — "+n+" ne fait pas les choses à moitié.",
  comboT:c=>"EN FEU ! ×"+c,comboS:(n,g,b)=>n+" enchaîne sans faute — +"+g+" points"+(b?" avec le défi":"")+".",
@@ -953,7 +956,7 @@ en:{sub:"Bamboozled — official host console",lang:"IT",logC:"LOG — TAP TO EX
  first:n=>"The show begins! First contestant: "+n+".",turn:(n,h)=>"It's <b>"+n+"</b>'s turn"+(h>0?" — on one leg ("+h+" question(s) left, switch legs!)":"")+".",
  skip:n=>"<b>"+n+"</b> skips their turn (Radio Silence).",
  qFor:"Question for ",bq:"🎁 Bonus question — ",hopF:" — ON ONE LEG, switch legs!",hutF:" — 🛖 sheltered in the Mudhut",retroTag:"🎞 RETRO — vintage question — ",
- reveal:"Reveal the answer",ans:"Answer: ",ok:"Correct",miss:"Missed",retroBtn:"🎞 Retro question (+75)",
+ reveal:"Reveal the answer",ans:"Answer: ",ok:"Correct",miss:"Missed",retroBtn:"🎞 Retro question (+75)",keepQ:"📺 Keep this question",classicOpt:"❓ Classic question",pickT:" — pick your question",
  goodT:g=>"CORRECT! +"+g,goodS:n=>n+" stays in the race.",
  goodBonus:n=>"Bonus challenge pulled off — "+n+" doesn't do things by halves.",
  comboT:c=>"ON FIRE! ×"+c,comboS:(n,g,b)=>n+" is on a roll — +"+g+" points"+(b?" with the challenge":"")+".",
@@ -1170,7 +1173,7 @@ I18N.it=Object.assign({},I18N.en,{
  qFor:"Domanda per ",bq:"🎁 Domanda bonus — ",hopF:" — SU UNA GAMBA SOLA, cambia gamba!",
  hutF:" — 🛖 al riparo nella Mudhut",retroTag:"🎞 RETRÒ — domanda vintage — ",
  reveal:"Vedi la risposta",ans:"Risposta: ",ok:"Giusta",miss:"Sbagliata",
- retroBtn:"🎞 Domanda retrò (+75)",
+ retroBtn:"🎞 Domanda retrò (+75)",keepQ:"📺 Tieni questa domanda",classicOpt:"❓ Domanda classica",pickT:" — scegli la domanda",
  chipTitle:"SFIDA BONUS DEL TURNO",chipTail:" — +50 se la porti a termine rispondendo.",
  valBonus:v=>"con la sfida: +"+v,okB:"Giusta + sfida",
  hQ:"Tre errori di fila = BAMBOOZLED (metà dei punti).",
@@ -1577,17 +1580,35 @@ const TV_THROTTLE_MS=150,TV_MAX_BYTES=8000,TV_TEXT_MAX=600,TV_NAME_MAX=20,TV_MAX
 const TV_BACKOFF_MIN_MS=1000,TV_BACKOFF_MAX_MS=15000,TV_BANNER_EXTRA_MS=1500;
 const TV_CLOSE_REPLACED=4001,TV_CLOSE_NO_ROOM=4004;
 const TV_T={
-  fr:{title:"📺 Mode télé",hint:"Sur la télé, ouvre la page tv.html du jeu, puis tape ici le code affiché.",go:"Connecter",cancel:"Annuler",close:"Fermer",off:"Déconnecter",
+  fr:{casting:n=>"Envoi de l'écran de jeu sur « "+n+" »…",castOn:(n,m)=>"✅ La partie s'affiche sur « "+n+" »"+(m==="images"?" (images, sans animations).":" (vidéo en direct)."),castStop:"⏹ Arrêter la diffusion",castErr:"La télé n'a pas accepté l'image : essaie le câble HDMI ou le code.",
+      scan:"🔍 Chercher les écrans",scanning:"Recherche des écrans du Wi-Fi…",none:"Aucun écran compatible trouvé ici. Pour une télé sans réseau : câble HDMI (adaptateur Lightning).",other:"🌐 Autre écran avec navigateur (code)",back:"← Écrans à proximité",local:"✅ Écran relié : la partie s'y affiche.",or:"…ou avec un code :",
+      accept:n=>"Ouverture sur « "+n+" »… accepte la demande sur la télé si elle s'affiche.",airplay:n=>"Ouvre le Centre de contrôle → Recopie de l'écran → « "+n+" ». La partie s'affichera toute seule sur la télé.",
+      notYet:n=>"« "+n+" » est détectée mais ne se pilote pas encore : ouvre tv.html dans son navigateur et tape le code ci-dessous.",launchErr:"La télé n'a pas pu ouvrir la page : ouvre tv.html dans son navigateur et tape le code.",scanErr:"Recherche impossible : autorise le réseau local dans Réglages → Bamboozled.",
+      bd:{angel:"Angel",hut:"Mudhut",hop:"Cloche-pied",dbl:"Double",dares:"Gages",skip:"Passe",shield:"Bouclier",contract:"Contrat",streak:"Série",combo:"En feu"},
+      who:"🎯 À qui ?",to:n=>"🎯 Pour "+n,
+      title:"📺 Mode télé",hint:"Sur la télé, ouvre la page tv.html du jeu, puis tape ici le code affiché.",go:"Connecter",cancel:"Annuler",close:"Fermer",off:"Déconnecter",
       bad:"Code invalide : 4 caractères, lettres et chiffres.",gone:"Code inconnu ou expiré. Vérifie le code affiché sur la télé.",taken:"Une autre télécommande a pris la main sur ce code.",
       wait:c=>"Code "+c+" — connexion au relais…",on:(c,n)=>"Code "+c+" — "+n+(n>1?" écrans connectés":" écran connecté")},
-  en:{title:"📺 TV mode",hint:"On the TV, open the game's tv.html page, then type the code it shows here.",go:"Connect",cancel:"Cancel",close:"Close",off:"Disconnect",
+  en:{casting:n=>"Sending the game screen to “"+n+"”…",castOn:(n,m)=>"✅ The game is showing on “"+n+"”"+(m==="images"?" (still images, no animations).":" (live video)."),castStop:"⏹ Stop casting",castErr:"The TV didn't accept the image: try an HDMI cable or the code.",
+      scan:"🔍 Find screens",scanning:"Looking for screens on the Wi-Fi…",none:"No compatible screen found here. For a TV without network: HDMI cable (Lightning adapter).",other:"🌐 Another screen with a browser (code)",back:"← Nearby screens",local:"✅ Screen connected: the game is showing on it.",or:"…or with a code:",
+      accept:n=>"Opening on “"+n+"”… accept the request on the TV if it appears.",airplay:n=>"Open Control Center → Screen Mirroring → “"+n+"”. The game will show up on the TV by itself.",
+      notYet:n=>"“"+n+"” was found but can't be controlled yet: open tv.html in its browser and type the code below.",launchErr:"The TV couldn't open the page: open tv.html in its browser and type the code.",scanErr:"Search unavailable: allow Local Network in Settings → Bamboozled.",
+      bd:{angel:"Angel",hut:"Mudhut",hop:"One leg",dbl:"Double",dares:"Dares",skip:"Skip",shield:"Shield",contract:"Contract",streak:"Streak",combo:"On fire"},
+      who:"🎯 Who?",to:n=>"🎯 For "+n,
+      title:"📺 TV mode",hint:"On the TV, open the game's tv.html page, then type the code it shows here.",go:"Connect",cancel:"Cancel",close:"Close",off:"Disconnect",
       bad:"Invalid code: 4 characters, letters and digits.",gone:"Unknown or expired code. Check the code shown on the TV.",taken:"Another remote took over this code.",
       wait:c=>"Code "+c+" — connecting to the relay…",on:(c,n)=>"Code "+c+" — "+n+(n===1?" screen connected":" screens connected")},
-  it:{title:"📺 Modalità TV",hint:"Sulla TV apri la pagina tv.html del gioco, poi scrivi qui il codice mostrato.",go:"Collega",cancel:"Annulla",close:"Chiudi",off:"Scollega",
+  it:{casting:n=>"Invio della schermata di gioco a «"+n+"»…",castOn:(n,m)=>"✅ La partita appare su «"+n+"»"+(m==="images"?" (immagini, senza animazioni).":" (video in diretta)."),castStop:"⏹ Interrompi la trasmissione",castErr:"La TV non ha accettato l'immagine: prova il cavo HDMI o il codice.",
+      scan:"🔍 Cerca gli schermi",scanning:"Ricerca degli schermi sul Wi-Fi…",none:"Nessuno schermo compatibile trovato qui. Per una TV senza rete: cavo HDMI (adattatore Lightning).",other:"🌐 Altro schermo con browser (codice)",back:"← Schermi vicini",local:"✅ Schermo collegato: la partita appare lì.",or:"…oppure con un codice:",
+      accept:n=>"Apertura su «"+n+"»… accetta la richiesta sulla TV se compare.",airplay:n=>"Apri il Centro di Controllo → Duplicazione schermo → «"+n+"». La partita apparirà da sola sulla TV.",
+      notYet:n=>"«"+n+"» è stata trovata ma non si può ancora comandare: apri tv.html nel suo browser e scrivi il codice qui sotto.",launchErr:"La TV non è riuscita ad aprire la pagina: apri tv.html nel suo browser e scrivi il codice.",scanErr:"Ricerca impossibile: consenti la Rete locale in Impostazioni → Bamboozled.",
+      bd:{angel:"Angel",hut:"Mudhut",hop:"Una gamba",dbl:"Doppio",dares:"Penitenze",skip:"Salta",shield:"Scudo",contract:"Contratto",streak:"Serie",combo:"In fiamme"},
+      who:"🎯 A chi?",to:n=>"🎯 Per "+n,
+      title:"📺 Modalità TV",hint:"Sulla TV apri la pagina tv.html del gioco, poi scrivi qui il codice mostrato.",go:"Collega",cancel:"Annulla",close:"Chiudi",off:"Scollega",
       bad:"Codice non valido: 4 caratteri, lettere e cifre.",gone:"Codice sconosciuto o scaduto. Controlla il codice sulla TV.",taken:"Un altro telecomando ha preso il controllo di questo codice.",
       wait:c=>"Codice "+c+" — connessione al relay…",on:(c,n)=>"Codice "+c+" — "+n+(n===1?" schermo collegato":" schermi collegati")}
 };
-const TV={code:null,ws:null,open:false,n:0,retry:0,retryT:null,sendT:null,last:"",lastAt:0,bn:null,bnT:null,bnSeq:0,ev:null,err:""};
+const TV={showCode:false,choice:null,castName:"",castMode:"",local:false,scanning:false,screens:null,scanAt:0,msg:"",pick:"",code:null,ws:null,open:false,n:0,retry:0,retryT:null,sendT:null,last:"",lastAt:0,bn:null,bnT:null,bnSeq:0,ev:null,err:""};
 const tvT=()=>TV_T[LANG]||TV_T.fr;
 /* Relais local uniquement pour une page servie en http sur la machine de dev
    (l'app iPhone tourne sur capacitor://localhost : elle doit viser la prod). */
@@ -1604,17 +1625,29 @@ function tvText(s,max){
   return t.length>m?t.slice(0,m-1)+"…":t;
 }
 function tvQA(q){if(!q)return ["",""];return Array.isArray(q)?[q[0],q[1]]:[q.x,q.ans]}
+/* Badges des podiums télé : couleur du téléphone (k) + icône et mot court (t), pour qu'on ne les oublie pas. */
 function tvBadges(p){
-  const b=[];
-  if(p.angel>0)b.push("😇 ×"+p.angel);
-  if(p.mudhut>0)b.push("🛖 "+p.mudhut);
-  if(p.hopping>0)b.push("🦵 "+p.hopping);
-  if(p.dbl)b.push("×2");
-  if(p.skip)b.push("🔇");
-  if(p.shield)b.push("🛡");
-  if(p.streak>0)b.push("💥 "+p.streak+"/3");
-  if((p.combo||0)>=2)b.push("🔥 ×"+p.combo);
+  const L=tvT().bd,b=[],add=(k,t)=>b.push({k,t});
+  if(p.angel>0)add("cy","😇 "+L.angel+" ×"+p.angel);
+  if(p.mudhut>0)add("gold","🛖 "+L.hut+" "+p.mudhut);
+  if(p.hopping>0)add("mg","🦵 "+L.hop+" "+p.hopping);
+  if(p.dbl)add("mg","×2 "+L.dbl);
+  if((p.dares||[]).length)add("mg","🎭 "+L.dares+" "+p.dares.length);
+  if(p.skip)add("rd","🔇 "+L.skip);
+  if(p.shield)add("cy","🛡 "+L.shield);
+  if(p.contract!==undefined&&p.contract!==null)add("mg","📜 "+L.contract);
+  if(p.streak>0)add("rd","💥 "+L.streak+" "+p.streak+"/3");
+  if((p.combo||0)>=2)add("fire","🔥 "+L.combo+" ×"+p.combo);
   return b;
+}
+/* Choix de cible proposé sur le téléphone (gage, effet, carte double…) : la télé l'affiche aussi. */
+function tvChoice(prompt,names){
+  TV.choice=names&&names.length?{ph:S&&S.phase,t:tvText(prompt,120),o:names.map(n=>tvText(n,40))}:null;tvSync();
+}
+function tvChoiceView(v){
+  const c=TV.choice;
+  if(!c||!S||c.ph!==S.phase)return;
+  v.optT=c.t;v.opts=c.o;v.optk=c.o.map(()=>"b");
 }
 function tvPlayers(){
   const focus=S.screen==="game"?S.cur:(S.final?S.final.idx:-1);
@@ -1627,6 +1660,10 @@ function tvPlayers(){
   });
 }
 /* La scène : même découpage que render(). Une réponse n'est copiée que si elle est révélée. */
+const TV_BONUS_PTS=50;
+/* Choix classique / rétro / « It's all relative » encore ouvert : la télé ne montre pas la question. */
+function tvChoiceOpen(){return S.phase==="question"&&!S.bonusQ&&!S.retroUsed&&!S.showA}
+function tvKeepQ(){S.retroUsed=true;render()}
 function tvStage(v){
   const t=T();
   if(S.screen==="winner"){
@@ -1644,13 +1681,18 @@ function tvStage(v){
   const p=cp();v.ph=S.phase;
   if(S.phase==="question"){
     const qa=tvQA(S.q);
+    v.bonus=[tvText("🎯 "+t.chipTitle,60),"+"+TV_BONUS_PTS,tvText(S.bonus,240)];
+    if(tvChoiceOpen()){   /* le candidat choisit sans voir la question classique */
+      v.title=tvText(t.qFor+p.name+t.pickT,160);
+      v.opts=[t.classicOpt+" (+"+gainFor(p)+")",t.retroBtn,t.friendsBtn].map(x=>tvText(x,60));v.optk=["v","o","m"];
+      return;
+    }
     v.title=tvText((S.bonusQ?t.bq:"")+(S.isFriends?t.friendsTag:"")+(S.isRetro?t.retroTag:"")+t.qFor+p.name+(p.hopping>0?t.hopF:"")+(p.mudhut>0?t.hutF:""),160);
     v.q=tvText(qa[0]);if(S.showA)v.a=tvText(qa[1],300);
     v.val=["+"+gainFor(p),"−"+lossFor(p)];
-    v.sub=tvText(t.chipTitle,60)+" — "+tvText(S.bonus+t.chipTail,240);
   }else if(S.phase==="action"){
     v.title=tvText(t.actT(p.name),160);
-    v.opts=[t.actWheel,t.actWango,t.actGoogle(S.wangoDouble)].map(x=>tvText(x,60));
+    v.opts=[t.actWheel,t.actWango,t.actGoogle(S.wangoDouble)].map(x=>tvText(x,60));v.optk=["y","b","o"];
   }else if(S.phase==="wango"){
     const W=S.wango,L=D().LV[W.lvl-1];v.lvl=W.lvl;
     if(W.state==="won"){v.title=tvText(t.wgWonT(L.n),160);v.q=tvText(t.wgBank(fmt(W.bank)))}
@@ -1666,10 +1708,15 @@ function tvStage(v){
   }else if(S.phase==="monkeygate"){
     v.title=tvText("🐒 "+t.gateT,160);v.q=tvText(t.gateX(p.name));
   }else if(S.phase==="double"){
-    v.title=tvText(t.dbEye,160);v.q=tvText(S.dbcard.c.t);v.sub=tvText(S.dbcard.c.x,400);
+    const c=S.dbcard.c;v.title=tvText(t.dbEye,160);v.q=tvText(c.t);v.sub=tvText(c.x,400);
+    if(c.k==="mirror"||c.k==="contract"){
+      const ns=S.players.filter((x,i)=>i!==S.cur&&x.mudhut===0).map(x=>tvText(x.name,40));
+      if(ns.length){v.optT=tvText(tvT().who,60);v.opts=ns;v.optk=ns.map(()=>"b")}
+    }else if(c.k==="roulette"){v.opts=[t.dbHeads,t.dbTails].map(x=>tvText(x,60));v.optk=["y","r"]}
   }else if(S.phase==="duel"){
     const d=S.duel;v.title=tvText(t.duelEye,160);
-    if(d.b===null){v.q=tvText(d.a===null?t.duelPick1:t.duelPick2);v.sub=tvText(t.duelRules,400)}
+    if(d.b===null){v.q=tvText(d.a===null?t.duelPick1:t.duelPick2);v.sub=tvText(t.duelRules,400);
+      const ns=S.players.filter((x,i)=>i!==d.a).map(x=>tvText(x.name,40));v.opts=ns;v.optk=ns.map(()=>"b")}
     else{v.vs=[d.a,d.b].map(i=>String(S.players[i].name).slice(0,TV_NAME_MAX));v.q=tvText(d.q[0]);
       if(d.showA)v.a=tvText(d.q[1],300)}
   }else if(S.phase==="wheel"){
@@ -1686,6 +1733,7 @@ function tvStage(v){
     if(S.showA)v.a=tvText(qa[1],300);v.timer=[S.timer,S.timerMax];
   }else if(S.phase==="card"){
     v.title=tvText(S.card.deck,160);v.q=tvText(S.card.c.t);v.sub=tvText(S.card.c.x,400);
+    if(S.card.tgt)v.tgt=tvText(tvT().to(S.card.tgt),80);
   }
 }
 function tvBuildView(){
@@ -1696,7 +1744,7 @@ function tvBuildView(){
   v.goal=GOAL;v.ladder=LADDER;v.players=tvPlayers();
   if(S.log&&S.log.length)v.log=tvText(S.log[0],200);
   /* Un état inattendu ne doit jamais casser le jeu : on envoie au moins les podiums. */
-  try{tvStage(v)}catch(e){console.warn("TV vue",e.message)}
+  try{tvStage(v);tvChoiceView(v)}catch(e){console.warn("TV vue",e.message)}
   return v;
 }
 function tvBytes(s){try{return new TextEncoder().encode(s).length}catch(e){return s.length*3}}
@@ -1712,34 +1760,36 @@ function tvSerialize(){
 }
 /* Demande d'envoi : regroupée (au plus un message toutes les 150 ms), l'état est lu à l'envoi. */
 function tvSync(){
-  if(!TV.open||TV.sendT)return;
+  if(!tvLive()||TV.sendT)return;
   TV.sendT=setTimeout(tvFlush,Math.max(0,TV_THROTTLE_MS-(Date.now()-TV.lastAt)));
 }
 function tvFlush(){
   TV.sendT=null;
-  if(!TV.open||!TV.ws)return;
+  if(!tvLive())return;
   try{
     const s=tvSerialize();
     if(s===TV.last)return;
-    TV.ws.send(s);TV.last=s;TV.lastAt=Date.now();
+    if(TV.open&&TV.ws)TV.ws.send(s);
+    if(TV.local)tvLocalPush(s);
+    TV.last=s;TV.lastAt=Date.now();
   }catch(e){console.warn("TV envoi",e.message)}
 }
 function tvNote(kind,icon,title,sub,ms){
-  if(!TV.code)return;
+  if(!TV.code&&!TV.local)return;
   TV.bn={id:++TV.bnSeq,k:tvText(kind,12),i:tvText(icon,12),t:tvText(title,120),s:tvText(sub,200)};
   clearTimeout(TV.bnT);TV.bnT=setTimeout(()=>{TV.bn=null;tvSync()},(ms||1900)+TV_BANNER_EXTRA_MS);
   tvSync();
 }
 function tvEvent(icon,title,sub){
-  if(!TV.code)return;
+  if(!TV.code&&!TV.local)return;
   TV.ev={i:tvText(icon,16),t:tvText(title,160),s:tvText(sub,300)};tvSync();
 }
 function tvEventEnd(){if(TV.ev){TV.ev=null;tvSync()}}
 function tvBadge(){
   const b=document.getElementById("tvbtn");
   if(b){
-    b.classList.toggle("tv-on",TV.open);b.classList.toggle("tv-wait",!!TV.code&&!TV.open);
-    b.textContent=TV.open?"📺 "+TV.n:(TV.code?"📺 …":"📺 TV");
+    b.classList.toggle("tv-on",tvLive());b.classList.toggle("tv-wait",!!TV.code&&!TV.open&&!TV.local);
+    b.textContent=TV.open?"📺 "+(TV.n+(TV.local?1:0)):(TV.local?"📺 ✓":(TV.code?"📺 …":"📺 TV"));
   }
   if(tvModalUp())tvModal();
 }
@@ -1786,9 +1836,110 @@ function tvDisconnect(){
   if(ws){try{ws.close(1000,"bye")}catch(e){}}
   tvBadge();
 }
+/* =============== ÉCRANS À PROXIMITÉ (app iPhone, plugin natif TvLink) ===============
+   • Écran relié par recopie AirPlay ou HDMI : l'app y affiche tv.html et lui pousse les vues (TV.local).
+   • Télé LG / Samsung / Panasonic du Wi-Fi : on crée une salle sur le relais, la télé ouvre tv.html?code=…
+   • Autres écrans détectés : on garde le code manuel. */
+const TV_PAGE="https://sam1chirat-ship-it.github.io/BAMBOOZLE/tv.html";
+const TV_SCAN_MS=5000,TV_RESCAN_MS=30000;
+const TV_ICON={airplay:"📲",cast:"📡",lg:"📺",samsung:"📺",panasonic:"📺",dlna:"🖼️"};
+/* Navigateur pilotable (animations complètes) ; Panasonic passe d'abord par les images DLNA. */
+const TV_LAUNCHABLE=["lg","samsung"];
+function tvLink(){return (isNativeApp()&&Capacitor.Plugins&&Capacitor.Plugins.TvLink)||null}
+function tvLive(){return TV.open||TV.local}
+function tvLocalPush(s){const L=tvLink();if(L)L.pushView({data:s}).catch(e=>console.warn("TV écran",e.message))}
+function tvLocalState(on){
+  if(TV.local===on)return;
+  TV.local=on;TV.last="";
+  if(on){tvLocalPush('{"type":"host","on":true}');tvSync()}
+  tvBadge();
+}
+function tvLinkInit(){
+  const L=tvLink();if(!L)return;
+  const apply=st=>{TV.castName=String((st&&st.cast)||"");TV.castMode=String((st&&st.castMode)||"");tvLocalState(!!(st&&st.on));tvBadge()};
+  L.addListener("screen",apply);
+  L.screenState().then(apply).catch(e=>console.warn("TV écran",e.message));
+}
+function tvScan(){
+  const L=tvLink();if(!L||TV.scanning)return;
+  TV.scanning=true;TV.msg="";TV.scanAt=Date.now();tvBadge();
+  L.scan({timeoutMs:TV_SCAN_MS})
+    .then(r=>{TV.screens=Array.isArray(r&&r.screens)?r.screens:[]})
+    .catch(e=>{TV.screens=[];TV.msg="scanErr";console.warn("TV recherche",e.message)})
+    .finally(()=>{TV.scanning=false;tvBadge()});
+}
+async function tvRoom(){
+  const r=await fetch(tvRelayURL().replace(/^ws/,"http")+"/room",{method:"POST"});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok||!TV_CODE_RE.test(j.code||""))throw new Error("salle refusée ("+r.status+")");
+  return j.code;
+}
+/* Un écran n'est proposé que si l'app sait vraiment s'y connecter. */
+function tvCanUse(s){
+  if(s.kind==="airplay"||TV_LAUNCHABLE.includes(s.kind))return true;
+  if(s.kind==="cast")return !!s.host;
+  return !!s.dlna;
+}
+/* Meilleure méthode d'abord : navigateur piloté (animations) → images Cast / DLNA → recopie AirPlay. */
+async function tvPick(i){
+  const s=tvUsable()[i];if(!s)return;
+  TV.pick=String(s.name||"");
+  if(s.kind==="airplay"){TV.msg="airplay";tvBadge();return}
+  if(TV_LAUNCHABLE.includes(s.kind)&&await tvLaunchPage(s))return;
+  if(s.kind==="cast"||s.dlna){await tvCastImages(s);return}
+  TV.msg="launchErr";tvBadge();
+}
+function tvUsable(){return (TV.screens||[]).filter(tvCanUse)}
+/* Télé LG / Samsung : son navigateur ouvre tv.html?code=… ; false si elle refuse. */
+async function tvLaunchPage(s){
+  TV.msg="accept";tvBadge();
+  try{
+    const code=await tvRoom();
+    tvConnect(code);
+    await tvLink().launch({kind:s.kind,host:s.host,url:TV_PAGE+"?code="+code});
+    TV.msg="";tvBadge();return true;
+  }catch(e){console.warn("TV lancement",e&&e.message);tvDisconnect();return false}
+}
+/* Lecteur DLNA ou appareil Cast : l'app envoie l'écran de jeu en images (sans navigateur ni Internet). */
+async function tvCastImages(s){
+  TV.msg="casting";tvBadge();
+  const target=s.kind==="cast"?{kind:"cast",host:s.host}:{kind:"dlna",control:s.dlna};
+  try{await tvLink().castStart(Object.assign(target,{name:String(s.name||"")}));TV.msg=""}
+  catch(e){TV.msg="castErr";console.warn("TV images",e&&e.message)}
+  tvBadge();
+}
+function tvCastStop(){const L=tvLink();if(L)L.castStop().catch(e=>console.warn("TV images",e.message))}
+/* Section « écrans à proximité » du panneau télé ; false hors app (le web garde le code seul). */
+function tvNearby(sheet,B,t,say){
+  if(!tvLink())return false;
+  if(TV.castName){
+    sheet.insertBefore(say("tvstat",t.castOn(TV.castName,TV.castMode)),B);
+    const stop=document.createElement("button");stop.className="b-ghost tvscreen";stop.dataset.tv="1";
+    stop.textContent=t.castStop;stop.onclick=tvCastStop;sheet.insertBefore(stop,B);
+  }else if(TV.local)sheet.insertBefore(say("tvstat",t.local),B);
+  const box=document.createElement("div");box.className="tvlist";box.dataset.tv="1";
+  if(TV.scanning)box.appendChild(say("tvstat",t.scanning));
+  else if(TV.screens&&!tvUsable().length&&TV.msg!=="scanErr"&&!TV.local)box.appendChild(say("tvstat",t.none));
+  tvUsable().forEach((s,i)=>{
+    const b=document.createElement("button");
+    b.className="b-ghost tvscreen";
+    b.textContent=(TV_ICON[s.kind]||"🖥️")+" "+String(s.name||"?")+(s.model?" · "+String(s.model):"");
+    b.onclick=()=>tvPick(i);box.appendChild(b);
+  });
+  const other=document.createElement("button");
+  other.className="b-ghost tvscreen";other.textContent=t.other;other.onclick=()=>{TV.showCode=true;TV.msg="";tvModal()};
+  box.appendChild(other);
+  const again=document.createElement("button");
+  again.className="b-ghost b-xs";again.textContent=TV.scanning?"…":t.scan;again.disabled=TV.scanning;again.onclick=tvScan;
+  box.appendChild(again);
+  const m=TV.msg&&t[TV.msg];
+  if(m)box.appendChild(say("tvstat"+(/Err$/.test(TV.msg)?" err":""),typeof m==="function"?m(TV.pick):m));
+  sheet.insertBefore(box,B);
+  return true;
+}
 function tvCleanCode(s){return String(s||"").toUpperCase().replace(/[^ABCDEFGHJKLMNPQRSTUVWXYZ23456789]/g,"").slice(0,4)}
 function tvModalUp(){const m=document.getElementById("modal");return !!(m&&m.classList.contains("show")&&m.querySelector("[data-tv]"))}
-function tvOpen(){tvModal()}
+function tvOpen(){if(tvLink()&&!TV.code&&Date.now()-TV.scanAt>TV_RESCAN_MS)tvScan();tvModal()}
 function tvModal(){
   const t=tvT(),say=(cls,txt)=>{const d=document.createElement("div");d.className=cls;d.dataset.tv="1";d.textContent=txt;return d};
   if(TV.code){
@@ -1803,7 +1954,14 @@ function tvModal(){
     if(!TV_CODE_RE.test(code)){TV.err="bad";tvModal();return}
     tvConnect(code);
   };
-  askModal(t.title,[{l:t.go,c:"b-gold",f:submit},{l:t.cancel,c:"b-ghost",f:()=>{TV.err="";closeModal()}}]);
+  if(tvLink()&&!TV.showCode){   /* app : écrans à proximité seulement */
+    askModal(t.title,[{l:t.close,c:"b-ghost",f:closeModal}]);
+    const B=document.getElementById("mbtns");
+    tvNearby(B.parentNode,B,t,say);
+    return;
+  }
+  const back=tvLink()?[{l:t.back,c:"b-ghost",f:()=>{TV.showCode=false;TV.err="";tvModal()}}]:[];
+  askModal(t.title,[{l:t.go,c:"b-gold",f:submit},...back,{l:t.cancel,c:"b-ghost",f:()=>{TV.err="";TV.showCode=false;closeModal()}}]);
   const B=document.getElementById("mbtns"),sheet=B.parentNode;
   sheet.insertBefore(say("tvstat",t.hint),B);
   const i=document.createElement("input");
@@ -1994,6 +2152,7 @@ function resolveContract(p,reussi){
   else{owner.score+=100;log(T().dbContractLost(owner.name,p.name))}
 }
 function endTurn(){
+  TV.choice=null;   /* un choix de cible non tranché ne doit pas réapparaître au tour suivant */
   if(handleStation())return;   /* une station franchie se joue avant de passer la main */
   const p=cp();
   if(p.mudhut>0){p.mudhut--;if(p.mudhut===0)log(T().hutOut(p.name))}
@@ -2362,12 +2521,14 @@ function chooseGoogleTarget(c,dbl){
   if(others.length===0){log(T().noTgt);endTurn();return}
   if(others.length===1){log(T().gInf(cp().name,c.t,others[0].x.name));renderGoogleButtons(c,dbl,others[0].x);return}
   B.insertAdjacentHTML("beforebegin",'<div class="hint" id="wtgt">'+T().gWho+'</div>');
+  tvChoice(T().gWho,others.map(o=>o.x.name));
   others.forEach(o=>{const b=document.createElement("button");b.className="b-cy";b.textContent=o.x.name;b.onclick=()=>{
-    const e=document.getElementById("wtgt");if(e)e.remove();
+    const e=document.getElementById("wtgt");if(e)e.remove();tvChoice(null);
     log(T().gInf(cp().name,c.t,o.x.name));renderGoogleButtons(c,dbl,o.x)};B.appendChild(b)});
 }
 function renderGoogleButtons(c,dbl,t){
   const B=document.getElementById("cardbtn");B.innerHTML="";
+  if(c.k==="dare"&&S.card){S.card.tgt=t.name;tvSync()}
   const next=()=>{if(dbl){const c2=drawG();S.card={deck:T().g2,c:c2,dblPending:false};render();chooseGoogleTarget(c2,false)}else endTurn()};
   const btn=(l,cl,f)=>{const b=document.createElement("button");b.className=cl;b.textContent=l;b.onclick=f;B.appendChild(b)};
   const p=cp();
@@ -2550,10 +2711,11 @@ function closeModal(){document.getElementById("modal").classList.remove("show")}
 function pickTarget(title,attack,cb){
   const opts=S.players.map((x,i)=>({x,i})).filter(o=>o.i!==S.cur&&(!attack||o.x.mudhut===0));
   if(opts.length===0){log(T().noTgt);endTurn();return}
-  askModal(title,opts.map(o=>({l:o.x.name+" ("+fmt(o.x.score)+" pts)"+(o.x.angel>0?" 😇":""),c:"b-mg",f:()=>{closeModal();cb(o.x)}})));
+  askModal(title,opts.map(o=>({l:o.x.name+" ("+fmt(o.x.score)+" pts)"+(o.x.angel>0?" 😇":""),c:"b-mg",f:()=>{closeModal();tvChoice(null);cb(o.x)}})));
+  tvChoice(title,opts.map(o=>o.x.name));
   const B=document.getElementById("mbtns");
   const c=document.createElement("button");c.className="b-ghost";c.textContent=T().pickCancel;
-  c.onclick=()=>{closeModal();endTurn()};B.appendChild(c);
+  c.onclick=()=>{closeModal();tvChoice(null);endTurn()};B.appendChild(c);
 }
 function podMenu(i){
   const p=S.players[i];
@@ -3353,6 +3515,7 @@ function render(){
       '<div class="btnrow">'+
       (!S.showA?'<button class="b-cy" onclick="S.showA=true;render()">'+T().reveal+'</button>'+
         (p.angel>0?'<button class="b-ghost" onclick="angelSkip()" style="border-color:var(--nblue);color:var(--nblue)">'+T().angSkipBtn+'</button>':'')+
+        (tvLive()&&tvChoiceOpen()?'<button class="b-ghost" onclick="tvKeepQ()" style="border-color:var(--nviolet);color:var(--nviolet)">'+T().keepQ+'</button>':'')+
         (!S.bonusQ&&!S.retroUsed?'<button class="b-ghost" onclick="goRetro()">'+T().retroBtn+'</button>'+
          '<button class="b-ghost" onclick="goFriends()" style="border-color:var(--nmint);color:var(--nmint)">'+T().friendsBtn+'</button>':''):
       '<button class="b-gold" onclick="answer(true,false)">'+T().ok+' +'+g+'</button>'+
@@ -3578,7 +3741,7 @@ seenLoad();
 renderSetup();
 /* Application iPhone : service worker = jeu disponible hors ligne (https ou localhost uniquement) */
 /* App iPhone : écran toujours allumé pendant la soirée (le service worker est inutile, le jeu est embarqué) */
-if(isNativeApp()){const K=Capacitor.Plugins&&Capacitor.Plugins.KeepAwake;if(K)K.keepAwake().catch(e=>console.warn("KeepAwake",e.message))}
+if(isNativeApp()){const K=Capacitor.Plugins&&Capacitor.Plugins.KeepAwake;if(K)K.keepAwake().catch(e=>console.warn("KeepAwake",e.message));tvLinkInit()}
 else if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
   window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(e=>console.warn("SW",e.message))});
 }
