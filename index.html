@@ -1585,7 +1585,7 @@ const TV_T={
       accept:n=>"Ouverture sur « "+n+" »… accepte la demande sur la télé si elle s'affiche.",airplay:n=>"Ouvre le Centre de contrôle → Recopie de l'écran → « "+n+" ». La partie s'affichera toute seule sur la télé.",
       notYet:n=>"« "+n+" » est détectée mais ne se pilote pas encore : ouvre tv.html dans son navigateur et tape le code ci-dessous.",launchErr:"La télé n'a pas pu ouvrir la page : ouvre tv.html dans son navigateur et tape le code.",scanErr:"Recherche impossible : autorise le réseau local dans Réglages → Bamboozled.",
       bd:{angel:"Angel",hut:"Mudhut",hop:"Cloche-pied",dbl:"Double",dares:"Gages",skip:"Passe",shield:"Bouclier",contract:"Contrat",streak:"Série",combo:"En feu"},
-      who:"🎯 À qui ?",to:n=>"🎯 Pour "+n,
+      who:"🎯 À qui ?",bjFelt:"Blackjack +500 · Gagné +300 · Égalité +150 — le Singe tire jusqu'à 17",to:n=>"🎯 Pour "+n,
       title:"📺 Mode télé",hint:"Sur la télé, ouvre la page tv.html du jeu, puis tape ici le code affiché.",go:"Connecter",cancel:"Annuler",close:"Fermer",off:"Déconnecter",
       bad:"Code invalide : 4 caractères, lettres et chiffres.",gone:"Code inconnu ou expiré. Vérifie le code affiché sur la télé.",taken:"Une autre télécommande a pris la main sur ce code.",
       wait:c=>"Code "+c+" — connexion au relais…",on:(c,n)=>"Code "+c+" — "+n+(n>1?" écrans connectés":" écran connecté")},
@@ -1594,7 +1594,7 @@ const TV_T={
       accept:n=>"Opening on “"+n+"”… accept the request on the TV if it appears.",airplay:n=>"Open Control Center → Screen Mirroring → “"+n+"”. The game will show up on the TV by itself.",
       notYet:n=>"“"+n+"” was found but can't be controlled yet: open tv.html in its browser and type the code below.",launchErr:"The TV couldn't open the page: open tv.html in its browser and type the code.",scanErr:"Search unavailable: allow Local Network in Settings → Bamboozled.",
       bd:{angel:"Angel",hut:"Mudhut",hop:"One leg",dbl:"Double",dares:"Dares",skip:"Skip",shield:"Shield",contract:"Contract",streak:"Streak",combo:"On fire"},
-      who:"🎯 Who?",to:n=>"🎯 For "+n,
+      who:"🎯 Who?",bjFelt:"Blackjack +500 · Win +300 · Push +150 — the Monkey draws to 17",to:n=>"🎯 For "+n,
       title:"📺 TV mode",hint:"On the TV, open the game's tv.html page, then type the code it shows here.",go:"Connect",cancel:"Cancel",close:"Close",off:"Disconnect",
       bad:"Invalid code: 4 characters, letters and digits.",gone:"Unknown or expired code. Check the code shown on the TV.",taken:"Another remote took over this code.",
       wait:c=>"Code "+c+" — connecting to the relay…",on:(c,n)=>"Code "+c+" — "+n+(n===1?" screen connected":" screens connected")},
@@ -1603,7 +1603,7 @@ const TV_T={
       accept:n=>"Apertura su «"+n+"»… accetta la richiesta sulla TV se compare.",airplay:n=>"Apri il Centro di Controllo → Duplicazione schermo → «"+n+"». La partita apparirà da sola sulla TV.",
       notYet:n=>"«"+n+"» è stata trovata ma non si può ancora comandare: apri tv.html nel suo browser e scrivi il codice qui sotto.",launchErr:"La TV non è riuscita ad aprire la pagina: apri tv.html nel suo browser e scrivi il codice.",scanErr:"Ricerca impossibile: consenti la Rete locale in Impostazioni → Bamboozled.",
       bd:{angel:"Angel",hut:"Mudhut",hop:"Una gamba",dbl:"Doppio",dares:"Penitenze",skip:"Salta",shield:"Scudo",contract:"Contratto",streak:"Serie",combo:"In fiamme"},
-      who:"🎯 A chi?",to:n=>"🎯 Per "+n,
+      who:"🎯 A chi?",bjFelt:"Blackjack +500 · Vinci +300 · Pari +150 — la Scimmia pesca fino a 17",to:n=>"🎯 Per "+n,
       title:"📺 Modalità TV",hint:"Sulla TV apri la pagina tv.html del gioco, poi scrivi qui il codice mostrato.",go:"Collega",cancel:"Annulla",close:"Chiudi",off:"Scollega",
       bad:"Codice non valido: 4 caratteri, lettere e cifre.",gone:"Codice sconosciuto o scaduto. Controlla il codice sulla TV.",taken:"Un altro telecomando ha preso il controllo di questo codice.",
       wait:c=>"Codice "+c+" — connessione al relay…",on:(c,n)=>"Codice "+c+" — "+n+(n===1?" schermo collegato":" schermi collegati")}
@@ -1699,10 +1699,12 @@ function tvStage(v){
     else{v.title=tvText(t.wgLvl+L.n+"/7 — "+W.q.t,160);v.sub=tvText(t.wgCons+L.c,300);v.q=tvText(W.q.x);
       if(W.showA)v.a=tvText(W.q.ans,300)}
   }else if(S.phase==="ring"){
-    const b=S.bj,hide=b.state==="play";
+    /* Deux mains de cartes néon (couleurs de l'Anneau), comme sur le téléphone. */
+    const b=S.bj,hide=b.state==="play",card=c=>[tvText(c.label,2),/^#[0-9A-F]{6}$/i.test(c.c)?c.c:"#FFF4E0"];
     v.title=tvText("🌈 "+t.bjEye,160);
-    v.q=tvText(p.name+" : "+b.me.map(c=>c.label).join("  ")+"  = "+bjTotal(b.me));
-    v.sub=tvText(t.bjMonkey+" : "+(hide?b.monkey[0].label+"  ?":b.monkey.map(c=>c.label).join("  ")+"  = "+bjTotal(b.monkey)),300);
+    v.bj={f:tvText(tvT().bjFelt,80),ml:tvText("🐒 "+t.bjMonkey,40),m:b.monkey.map(card),pl:tvText(p.name,TV_NAME_MAX),p:b.me.map(card),pt:bjTotal(b.me)};
+    if(hide)v.bj.hide=1;else v.bj.mt=bjTotal(b.monkey);
+    if(b.state==="bust"||b.state==="monkey")v.bj.msg=tvText(b.state==="bust"?t.bjBust:t.bjWait,120);
   }else if(S.phase==="yank"){
     v.title=tvText("🐒 "+t.yankEye,160);v.q=tvText(S.yank.dare);
   }else if(S.phase==="monkeygate"){

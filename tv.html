@@ -6,7 +6,7 @@
 <!-- Le script inline est épinglé par son empreinte : après toute modification du script,
      recalculer l'empreinte (voir ARCHITECTURE.md §12 ; test-tv-mode.mjs la vérifie).
      'unsafe-inline' n'est là que pour les très vieux navigateurs qui ignorent les empreintes. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-D7zHzG2kbDCLgpMZxKUI5Xp/7mz+mDZwJkLsAQZ1lHo=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-2moAyPmTic8Fk0djNpKJj5mV2e4b97vsLHL6+Mr33Tg=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#120821">
@@ -123,6 +123,39 @@
   #cbonus .bt{font-size:3rem;line-height:1.3;color:var(--cream);margin-top:.3rem}
   #cbonus.dim{margin-top:1.6rem;padding:.6rem 2.2rem .8rem;animation:none;box-shadow:none;border-color:rgba(255,213,74,.35);background:rgba(255,213,74,.05)}
   #cbonus.dim .bk{font-size:2rem} #cbonus.dim .bv{font-size:1.9rem} #cbonus.dim .bt{font-size:2.4rem;color:var(--muted)}
+  /* Anneau : table de blackjack (tapis vert, bord bois et liseré or, cartes à jouer, jetons). */
+  body[data-ph="ring"] #card{background:radial-gradient(ellipse 80% 90% at 50% 0%,#23905a 0%,#156b40 45%,#0b4428 100%);
+    border:1.1rem solid #5b3518;border-radius:3rem 3rem 50% 50% / 3rem 3rem 32% 32%;padding:1.8rem 6rem 4.4rem;
+    box-shadow:0 0 0 .3rem var(--nyellow),0 0 3.4rem rgba(255,213,74,.3),inset 0 0 7rem rgba(0,0,0,.55)}
+  body[data-ph="ring"] #ctitle{color:var(--nyellow);text-shadow:0 .2rem .6rem rgba(0,0,0,.6)}
+  #cbj{margin-top:.6rem}
+  #cbj .row{display:flex;align-items:center;justify-content:center}
+  #cbj .row .side,#cbj .row .pad{flex:0 0 38rem}
+  #cbj .side{white-space:nowrap}
+  #cbj .side{display:flex;align-items:center;justify-content:flex-end;font-family:var(--sans);font-size:2.8rem;letter-spacing:.12em;
+    color:#FFF4E0;text-transform:uppercase;text-shadow:0 .2rem .5rem rgba(0,0,0,.6)}
+  #cbj .chip{display:inline-block;width:6.4rem;height:6.4rem;line-height:5.2rem;margin-left:1.8rem;border-radius:50%;
+    border:.6rem dashed rgba(255,255,255,.9);background:#C62F3D;color:#fff;font-size:3rem;letter-spacing:0;text-align:center;
+    box-shadow:0 0 0 .3rem #C62F3D,0 .5rem 1rem rgba(0,0,0,.5)}
+  #cbj .dealer .chip{background:#1d2b5e;box-shadow:0 0 0 .3rem #1d2b5e,0 .5rem 1rem rgba(0,0,0,.5)}
+  #cbj .chip.over{background:#444;box-shadow:0 0 0 .3rem #444,0 .5rem 1rem rgba(0,0,0,.5);color:#ff9aa2}
+  #cbj .bjh{display:flex;justify-content:center;margin:.8rem 3rem;min-width:24rem}
+  #cbj .bjc{position:relative;display:inline-block;width:8rem;height:11.2rem;margin:0 -.6rem;border-radius:1rem;
+    background:linear-gradient(160deg,#fffdf6,#f1e7d2);border:.15rem solid rgba(0,0,0,.25);color:var(--cc,#222);
+    box-shadow:0 .6rem 1.2rem rgba(0,0,0,.45);font-family:var(--sans)}
+  #cbj .bjh .bjc:nth-child(odd){transform:rotate(-3deg)} #cbj .bjh .bjc:nth-child(even){transform:rotate(3deg) translateY(.3rem)}
+  #cbj .bjc .cv{position:absolute;left:0;right:0;top:50%;margin-top:-3.3rem;font-size:6rem;line-height:6.6rem;text-align:center;
+    text-shadow:0 0 1rem var(--cc,transparent)}
+  #cbj .bjc .ci{position:absolute;left:.6rem;top:.4rem;font-size:2.2rem;line-height:1}
+  #cbj .bjc .ci.br{left:auto;top:auto;right:.6rem;bottom:.4rem;transform:rotate(180deg)}
+  #cbj .bjc.back{background:repeating-linear-gradient(45deg,#3b1a6e 0 .9rem,#2a1050 .9rem 1.8rem);border:.4rem solid #f1e7d2}
+  #cbj .bjc.back .cv{font-family:'Monoton',var(--sans);color:var(--nyellow);font-size:5rem;text-shadow:0 0 1rem rgba(255,213,74,.7)}
+  #cbj .felt{margin:.4rem auto;font-family:var(--sans);font-size:2.2rem;letter-spacing:.24em;text-transform:uppercase;
+    color:rgba(255,213,74,.75);border-top:.15rem solid rgba(255,213,74,.45);border-bottom:.15rem solid rgba(255,213,74,.45);
+    padding:.4rem 2.4rem;display:table;font-size:2rem}
+  #cbj .bjmsg{margin-top:1.2rem;font-family:var(--sans);font-size:3rem;letter-spacing:.1em;color:var(--nyellow);
+    text-shadow:0 .2rem .6rem rgba(0,0,0,.7)}
+  body[data-ph="ring"] #csub{color:rgba(255,244,224,.75);font-size:2.3rem;margin-top:1rem}
   #coptl{margin-top:2rem;font-family:var(--sans);font-size:2.8rem;letter-spacing:.12em;color:var(--nyellow)}
   #ctgt{display:table;margin:1.8rem auto 0;padding:.5rem 2.4rem;border-radius:5rem;border:.2rem solid var(--norange);
     font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--norange);text-shadow:0 0 1rem rgba(255,122,61,.6)}
@@ -244,6 +277,7 @@
         <div id="ctimer" hidden><div id="tnum"></div><div id="tbar"><i></i></div></div>
         <div id="cq"></div>
         <div id="ca" hidden><div id="calbl"></div><div id="catxt"></div></div>
+        <div id="cbj" hidden></div>
         <div id="ctgt" hidden></div>
         <div id="coptl" hidden></div>
         <div id="copts" hidden></div>
@@ -751,6 +785,54 @@
     }
     show(node, list.length > 0);
   }
+  /* Blackjack de l'Anneau : main du Singe et main du joueur, cartes [valeur, couleur #RRGGBB]. */
+  var HEX = /^#[0-9A-Fa-f]{6}$/;
+  function bjCardEl(value, color) {
+    var n = el("span", "bjc");
+    if (HEX.test(String(color))) n.style.setProperty("--cc", color);
+    n.appendChild(el("span", "ci", value));
+    n.appendChild(el("span", "cv", value));
+    n.appendChild(el("span", "ci br", value));
+    return n;
+  }
+  function bjHand(cards, hidden) {
+    var h = el("div", "bjh"), list = Array.isArray(cards) ? cards.slice(0, 12) : [];
+    for (var i = 0; i < list.length; i++) {
+      var c = Array.isArray(list[i]) ? list[i] : [];
+      h.appendChild(bjCardEl(str(c[0], 2), c[1]));
+    }
+    if (hidden) { var b = el("span", "bjc back"); b.appendChild(el("span", "cv", "B")); h.appendChild(b); }
+    return h;
+  }
+  function bjSide(cls, label, total) {
+    var side = el("div", "side " + cls, str(label, 40));
+    if (typeof total === "number") side.appendChild(el("span", total > 21 ? "chip over" : "chip", String(total)));
+    return side;
+  }
+  /* Nom + jeton à gauche, cartes au centre, marge vide à droite pour garder les cartes centrées. */
+  function bjRow(side, hand) {
+    var r = el("div", "row");
+    r.appendChild(side); r.appendChild(hand); r.appendChild(el("div", "pad"));
+    return r;
+  }
+  function renderBj(bj) {
+    var box = $("cbj");
+    var ok = !!bj && typeof bj === "object";
+    show(box, ok);
+    if (!ok) { st.bjKey = ""; st.bjCount = 0; clear(box); return; }
+    var key = JSON.stringify([bj.m, bj.p, bj.hide, bj.mt, bj.pt, bj.msg, bj.f]);
+    if (key === st.bjKey) return;
+    var before = st.bjCount || 0;
+    st.bjKey = key;
+    clear(box);
+    box.appendChild(bjRow(bjSide("dealer", bj.ml, bj.mt), bjHand(bj.m, bj.hide === 1)));   /* croupier en haut */
+    if (bj.f) box.appendChild(el("div", "felt", str(bj.f, 100)));
+    box.appendChild(bjRow(bjSide("player", bj.pl, bj.pt), bjHand(bj.p, false)));          /* joueur en bas */
+    if (bj.msg) box.appendChild(el("div", "bjmsg", str(bj.msg, 120)));
+    var cards = box.querySelectorAll(".bjc:not(.back)");
+    for (var i = before; i < cards.length; i++) popIn(cards[i], (i - before) * 120);
+    st.bjCount = cards.length;
+  }
   /* Défi bonus du tour : [libellé, points, consigne] — visible sans voler la vedette à la question. */
   function renderBonus(b, dim) {
     var box = $("cbonus");
@@ -921,6 +1003,7 @@
     $("csub").textContent = sub;
     show($("csub"), !!sub);
     fillSpans($("cvals"), v.val, 10, ["", "mal"]);
+    renderBj(v.bj);
     $("coptl").textContent = str(v.optT, 120);
     show($("coptl"), !!v.optT && Array.isArray(v.opts) && v.opts.length > 0);
     $("ctgt").textContent = str(v.tgt, 80);
