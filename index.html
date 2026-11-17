@@ -347,6 +347,7 @@
   #tvbtn.tv-wait{border-color:var(--nyellow);color:var(--nyellow)}
   #modal .tvstat{font-family:var(--serif);font-size:14px;line-height:1.45;color:var(--cream);margin:0 0 12px}
   #modal .tvstat.err{color:var(--nred);margin-top:10px}
+  #modal .tvurl{font-family:ui-monospace,Menlo,monospace;font-size:15px;color:var(--gold);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:10px 12px;margin:0 0 12px;word-break:break-all;-webkit-user-select:all;user-select:all;text-align:center}
   #modal .tvlist{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
   #modal .tvscreen{width:100%;text-align:left;font-size:15px;padding:12px 14px}
   #modal .tvlist .tvstat{margin:0}
@@ -1581,30 +1582,30 @@ const TV_BACKOFF_MIN_MS=1000,TV_BACKOFF_MAX_MS=15000,TV_BANNER_EXTRA_MS=1500;
 const TV_CLOSE_REPLACED=4001,TV_CLOSE_NO_ROOM=4004;
 const TV_T={
   fr:{casting:n=>"Envoi de l'écran de jeu sur « "+n+" »…",castOn:(n,m)=>"✅ La partie s'affiche sur « "+n+" »"+(m==="images"?" (images, sans animations).":" (vidéo en direct)."),castStop:"⏹ Arrêter la diffusion",castErr:"La télé n'a pas accepté l'image : essaie le câble HDMI ou le code.",
-      scan:"🔍 Chercher les écrans",scanning:"Recherche des écrans du Wi-Fi…",none:"Aucun écran compatible trouvé ici. Pour une télé sans réseau : câble HDMI (adaptateur Lightning).",other:"🌐 Autre écran avec navigateur (code)",back:"← Écrans à proximité",local:"✅ Écran relié : la partie s'y affiche.",or:"…ou avec un code :",
+      scan:"🔍 Chercher les écrans",scanning:"Recherche des écrans du Wi-Fi…",none:"Aucun écran compatible trouvé ici. Pour une télé sans réseau : câble HDMI (adaptateur Lightning).",other:"🌐 Autre écran avec navigateur (code)",mira:"📡 Écran sans fil (Miracast / Smart View)",dongle:"Dongle HDMI",miraHow:"Choisis la télé dans la liste d'Android : la partie s'y affichera toute seule.",back:"← Écrans à proximité",local:"✅ Écran relié : la partie s'y affiche.",or:"…ou avec un code :",
       accept:n=>"Ouverture sur « "+n+" »… accepte la demande sur la télé si elle s'affiche.",airplay:n=>"Ouvre le Centre de contrôle → Recopie de l'écran → « "+n+" ». La partie s'affichera toute seule sur la télé.",
       notYet:n=>"« "+n+" » est détectée mais ne se pilote pas encore : ouvre tv.html dans son navigateur et tape le code ci-dessous.",launchErr:"La télé n'a pas pu ouvrir la page : ouvre tv.html dans son navigateur et tape le code.",scanErr:"Recherche impossible : autorise le réseau local dans Réglages → Bamboozled.",
       bd:{angel:"Angel",hut:"Mudhut",hop:"Cloche-pied",dbl:"Double",dares:"Gages",skip:"Passe",shield:"Bouclier",contract:"Contrat",streak:"Série",combo:"En feu"},
       who:"🎯 À qui ?",bjFelt:"Blackjack +500 · Gagné +300 · Égalité +150 — le Singe tire jusqu'à 17",to:n=>"🎯 Pour "+n,
-      title:"📺 Mode télé",hint:"Sur la télé, ouvre la page tv.html du jeu, puis tape ici le code affiché.",go:"Connecter",cancel:"Annuler",close:"Fermer",off:"Déconnecter",
+      title:"📺 Mode télé",hint:"Sur la télé, ouvre cette adresse dans son navigateur, puis tape ici le code affiché :",go:"Connecter",cancel:"Annuler",close:"Fermer",off:"Déconnecter",
       bad:"Code invalide : 4 caractères, lettres et chiffres.",gone:"Code inconnu ou expiré. Vérifie le code affiché sur la télé.",taken:"Une autre télécommande a pris la main sur ce code.",
       wait:c=>"Code "+c+" — connexion au relais…",on:(c,n)=>"Code "+c+" — "+n+(n>1?" écrans connectés":" écran connecté")},
   en:{casting:n=>"Sending the game screen to “"+n+"”…",castOn:(n,m)=>"✅ The game is showing on “"+n+"”"+(m==="images"?" (still images, no animations).":" (live video)."),castStop:"⏹ Stop casting",castErr:"The TV didn't accept the image: try an HDMI cable or the code.",
-      scan:"🔍 Find screens",scanning:"Looking for screens on the Wi-Fi…",none:"No compatible screen found here. For a TV without network: HDMI cable (Lightning adapter).",other:"🌐 Another screen with a browser (code)",back:"← Nearby screens",local:"✅ Screen connected: the game is showing on it.",or:"…or with a code:",
+      scan:"🔍 Find screens",scanning:"Looking for screens on the Wi-Fi…",none:"No compatible screen found here. For a TV without network: HDMI cable (Lightning adapter).",other:"🌐 Another screen with a browser (code)",mira:"📡 Wireless display (Miracast / Smart View)",dongle:"HDMI dongle",miraHow:"Pick the TV in Android's list: the game will show up on it by itself.",back:"← Nearby screens",local:"✅ Screen connected: the game is showing on it.",or:"…or with a code:",
       accept:n=>"Opening on “"+n+"”… accept the request on the TV if it appears.",airplay:n=>"Open Control Center → Screen Mirroring → “"+n+"”. The game will show up on the TV by itself.",
       notYet:n=>"“"+n+"” was found but can't be controlled yet: open tv.html in its browser and type the code below.",launchErr:"The TV couldn't open the page: open tv.html in its browser and type the code.",scanErr:"Search unavailable: allow Local Network in Settings → Bamboozled.",
       bd:{angel:"Angel",hut:"Mudhut",hop:"One leg",dbl:"Double",dares:"Dares",skip:"Skip",shield:"Shield",contract:"Contract",streak:"Streak",combo:"On fire"},
       who:"🎯 Who?",bjFelt:"Blackjack +500 · Win +300 · Push +150 — the Monkey draws to 17",to:n=>"🎯 For "+n,
-      title:"📺 TV mode",hint:"On the TV, open the game's tv.html page, then type the code it shows here.",go:"Connect",cancel:"Cancel",close:"Close",off:"Disconnect",
+      title:"📺 TV mode",hint:"On the TV, open this address in its browser, then type the code it shows here:",go:"Connect",cancel:"Cancel",close:"Close",off:"Disconnect",
       bad:"Invalid code: 4 characters, letters and digits.",gone:"Unknown or expired code. Check the code shown on the TV.",taken:"Another remote took over this code.",
       wait:c=>"Code "+c+" — connecting to the relay…",on:(c,n)=>"Code "+c+" — "+n+(n===1?" screen connected":" screens connected")},
   it:{casting:n=>"Invio della schermata di gioco a «"+n+"»…",castOn:(n,m)=>"✅ La partita appare su «"+n+"»"+(m==="images"?" (immagini, senza animazioni).":" (video in diretta)."),castStop:"⏹ Interrompi la trasmissione",castErr:"La TV non ha accettato l'immagine: prova il cavo HDMI o il codice.",
-      scan:"🔍 Cerca gli schermi",scanning:"Ricerca degli schermi sul Wi-Fi…",none:"Nessuno schermo compatibile trovato qui. Per una TV senza rete: cavo HDMI (adattatore Lightning).",other:"🌐 Altro schermo con browser (codice)",back:"← Schermi vicini",local:"✅ Schermo collegato: la partita appare lì.",or:"…oppure con un codice:",
+      scan:"🔍 Cerca gli schermi",scanning:"Ricerca degli schermi sul Wi-Fi…",none:"Nessuno schermo compatibile trovato qui. Per una TV senza rete: cavo HDMI (adattatore Lightning).",other:"🌐 Altro schermo con browser (codice)",mira:"📡 Schermo wireless (Miracast / Smart View)",dongle:"Dongle HDMI",miraHow:"Scegli la TV nell'elenco di Android: la partita apparirà da sola.",back:"← Schermi vicini",local:"✅ Schermo collegato: la partita appare lì.",or:"…oppure con un codice:",
       accept:n=>"Apertura su «"+n+"»… accetta la richiesta sulla TV se compare.",airplay:n=>"Apri il Centro di Controllo → Duplicazione schermo → «"+n+"». La partita apparirà da sola sulla TV.",
       notYet:n=>"«"+n+"» è stata trovata ma non si può ancora comandare: apri tv.html nel suo browser e scrivi il codice qui sotto.",launchErr:"La TV non è riuscita ad aprire la pagina: apri tv.html nel suo browser e scrivi il codice.",scanErr:"Ricerca impossibile: consenti la Rete locale in Impostazioni → Bamboozled.",
       bd:{angel:"Angel",hut:"Mudhut",hop:"Una gamba",dbl:"Doppio",dares:"Penitenze",skip:"Salta",shield:"Scudo",contract:"Contratto",streak:"Serie",combo:"In fiamme"},
       who:"🎯 A chi?",bjFelt:"Blackjack +500 · Vinci +300 · Pari +150 — la Scimmia pesca fino a 17",to:n=>"🎯 Per "+n,
-      title:"📺 Modalità TV",hint:"Sulla TV apri la pagina tv.html del gioco, poi scrivi qui il codice mostrato.",go:"Collega",cancel:"Annulla",close:"Chiudi",off:"Scollega",
+      title:"📺 Modalità TV",hint:"Sulla TV apri questo indirizzo nel suo browser, poi scrivi qui il codice mostrato:",go:"Collega",cancel:"Annulla",close:"Chiudi",off:"Scollega",
       bad:"Codice non valido: 4 caratteri, lettere e cifre.",gone:"Codice sconosciuto o scaduto. Controlla il codice sulla TV.",taken:"Un altro telecomando ha preso il controllo di questo codice.",
       wait:c=>"Codice "+c+" — connessione al relay…",on:(c,n)=>"Codice "+c+" — "+n+(n===1?" schermo collegato":" schermi collegati")}
 };
@@ -1876,6 +1877,11 @@ async function tvRoom(){
   if(!r.ok||!TV_CODE_RE.test(j.code||""))throw new Error("salle refusée ("+r.status+")");
   return j.code;
 }
+/* Dongles HDMI sans fil (AnyCast, MiraScreen, EZCast…) : recopie AirPlay sur iPhone, Miracast sur Android,
+   pour garder les animations (leur lecteur DLNA ne donnerait que des images). */
+const TV_DONGLE_RE=/anycast|mirascreen|ezcast|ezmira|wecast|miracast|m2 ?plus|m4 ?plus|m9 ?plus|g2 ?plus|dongle|tv ?stick|screencast|smart ?cast/i;
+function tvIsDongle(s){return TV_DONGLE_RE.test(String(s.name||"")+" "+String(s.model||""))}
+function tvAndroid(){return !!(window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform()==="android")}
 /* Un écran n'est proposé que si l'app sait vraiment s'y connecter. */
 function tvCanUse(s){
   if(s.kind==="airplay"||TV_LAUNCHABLE.includes(s.kind))return true;
@@ -1886,7 +1892,8 @@ function tvCanUse(s){
 async function tvPick(i){
   const s=tvUsable()[i];if(!s)return;
   TV.pick=String(s.name||"");
-  if(s.kind==="airplay"){TV.msg="airplay";tvBadge();return}
+  if(tvIsDongle(s)&&tvAndroid()){TV.msg="miraHow";tvBadge();tvLink().openCastSettings().catch(e=>console.warn("TV Miracast",e.message));return}
+  if(s.kind==="airplay"||(tvIsDongle(s)&&s.airplay)){TV.msg="airplay";tvBadge();return}
   if(TV_LAUNCHABLE.includes(s.kind)&&await tvLaunchPage(s))return;
   if(s.kind==="cast"||s.dlna){await tvCastImages(s);return}
   TV.msg="launchErr";tvBadge();
@@ -1925,9 +1932,15 @@ function tvNearby(sheet,B,t,say){
   tvUsable().forEach((s,i)=>{
     const b=document.createElement("button");
     b.className="b-ghost tvscreen";
-    b.textContent=(TV_ICON[s.kind]||"🖥️")+" "+String(s.name||"?")+(s.model?" · "+String(s.model):"");
+    b.textContent=tvIsDongle(s)?"🔌 "+t.dongle+" · "+String(s.name||"?"):(TV_ICON[s.kind]||"🖥️")+" "+String(s.name||"?")+(s.model?" · "+String(s.model):"");
     b.onclick=()=>tvPick(i);box.appendChild(b);
   });
+  if(tvAndroid()){   /* Miracast : liste système Android */
+    const mira=document.createElement("button");
+    mira.className="b-ghost tvscreen";mira.textContent=t.mira;
+    mira.onclick=()=>{TV.msg="miraHow";tvBadge();tvLink().openCastSettings().catch(e=>console.warn("TV Miracast",e.message))};
+    box.appendChild(mira);
+  }
   const other=document.createElement("button");
   other.className="b-ghost tvscreen";other.textContent=t.other;other.onclick=()=>{TV.showCode=true;TV.msg="";tvModal()};
   box.appendChild(other);
@@ -1966,6 +1979,7 @@ function tvModal(){
   askModal(t.title,[{l:t.go,c:"b-gold",f:submit},...back,{l:t.cancel,c:"b-ghost",f:()=>{TV.err="";TV.showCode=false;closeModal()}}]);
   const B=document.getElementById("mbtns"),sheet=B.parentNode;
   sheet.insertBefore(say("tvstat",t.hint),B);
+  sheet.insertBefore(say("tvurl",TV_PAGE.replace(/^https:\/\//,"")),B);
   const i=document.createElement("input");
   i.type="text";i.id="tvcode";i.maxLength=4;i.placeholder="····";
   i.setAttribute("autocomplete","off");i.setAttribute("autocapitalize","characters");i.setAttribute("autocorrect","off");i.setAttribute("spellcheck","false");
