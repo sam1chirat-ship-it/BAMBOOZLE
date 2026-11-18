@@ -2524,7 +2524,7 @@ function drawCard(p){
 }
 function showCard(p,id){
   const t=ct(),o=document.getElementById("overlay");
-  hideBanner();tvEvent("🃏",cardLabel(id),t.won(p.name));
+  hideBanner();tvEvent("🃏",cardLabel(id),t.won(p.name));if(TV.ev)TV.ev.c=id;   /* la télé retourne la même carte */
   const back=isNativeApp()?'<div class="cback"><img src="cartes/dos.webp" alt="" draggable="false"></div>':'<div class="cback css"></div>';
   o.innerHTML='<div class="dialog-card cardrev"><div class="crtitle">'+cardEsc(t.won(p.name))+'</div>'+
     '<div class="cstage"><div class="cdealw"><div class="cflip">'+back+'<div class="cfront">'+cardFaceHTML(id)+'</div></div></div></div>'+
