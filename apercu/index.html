@@ -797,6 +797,20 @@
     background:repeating-conic-gradient(rgba(255,213,74,.14) 0 6deg,transparent 6deg 18deg)}
   .fxp-rays.dark{background:repeating-conic-gradient(rgba(255,77,90,.14) 0 6deg,transparent 6deg 18deg)}
   #overlay .dialog-card{z-index:1}
+  /* ===== Cartes : l'illustration seule, centrée, à son format d'origine (2026-11-19) ===== */
+  .dialog-card.cardrev{align-items:center}
+  .cflip{width:min(290px,72vw);aspect-ratio:480/364}
+  .cflip>div{border-radius:14px}
+  .cface{height:100%;display:block;background:none;border:0;border-radius:14px;padding:0;overflow:hidden;
+    box-shadow:0 0 0 2px rgba(255,213,74,.85),0 0 42px rgba(255,213,74,.45)}
+  .cface .cart{width:100%;height:100%;object-fit:cover;border-radius:0}
+  .cface .cdraw{height:100%;flex-direction:row;gap:10px;color:#1a1020}
+  .cface.red .cdraw{color:#b0182b}
+  .album{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .album figure{margin:0;display:flex;flex-direction:column;gap:4px;min-width:0}
+  .album .cface{aspect-ratio:480/364;height:auto;border-radius:10px;box-shadow:0 0 0 1px rgba(255,213,74,.55)}
+  .album .cface .cdraw b{font-size:44px}.album .cface .cdraw span{font-size:22px}
+  .album figcaption{font-family:var(--sans);font-size:13px;letter-spacing:.06em;line-height:1.15;color:var(--cream);text-align:center}
   /* ===== Finitions « plateau pro » (audit visuel du 2026-11-18) ===== */
   /* pupitres : colonnes explicites (une rangée jusqu'à 4 joueurs, deux jusqu'à 8) */
   #podiums,#podiums.n5,#podiums.n9{grid-template-columns:repeat(var(--cols,3),minmax(0,1fr))}
@@ -2511,8 +2525,7 @@ function cardFaceHTML(id){
   const red=s==="coeur"||s==="carreau",sym=sau?"★":CARD_SYM[s],corner=sau?"★":(t.short[r]||r);
   const art=isNativeApp()?'<img class="cart" src="cartes/'+id+'.webp" alt="" draggable="false">':
     '<div class="cart cdraw"><span>'+corner+'</span><b>'+sym+'</b></div>';
-  return '<div class="cface'+(red?" red":"")+'"><div class="ctop"><span>'+corner+'</span><span>'+sym+'</span><span>'+corner+'</span></div>'+
-    art+'<div class="cname">'+cardEsc(cardLabel(id))+'</div></div>';
+  return '<div class="cface'+(red?" red":"")+'">'+art+'</div>';   /* l'illustration seule, sans cadre ni symboles */
 }
 function drawCard(p){
   if(!Array.isArray(S.cardDeck))S.cardDeck=shuffle(CARD_IDS.filter(c=>!S.players.some(q=>(q.cards||[]).includes(c))));
@@ -2537,7 +2550,7 @@ function showCard(p,id){
 function openAlbum(i){
   const p=S.players[i],t=ct(),m=document.getElementById("modal"),cards=p.cards||[];
   m.innerHTML='<div class="sheet"><h3>'+cardEsc(t.albumT(p.name,cards.length,CARD_IDS.length))+'</h3>'+
-    '<div class="album">'+cards.map(cardFaceHTML).join("")+'</div><div class="mrow" id="mbtns"></div></div>';
+    '<div class="album">'+cards.map(id=>'<figure>'+cardFaceHTML(id)+'<figcaption>'+cardEsc(cardLabel(id))+'</figcaption></figure>').join("")+'</div><div class="mrow" id="mbtns"></div></div>';
   const b=document.createElement("button");b.className="b-ghost";b.textContent=T().close;b.onclick=()=>podMenu(i);
   document.getElementById("mbtns").appendChild(b);
   m.classList.add("show");
