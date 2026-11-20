@@ -6,7 +6,7 @@
 <!-- Le script inline est épinglé par son empreinte : après toute modification du script,
      recalculer l'empreinte (voir ARCHITECTURE.md §12 ; test-tv-mode.mjs la vérifie).
      'unsafe-inline' n'est là que pour les très vieux navigateurs qui ignorent les empreintes. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-7eZUDRtwP9qDbAb6Kkk1zflPcs+qBLZwepuy21eS47U=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: 'self'; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-FrP2kF5IfDjsHmqXkYPPezt/XaTxCaDqdw5WhWkQzPM=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: 'self'; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#120821">
@@ -280,12 +280,15 @@
   #ecard .flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotateY(180deg)}
   #ecard .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:2rem;overflow:hidden}
   #ecard .back{background:repeating-linear-gradient(45deg,#2a1550 0 1.2rem,var(--ink2) 1.2rem 2.4rem);box-shadow:inset 0 0 0 .5rem var(--nyellow)}
-  #ecard .front{transform:rotateY(180deg);display:flex;flex-direction:column;background:#f6f1e4;color:#1a1020;border:0;
-    box-shadow:0 0 0 .3rem rgba(255,213,74,.85),0 0 5rem rgba(255,213,74,.45)}
-  #ecard .front.red{color:#b0182b}
-  #ecard .ctop{display:flex;justify-content:space-between;padding:.4rem 1rem .8rem;font-family:var(--sans);font-size:3rem;line-height:1}
-  #ecard .art{flex:1;min-height:0;width:100%;object-fit:cover;border-radius:0;display:flex;align-items:center;justify-content:center;
-    background:radial-gradient(circle at 50% 40%,#fffaf0,#efe4cc);font-family:var(--sans);font-size:12rem;line-height:1}
+  #ecard .front{transform:rotateY(180deg);background:#120a24;--tc:var(--nyellow);
+    box-shadow:0 0 0 .3rem var(--tc),0 0 5rem color-mix(in srgb,var(--tc) 45%,transparent)}
+  #ecard .front.rr-norm{--tc:#dfe5ee} #ecard .front.rr-rare{--tc:var(--nblue)} #ecard .front.rr-epi{--tc:var(--nviolet)} #ecard .front.rr-leg{--tc:var(--nyellow)}
+  #ecard .art{width:100%;height:100%;object-fit:cover;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;
+    background:radial-gradient(circle at 50% 40%,#2a1a4a,#120a24);color:var(--tc);font-family:var(--sans);line-height:1}
+  #ecard .art b{font-size:11rem;font-weight:400} #ecard .art span{font-size:4rem;letter-spacing:.08em}
+  #ecard .front.rr-leg::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:45%;pointer-events:none;
+    background:linear-gradient(100deg,transparent,rgba(255,250,220,.55),transparent);animation:rrshine 3.2s ease-in-out 1.6s infinite}
+  @keyframes rrshine{0%{transform:translateX(0) skewX(-18deg)}55%,100%{transform:translateX(420%) skewX(-18deg)}}
   @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
 </style>
 </head>
@@ -368,9 +371,9 @@
   var MAX_PLAYERS = 16, MAX_BADGES = 8, NAME_MAX = 32, SCORE_TWEEN_MS = 700;
   var LANGS = ["fr", "en", "it"];
   var STUDIO = {
-    fr: { app: "APPLAUDISSEMENTS", live: "EN DIRECT", short: { as: "A", valet: "V", dame: "D", roi: "R" } },
-    en: { app: "APPLAUSE", live: "ON AIR", short: { as: "A", valet: "J", dame: "Q", roi: "K" } },
-    it: { app: "APPLAUSI", live: "IN ONDA", short: { as: "A", valet: "F", dame: "D", roi: "R" } }
+    fr: { app: "APPLAUDISSEMENTS", live: "EN DIRECT" },
+    en: { app: "APPLAUSE", live: "ON AIR" },
+    it: { app: "APPLAUSI", live: "IN ONDA" }
   };
 
   var L = {
@@ -1008,19 +1011,20 @@
   function dieVal(x) { var n = parseInt(str(x, 2), 10); return n >= 1 && n <= 6 ? n : 0; }
 
   /* ---------- carte gagnée (It's All Relative) ---------- */
-  var CARD_RE = /^(?:(pique|coeur|carreau|trefle)_(as|[2-9]|10|valet|dame|roi)|soucoupe)$/;
-  var CARD_SYM = { pique: "♠", coeur: "♥", carreau: "♦", trefle: "♣" };
+  var CARD_RE = /^f(?:0\d[1-9]|0[1-9]0|10[0-5])$/;   /* images f001…f105 */
+  var CARD_GLYPH = { norm: "●", rare: "◆", epi: "✦", leg: "★" };
   var CARD_FLIP_MS = 1500;
-  function buildCard(id) {
-    var box = $("ecard"), m = id.match(CARD_RE), sau = id === "soucoupe", s = sau ? "" : m[1], r = sau ? "" : m[2];
-    var short = (STUDIO[st.lang] || STUDIO.fr).short, corner = sau ? "★" : (short[r] || r), sym = sau ? "★" : CARD_SYM[s];
+  function cardTier(x) { var t = str(x, 8); return Object.prototype.hasOwnProperty.call(CARD_GLYPH, t) ? t : "norm"; }
+  function buildCard(id, tier) {
+    var box = $("ecard");
     clear(box);
-    var flip = el("div", "flip"), back = el("div", "face back"), front = el("div", "face front" + (s === "coeur" || s === "carreau" ? " red" : ""));
-    var art = el("div", "art", corner === sym ? sym : corner + " " + sym), img = document.createElement("img");
+    var flip = el("div", "flip"), back = el("div", "face back"), front = el("div", "face front rr-" + tier);
+    var art = el("div", "art"), img = document.createElement("img");
+    art.appendChild(el("b", "", CARD_GLYPH[tier])); art.appendChild(el("span", "", "n°" + parseInt(id.slice(1), 10)));
     img.className = "art"; img.alt = "";
     img.addEventListener("load", function () { if (art.parentNode) art.parentNode.replaceChild(img, art); });
-    img.src = "cartes/" + id + ".webp";   /* présentes seulement dans la télé de l'app (AirPlay/HDMI) ; sinon, carte dessinée */
-    front.appendChild(art);   /* l'illustration seule, sans cadre ni symboles */
+    img.src = "cartes/" + id + ".webp";   /* présentes seulement dans la télé de l'app (AirPlay/HDMI) ; sinon, médaillon dessiné */
+    front.appendChild(art);
     flip.appendChild(back); flip.appendChild(front); box.appendChild(flip);
     anim(flip, [{ transform: "translateY(6rem) scale(.5) rotateY(0deg)", opacity: 0 }, { transform: "translateY(0) scale(1) rotateY(0deg)", opacity: 1, offset: .35 },
                 { transform: "rotateY(0deg)", offset: .5 }, { transform: "rotateY(180deg)" }], { duration: CARD_FLIP_MS, easing: "ease-out" });
@@ -1233,7 +1237,7 @@
       var cid = str(e.c, 20), isCard = CARD_RE.test(cid);
       show($("ecard"), isCard);
       show($("eico"), !isCard && !!e.i);
-      if (isCard) buildCard(cid);
+      if (isCard) buildCard(cid, cardTier(e.r));
       $("esub").textContent = str(e.s, 320);
       show($("event"), true);
       animatedText($("etit"), str(e.t, 180), true, 30, -5, 300);
