@@ -907,6 +907,42 @@
   .cardrev .crtitle{text-wrap:balance}
   .b-xs,.b-sm,.seg button,.cnames button,.topbar button{min-height:44px}
   @media (prefers-reduced-motion: reduce){body #banner .bapp,.wheel3 .wnum.won{animation:none}}
+  /* ===== Fluidité (2026-11-20) : les animations en boucle ne touchent plus qu'à opacity / transform,
+     que le téléphone confie à la puce graphique. Avant, la rampe d'ampoules, les guirlandes, le
+     « souffle » des cartes et le bourdonnement des boutons faisaient repeindre l'écran à chaque image. ===== */
+  button{animation:none}
+  .card,.ctable{animation:none}
+  /* rampe d'ampoules de la carte active : la bande glisse au lieu de repeindre son fond */
+  .card.live::before,.ctable::before{left:-22px;animation:marqueeT 1.1s linear infinite;will-change:transform}
+  @keyframes marqueeT{to{transform:translateX(22px)}}
+  /* guirlandes : deux calques d'ampoules décalés qui s'allument tour à tour */
+  .bulbs{background:none;filter:none;animation:none}
+  .bulbs::before,.bulbs::after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(circle,var(--nyellow) 0 2px,transparent 2.6px) 0 0/16px 8px repeat-x,radial-gradient(circle,var(--nyellow) 0 2px,transparent 2.6px) 0 100%/16px 8px repeat-x,radial-gradient(circle,var(--nyellow) 0 2px,transparent 2.6px) 0 8px/8px 16px repeat-y,radial-gradient(circle,var(--nyellow) 0 2px,transparent 2.6px) 100% 8px/8px 16px repeat-y;
+    filter:drop-shadow(0 0 3px var(--nyellow));animation:bulbA .8s linear infinite}
+  .bulbs::after{background-position:8px 0,8px 100%,0 16px,100% 16px;animation-name:bulbB}
+  @keyframes bulbA{0%,49.9%{opacity:1}50%,100%{opacity:0}}
+  @keyframes bulbB{0%,49.9%{opacity:0}50%,100%{opacity:1}}
+  /* ampoules de la grande roue : même dessin, seule l'opacité clignote */
+  .wheel3 .wbulb{background:var(--nyellow);box-shadow:0 0 8px var(--nyellow);opacity:.22}
+  .wheel3 .wbulb.on{opacity:1}
+  .wheel3.spin .wbulb{animation:wbOnT .22s steps(1) infinite}
+  .wheel3.spin .wbulb.on{animation-name:wbOffT}
+  @keyframes wbOnT{50%{opacity:1}}
+  @keyframes wbOffT{50%{opacity:.22}}
+  /* balayage du projecteur et applaudimètre : transform au lieu de left / height */
+  .card.live::after{left:-45%;animation:sweepT 1.1s ease-out 1 both}
+  @keyframes sweepT{from{transform:translateX(0) rotate(8deg)}to{transform:translateX(378%) rotate(8deg)}}
+  .meter i{height:26px;transform-origin:50% 100%;animation-name:vuT}
+  @keyframes vuT{from{transform:scaleY(.2);opacity:.5}to{transform:scaleY(1);opacity:1}}
+  /* « O » cassé de l'enseigne : il clignote par l'opacité seule */
+  header h1 .flicko,#cups h2 .fu{animation-name:brokenOT}
+  @keyframes brokenOT{0%,8%,12%,58%,64%,100%{opacity:1}9%,11%{opacity:.12}10%{opacity:.5}59%,61%,63%{opacity:.18}60%,62%{opacity:.75}}
+  /* chrono : la barre rétrécit par transform, et le rouge final pulse par l'opacité seule */
+  .timer .timer-bar i{transform-origin:0 50%;transition:transform 1s linear,background-color .3s ease,box-shadow .3s ease}
+  .timer.hot .timer-bar i{animation-name:barPulseT}
+  @keyframes barPulseT{to{opacity:.55}}
+  @media (prefers-reduced-motion: reduce){.bulbs::before,.bulbs::after,.card.live::before,.ctable::before,.wheel3.spin .wbulb,.meter i,.timer.hot .timer-bar i,.timer.final .timer-bar i{animation:none}.bulbs::after{opacity:0}}
 </style>
 </head>
 <body>
@@ -3173,7 +3209,7 @@ function updTimer(){tvSync();const e=document.getElementById("timer");if(!e)retu
     e.innerHTML='<div class="timer-num"></div><div class="timer-bar"><i></i></div>';
   }
   e.querySelector(".timer-num").textContent=S.timer+" s";
-  e.querySelector(".timer-bar > i").style.width=pct+"%";
+  e.querySelector(".timer-bar > i").style.transform="scaleX("+(pct/100).toFixed(4)+")";  /* scaleX : aucune mise en page à chaque image */
   e.classList.toggle("warn",S.timer<=10&&S.timer>5);
   e.classList.toggle("hot",S.timer<=5&&S.timer>0);
   e.classList.toggle("final",S.timer<=2&&S.timer>0);

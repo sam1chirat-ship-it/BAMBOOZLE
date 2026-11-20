@@ -6,7 +6,7 @@
 <!-- Le script inline est épinglé par son empreinte : après toute modification du script,
      recalculer l'empreinte (voir ARCHITECTURE.md §12 ; test-tv-mode.mjs la vérifie).
      'unsafe-inline' n'est là que pour les très vieux navigateurs qui ignorent les empreintes. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-FrP2kF5IfDjsHmqXkYPPezt/XaTxCaDqdw5WhWkQzPM=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: 'self'; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-poy2mkvMmt+QVfeGMNWKj+sYqvhbx8oolAklG6aByFo=' 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: 'self'; connect-src https://bamboozle-tv.sam1chirat.workers.dev wss://bamboozle-tv.sam1chirat.workers.dev http://127.0.0.1:8790 ws://127.0.0.1:8790; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#120821">
@@ -29,14 +29,48 @@
   [hidden]{display:none !important}
   html,body{height:100%;overflow:hidden}
   body{background:#120821;background:var(--ink);
-    background-image:radial-gradient(ellipse 120% 70% at 50% -10%, #2A1550 0%, #120821 60%);
+    background-image:radial-gradient(rgba(178,108,255,.09) .09rem, transparent .12rem),
+                     radial-gradient(ellipse 120% 70% at 50% -10%, #2A1550 0%, #120821 60%),
+                     radial-gradient(ellipse 80% 40% at 50% 115%, rgba(178,108,255,.14) 0%, transparent 60%);
+    background-size:1.2rem 1.2rem,auto,auto;
     color:#FFF4E0;color:var(--cream);font-family:var(--serif);cursor:default}
+  /* scanlines CRT et vignette, comme sur le téléphone (statiques : aucun coût d'animation) */
+  body:before{content:"";position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:35;opacity:.08;
+    background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,.6) 2px,rgba(0,0,0,.6) 3px)}
+  body:after{content:"";position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:34;
+    background:radial-gradient(ellipse 105% 90% at 50% 45%,transparent 55%,rgba(6,2,14,.55) 100%)}
   #frame{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;padding:2.2rem 3.5rem 2rem}
 
   /* ---- barre du haut ---- */
   #top{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;height:6rem}
-  #logo{font-family:'Monoton',var(--sans);font-size:4.4rem;line-height:1;color:var(--nyellow);letter-spacing:.06em;
+  #logo{position:relative;padding:.8rem 2.2rem;border-radius:1.4rem;font-family:'Monoton',var(--sans);font-size:4.4rem;line-height:1;color:var(--nyellow);letter-spacing:.06em;
     text-shadow:0 0 1.2rem rgba(255,213,74,.55),0 0 3.5rem rgba(255,122,61,.35)}
+  #logo .bl{opacity:.75}
+  .bl{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(circle,#FFD54A 0,#FFD54A 0.2rem,transparent 0.26rem) 0 0/1.6rem 0.8rem repeat-x,radial-gradient(circle,#FFD54A 0,#FFD54A 0.2rem,transparent 0.26rem) 0 100%/1.6rem 0.8rem repeat-x,radial-gradient(circle,#FFD54A 0,#FFD54A 0.2rem,transparent 0.26rem) 0 0.8rem/0.8rem 1.6rem repeat-y,radial-gradient(circle,#FFD54A 0,#FFD54A 0.2rem,transparent 0.26rem) 100% 0.8rem/0.8rem 1.6rem repeat-y;
+    -webkit-filter:drop-shadow(0 0 0.32rem #FFD54A);filter:drop-shadow(0 0 0.32rem #FFD54A);animation:blA .8s linear infinite}
+  .bl.b{background-position:0.8rem 0,0.8rem 100%,0 1.6rem,100% 1.6rem;animation-name:blB}
+  #lsign .bl{position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;
+    background:radial-gradient(circle,#FFD54A 0,#FFD54A 0.36rem,transparent 0.42rem) 0 0/3.2rem 1.6rem repeat-x,radial-gradient(circle,#FFD54A 0,#FFD54A 0.36rem,transparent 0.42rem) 0 100%/3.2rem 1.6rem repeat-x,radial-gradient(circle,#FFD54A 0,#FFD54A 0.36rem,transparent 0.42rem) 0 1.6rem/1.6rem 3.2rem repeat-y,radial-gradient(circle,#FFD54A 0,#FFD54A 0.36rem,transparent 0.42rem) 100% 1.6rem/1.6rem 3.2rem repeat-y;
+    -webkit-filter:drop-shadow(0 0 0.58rem #FFD54A);filter:drop-shadow(0 0 0.58rem #FFD54A);animation:blA .8s linear infinite}
+  #lsign .bl.b{background-position:1.6rem 0,1.6rem 100%,0 3.2rem,100% 3.2rem;animation-name:blB}
+  @keyframes blA{0%,49.9%{opacity:1}50%,100%{opacity:0}}
+  @keyframes blB{0%,49.9%{opacity:0}50%,100%{opacity:1}}
+  #lsign{position:relative;display:inline-block;padding:2.6rem 7rem 2.4rem;border-radius:3rem;margin-bottom:3.4rem}
+  #lonair{display:inline-block;padding:.3rem 1.4rem;border-radius:1rem;border:.25rem solid rgba(255,77,90,.35);
+    font-family:var(--sans);font-size:2.4rem;letter-spacing:.16em;color:rgba(255,77,90,.5)}
+  #lonair i{display:inline-block;width:1rem;height:1rem;margin-right:.8rem;border-radius:50%;background:rgba(255,77,90,.4);vertical-align:.15rem}
+  #llogo{font-family:'Monoton',var(--sans);font-size:12rem;line-height:1.05;letter-spacing:.08em;color:var(--nyellow);margin-top:1.2rem;
+    text-shadow:0 0 .8rem rgba(255,213,74,.9),0 0 2.4rem rgba(255,213,74,.6),0 0 5.6rem rgba(255,170,40,.45)}
+  #ldots{margin-top:1.4rem}
+  #ldots i{display:inline-block;width:1.1rem;height:1.1rem;margin:0 .9rem;border-radius:50%;opacity:.3;animation:ldot 2.4s linear infinite}
+  #ldots i:nth-child(1){background:#FF4D5A;box-shadow:0 0 1rem #FF4D5A}
+  #ldots i:nth-child(2){background:#4FC3F7;box-shadow:0 0 1rem #4FC3F7;animation-delay:.4s}
+  #ldots i:nth-child(3){background:#FFD54A;box-shadow:0 0 1rem #FFD54A;animation-delay:.8s}
+  #ldots i:nth-child(4){background:#4DE6A8;box-shadow:0 0 1rem #4DE6A8;animation-delay:1.2s}
+  #ldots i:nth-child(5){background:#FF7A3D;box-shadow:0 0 1rem #FF7A3D;animation-delay:1.6s}
+  #ldots i:nth-child(6){background:#FFF4E0;box-shadow:0 0 1rem #FFF4E0;animation-delay:2s}
+  @keyframes ldot{0%,30%,100%{opacity:.3}10%{opacity:1}}
   #topr{display:flex;align-items:center}
   #topr>*{margin-left:1.4rem}
   .pill{font-family:var(--sans);font-size:2.3rem;letter-spacing:.14em;padding:.5rem 1.5rem;border-radius:5rem;border:.15rem solid var(--line);color:var(--muted);white-space:nowrap}
@@ -51,8 +85,10 @@
   /* ---- accueil : le code en très grand ---- */
   #lobby{align-items:center;justify-content:center;text-align:center}
   #lbl1{font-family:var(--sans);font-size:4.6rem;letter-spacing:.14em;color:var(--cream)}
-  #bigcode{font-family:var(--sans);font-size:30rem;line-height:1;letter-spacing:.16em;margin:1rem 0 1.5rem .16em;color:var(--nyellow);
-    text-shadow:0 0 2.2rem rgba(255,213,74,.6),0 0 7rem rgba(255,122,61,.4);min-height:30rem}
+  #bigcode{display:inline-block;font-family:var(--sans);font-size:20rem;line-height:1;letter-spacing:.16em;margin:1.4rem 0 2rem;padding:1.2rem 3.4rem 1rem 5.6rem;
+    color:var(--nyellow);text-shadow:0 0 2.2rem rgba(255,213,74,.6),0 0 7rem rgba(255,122,61,.4);min-height:22.2rem;min-width:70rem;
+    border-radius:2.4rem;border:.25rem solid rgba(255,213,74,.3);box-shadow:inset 0 0 3rem rgba(0,0,0,.6),0 0 3rem rgba(178,108,255,.25);
+    background:radial-gradient(rgba(255,213,74,.09) .15rem,transparent .2rem) 0 0/.9rem .9rem,#0b0516}
   #lbl2{font-size:3.4rem;color:var(--cream);max-width:120rem}
   #status{font-family:var(--sans);font-size:2.8rem;letter-spacing:.14em;margin-top:2.6rem;color:var(--muted);min-height:3.4rem}
   #status.ok{color:var(--nmint)}
@@ -115,13 +151,16 @@
   #copts .ot{font-family:var(--sans);font-size:3.4rem;letter-spacing:.08em;line-height:1.1;color:var(--oc,var(--cream));text-transform:uppercase}
   #copts .os{margin-top:.8rem;font-size:2.3rem;line-height:1.3;color:var(--muted)}
   #cbonus{display:table;margin:2.2rem auto 0;padding:1rem 2.8rem 1.2rem;max-width:130rem;border-radius:1.8rem;
-    border:.22rem solid rgba(255,213,74,.65);background:rgba(255,213,74,.08);box-shadow:0 0 1.8rem rgba(255,213,74,.2);
-    animation:bonusGlow 2.6s ease-in-out infinite alternate}
+    border:.22rem solid rgba(255,213,74,.65);background:rgba(255,213,74,.08);box-shadow:0 0 1.2rem rgba(255,213,74,.12);position:relative}
+  /* le halo respire par l'opacité d'un calque (le box-shadow animé faisait repeindre la télé en continu) */
+  #cbonus:after{content:"";position:absolute;top:0;left:0;right:0;bottom:0;border-radius:inherit;pointer-events:none;
+    box-shadow:0 0 2.6rem rgba(255,213,74,.38);opacity:.25;animation:bonusGlow 2.6s ease-in-out infinite alternate}
   #cbonus .bk{font-family:var(--sans);font-size:2.5rem;letter-spacing:.16em;color:var(--nyellow)}
   #cbonus .bv{display:inline-block;margin-left:1.4rem;padding:0 1.2rem;border-radius:5rem;border:.15rem solid var(--nmint);
     font-family:var(--sans);font-size:2.3rem;letter-spacing:.08em;color:var(--nmint);vertical-align:.2rem}
   #cbonus .bt{font-size:3rem;line-height:1.3;color:var(--cream);margin-top:.3rem}
-  #cbonus.dim{margin-top:1.6rem;padding:.6rem 2.2rem .8rem;animation:none;box-shadow:none;border-color:rgba(255,213,74,.35);background:rgba(255,213,74,.05)}
+  #cbonus.dim:after{display:none}
+  #cbonus.dim{margin-top:1.6rem;padding:.6rem 2.2rem .8rem;box-shadow:none;border-color:rgba(255,213,74,.35);background:rgba(255,213,74,.05)}
   #cbonus.dim .bk{font-size:2rem} #cbonus.dim .bv{font-size:1.9rem} #cbonus.dim .bt{font-size:2.4rem;color:var(--muted)}
   /* Anneau : table de blackjack (tapis vert, bord bois et liseré or, cartes à jouer, jetons). */
   body[data-ph="ring"] #card{background:radial-gradient(ellipse 80% 90% at 50% 0%,#23905a 0%,#156b40 45%,#0b4428 100%);
@@ -159,14 +198,21 @@
   #coptl{margin-top:2rem;font-family:var(--sans);font-size:2.8rem;letter-spacing:.12em;color:var(--nyellow)}
   #ctgt{display:table;margin:1.8rem auto 0;padding:.5rem 2.4rem;border-radius:5rem;border:.2rem solid var(--norange);
     font-family:var(--sans);font-size:3.2rem;letter-spacing:.1em;color:var(--norange);text-shadow:0 0 1rem rgba(255,122,61,.6)}
-  @keyframes bonusGlow{from{box-shadow:0 0 1.2rem rgba(255,213,74,.12)}to{box-shadow:0 0 2.6rem rgba(255,213,74,.38)}}
+  @keyframes bonusGlow{from{opacity:.25}to{opacity:1}}
   html.still *,html.still *::before,html.still *::after{animation:none!important;transition:none!important}
-  #ctimer{margin:1.6rem auto 0;max-width:90rem}
-  #tnum{font-family:var(--sans);font-size:6rem;line-height:1;color:var(--nyellow)}
-  #tbar{height:1.2rem;border-radius:.6rem;background:rgba(255,255,255,.1);margin-top:.6rem;overflow:hidden}
-  #tbar i{display:block;height:100%;background:var(--nyellow);border-radius:.6rem;transition:width .9s linear}
-  #ctimer.warn #tnum{color:var(--norange)} #ctimer.warn #tbar i{background:var(--norange)}
-  #ctimer.hot #tnum{color:var(--nred)} #ctimer.hot #tbar i{background:var(--nred)}
+  /* chrono en panneau LED, comme sur le téléphone */
+  #ctimer{display:table;margin:1.6rem auto 0;min-width:30rem;padding:1rem 3rem 1.3rem;border-radius:1.8rem;
+    border:.25rem solid rgba(79,195,247,.5);box-shadow:inset 0 0 2.4rem rgba(0,0,0,.6),0 0 2.4rem rgba(79,195,247,.28);
+    background:radial-gradient(rgba(79,195,247,.1) .15rem,transparent .2rem) 0 0/.8rem .8rem,#0b0516}
+  #tnum{font-family:var(--sans);font-size:7rem;line-height:1;letter-spacing:.06em;color:var(--nblue);text-shadow:0 0 1.6rem rgba(79,195,247,.8)}
+  #tbar{height:1rem;border-radius:.5rem;background:rgba(255,255,255,.1);margin-top:.6rem;overflow:hidden}
+  #tbar i{background:var(--nblue) !important;box-shadow:0 0 1rem var(--nblue)}
+  #ctimer.warn{border-color:rgba(255,122,61,.6)} #ctimer.hot{border-color:rgba(255,77,90,.7)}
+  #ctimer.warn #tnum{text-shadow:0 0 1.6rem rgba(255,122,61,.8)} #ctimer.hot #tnum{text-shadow:0 0 1.6rem rgba(255,77,90,.9)}
+  #tbar i{display:block;height:100%;background:var(--nyellow);border-radius:.6rem;
+    -webkit-transform-origin:0 50%;transform-origin:0 50%;-webkit-transition:-webkit-transform .9s linear;transition:transform .9s linear}
+  #ctimer.warn #tnum{color:var(--norange)} #ctimer.warn #tbar i{background:var(--norange) !important;box-shadow:0 0 1rem var(--norange)}
+  #ctimer.hot #tnum{color:var(--nred)} #ctimer.hot #tbar i{background:var(--nred) !important;box-shadow:0 0 1rem var(--nred)}
 
   /* accent de la carte selon la phase */
   body[data-ph="wango"],body[data-ph="card"]{--accent:var(--nblue)}
@@ -226,7 +272,9 @@
     background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent)}
   #cq span,#etit span,#wname span{display:inline-block;white-space:pre}
   #card{transition:border-color .5s,box-shadow .5s}
-  #erays{position:absolute;left:50%;top:50%;width:220rem;height:220rem;margin:-110rem 0 0 -110rem;border-radius:50%;opacity:0;pointer-events:none;
+  /* rayons : juste la diagonale de l'écran (190rem au lieu de 220rem). Ils tournent pendant l'entrée puis
+     s'immobilisent : tourner en continu un calque géant faisait tomber la télé à ~20 images/s. */
+  #erays{position:absolute;left:50%;top:50%;width:190rem;height:190rem;margin:-95rem 0 0 -95rem;border-radius:50%;opacity:0;pointer-events:none;
     background:repeating-conic-gradient(rgba(255,213,74,.16) 0 6deg,transparent 6deg 18deg)}
   #event>*:not(#erays){position:relative}
   /* ---- 3D : rien de visible au repos (perspective sans rotation = rendu identique) ---- */
@@ -252,15 +300,18 @@
   #onair[hidden]{display:none}
   #onair i{width:1rem;height:1rem;border-radius:50%;background:var(--nred);box-shadow:0 0 1rem var(--nred);animation:onblink 1.2s steps(1) infinite}
   @keyframes onblink{50%{opacity:.2}}
-  #cwheel{position:relative;width:min(32rem,38vh);aspect-ratio:1;margin:1rem auto 0}
+  #cbody{display:flex;align-items:center;justify-content:center}
+  #cmain{flex:1 1 auto;min-width:0}
+  #cwheel{position:relative;flex:0 0 auto;width:min(40rem,46vh);height:min(40rem,46vh);margin:1.4rem 4.5rem 0 1rem}
   #cwheel[hidden]{display:none}
   #cwheel .rim{position:absolute;inset:0;border-radius:50%;background:var(--ink2);border:.25rem solid rgba(255,213,74,.5);box-shadow:0 0 3rem rgba(178,108,255,.4)}
-  #cwheel .bulb{position:absolute;left:50%;top:50%;width:1rem;height:1rem;margin:-.5rem 0 0 -.5rem;border-radius:50%;background:rgba(255,213,74,.22)}
-  #cwheel .bulb.on{background:var(--nyellow);box-shadow:0 0 1rem var(--nyellow)}
+  #cwheel .bulb{position:absolute;left:50%;top:50%;width:1.1rem;height:1.1rem;margin:-.55rem 0 0 -.55rem;border-radius:50%;
+    background:var(--nyellow);box-shadow:0 0 1rem var(--nyellow);opacity:.22}
+  #cwheel .bulb.on{opacity:1}
   #cwheel.spin .bulb{animation:wbOn .22s steps(1) infinite}
   #cwheel.spin .bulb.on{animation-name:wbOff}
-  @keyframes wbOn{50%{background:var(--nyellow);box-shadow:0 0 1rem var(--nyellow)}}
-  @keyframes wbOff{50%{background:rgba(255,213,74,.22);box-shadow:none}}
+  @keyframes wbOn{50%{opacity:1}}
+  @keyframes wbOff{50%{opacity:.22}}
   #cwheel .disc{position:absolute;inset:7%;border-radius:50%;box-shadow:inset 0 0 0 .25rem rgba(178,108,255,.6),inset 0 0 4rem rgba(0,0,0,.5)}
   #cwheel.spin .disc{animation:wspin .5s linear infinite}
   @keyframes wspin{to{transform:rotate(360deg)}}
@@ -271,7 +322,6 @@
     border-top:3.2rem solid var(--nyellow);filter:drop-shadow(0 0 1rem var(--nyellow));z-index:2}
   #cwheel .hub{position:absolute;left:50%;top:50%;width:9rem;height:9rem;margin:-4.5rem 0 0 -4.5rem;border-radius:50%;z-index:2;display:flex;align-items:center;justify-content:center;
     background:var(--ink);border:.25rem solid var(--nyellow);box-shadow:0 0 2rem rgba(255,213,74,.5);font-family:'Monoton',var(--sans);font-size:3.4rem;color:var(--nyellow)}
-  #cwheel:not([hidden])+#cdice{transform:scale(.5);margin:-1.6rem 0 -2rem}
   #bapp{font-family:var(--sans);font-size:3.4rem;line-height:1;letter-spacing:.14em;color:var(--nmint);text-shadow:0 0 1.6rem var(--nmint);margin-bottom:.3rem;animation:apb .35s steps(1) 4}
   #bapp[hidden]{display:none}
   @keyframes apb{50%{opacity:.25}}
@@ -295,7 +345,7 @@
 <body>
 <div id="frame">
   <div id="top">
-    <div id="logo">BAMBOOZLED</div>
+    <div id="logo"><i class="bl"></i><i class="bl b"></i>BAMBOOZLED</div>
     <div id="topr">
       <span id="onair" hidden><i></i><span id="onairt">EN DIRECT</span></span>
       <span class="pill" id="hostpill" hidden></span>
@@ -306,6 +356,11 @@
   </div>
 
   <div class="scr" id="lobby">
+    <div id="lsign"><i class="bl"></i><i class="bl b"></i>
+      <div id="lonair"><i></i><span id="lonairt">EN DIRECT</span></div>
+      <div id="llogo">BAMBOOZLED</div>
+      <div id="ldots"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
     <div id="lbl1"></div>
     <div id="bigcode"></div>
     <div id="lbl2"></div>
@@ -318,9 +373,11 @@
       <div id="banner" hidden><div id="bico"></div><div><div id="bapp" hidden></div><div id="btit"></div><div id="bsub"></div></div></div>
       <div id="card">
         <div id="ctitle"></div>
+        <div id="cbody">
+        <div id="cwheel" hidden></div>
+        <div id="cmain">
         <div id="cvals" hidden></div>
         <div id="cvs" hidden></div>
-        <div id="cwheel" hidden></div>
         <div id="cdice" hidden></div>
         <div id="ctimer" hidden><div id="tnum"></div><div id="tbar"><i></i></div></div>
         <div id="cq"></div>
@@ -331,6 +388,8 @@
         <div id="copts" hidden></div>
         <div id="cbonus" hidden><span class="bk"></span><span class="bv"></span><div class="bt"></div></div>
         <div id="csub" hidden></div>
+        </div>
+        </div>
       </div>
     </div>
     <div id="ticker"></div>
@@ -958,6 +1017,7 @@
   }
   function uncube(die, text) { die.textContent = text; die.removeAttribute("style"); }
   /* ---------- grande roue : la Roue reste deux dés, la roue s'arrête sur leur total ---------- */
+  var RAYS_INTRO_MS = 700;   /* entrée des rayons (éclosion + quart de tour), puis ils restent fixes */
   var WHEEL_SUMS = 11, WHEEL_SEG = 360 / WHEEL_SUMS, WHEEL_BULBS = 24, WHEEL_LAND_MS = 1500;
   var WHEEL_COLORS = ["#3b1f6b", "#5a2a24", "#163a52", "#4a3a12"], WHEEL_INK = ["#B26CFF", "#FF7A3D", "#4FC3F7", "#FFD54A"];
   var wheel = { built: false, disc: null, nums: [], rot: 0, sum: 0 };
@@ -966,7 +1026,7 @@
     box.appendChild(el("div", "rim"));
     for (i = 0; i < WHEEL_BULBS; i++) {
       b = el("i", "bulb" + (i % 2 ? "" : " on"));
-      b.style.transform = "rotate(" + (i * 360 / WHEEL_BULBS) + "deg) translateY(calc(-.465 * min(32rem, 38vh)))";
+      b.style.transform = "rotate(" + (i * 360 / WHEEL_BULBS) + "deg) translateY(calc(-.465 * min(40rem, 46vh)))";
       box.appendChild(b);
     }
     wheel.disc = el("div", "disc");
@@ -974,7 +1034,7 @@
       stops.push(WHEEL_COLORS[i % 4] + " " + (i * WHEEL_SEG).toFixed(3) + "deg " + ((i + 1) * WHEEL_SEG).toFixed(3) + "deg");
       n = el("span", "num", String(i + 2));
       n.style.color = WHEEL_INK[i % 4];
-      n.style.transform = "rotate(" + ((i + .5) * WHEEL_SEG).toFixed(2) + "deg) translateY(calc(-.34 * min(32rem, 38vh)))";
+      n.style.transform = "rotate(" + ((i + .5) * WHEEL_SEG).toFixed(2) + "deg) translateY(calc(-.34 * min(40rem, 46vh)))";
       wheel.disc.appendChild(n); wheel.nums.push(n);
     }
     wheel.disc.style.background = "conic-gradient(" + stops.join(",") + ")";
@@ -1166,7 +1226,9 @@
     if (tm) {
       var left = Math.max(0, num(tm[0])), max = Math.max(1, num(tm[1]));
       $("tnum").textContent = left + " s";
-      $("tbar").firstChild.style.width = Math.max(0, Math.min(100, left / max * 100)) + "%";
+      /* scaleX plutôt que width : la barre glisse sans recalculer la mise en page à chaque image */
+      var tf = "scaleX(" + Math.max(0, Math.min(1, left / max)).toFixed(4) + ")";
+      $("tbar").firstChild.style.webkitTransform = tf; $("tbar").firstChild.style.transform = tf;
       box.className = left <= 5 ? "hot" : (left <= 10 ? "warn" : "");
       if (left !== st.tleft && typeof st.tleft === "number" && left < st.tleft) timerFx(left);
       st.tleft = left;
@@ -1222,8 +1284,15 @@
     var pe = "perspective(70rem) ";   /* l'icône tourne sur elle-même avant de se poser */
     anim($("eico"), [{ transform: pe + "scale(0) rotateY(-540deg)" }, { transform: pe + "scale(1.3) rotateY(-35deg)", offset: .62 },
                      { transform: pe + "scale(.94) rotateY(12deg)", offset: .84 }, { transform: pe + "scale(1) rotateY(0deg)" }], { duration: 950, easing: "ease-out" });
-    anim($("erays"), [{ opacity: 0, transform: "scale(.4) rotate(0deg)" }, { opacity: 1, transform: "scale(1) rotate(50deg)", offset: .1 },
-                      { opacity: 1, transform: "scale(1) rotate(360deg)" }], { duration: 12000, easing: "linear", fill: "forwards" });
+    /* une fois posés, les rayons deviennent un simple style : l'animation terminée est annulée pour que
+       le navigateur les peigne une fois dans le fond au lieu de garder un calque géant à recomposer */
+    var rays = $("erays"), raysAnim = null;
+    rays.style.opacity = ""; rays.style.transform = "";
+    raysAnim = anim(rays, [{ opacity: 0, transform: "scale(.6) rotate(0deg)" }, { opacity: 1, transform: "rotate(25deg)" }],
+      { duration: RAYS_INTRO_MS, easing: "cubic-bezier(.16,1,.3,1)", fill: "forwards" }, function () {
+        rays.style.opacity = "1"; rays.style.transform = "rotate(25deg)";
+        if (raysAnim) raysAnim.cancel();
+      });
     anim($("esub"), [{ opacity: 0, transform: "translateY(2rem)" }, { opacity: 1, transform: "none" }], { duration: 600, delay: 700, fill: "backwards" });
     edgeFlash("rgba(255,213,74,.45)");
     sfx("event");
@@ -1302,7 +1371,8 @@
     show($("lobby"), !playing);
     show($("board"), playing && !won);
     show($("onair"), playing);
-    $("onairt").textContent = (STUDIO[st.lang] || STUDIO.fr).live;
+    $("onairt").textContent = $("lonairt").textContent = (STUDIO[st.lang] || STUDIO.fr).live;
+    $("logo").style.visibility = playing ? "" : "hidden";   /* à l'accueil, la grande enseigne le remplace */
     show($("winner"), won);
     if (playing) {
       if (won) renderWinner(v); else { renderPods(v); renderCard(v); renderBanner(v); renderTicker(str(v.log, 220)); }
